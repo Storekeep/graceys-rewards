@@ -231,6 +231,8 @@
     }
 
     function awardPoints(amount) {
+      const wasBelowGoal = totalPoints < pointGoal;
+
       const reason = document.getElementById("reasonInput").value || "No reason";
       totalPoints += amount;
       log.push({ amount, reason });
@@ -240,27 +242,38 @@
       clapSound.currentTime = 0;
       clapSound.play().catch(() => {});
 
-      if (totalPoints >= pointGoal && !rewards.includes("Dexter Action-Figure Set")) {
-        rewards.push("Dexter Action-Figure Set");
-        celebration.style.display = "block";
-        goalSound.currentTime = 0;
-        goalSound.play().catch(() => {});
-        redFlash.style.display = "block";
-        redFlash.style.animation = "flash 1s ease-out";
-        setTimeout(() => {
-          redFlash.style.display = "none";
-          celebration.style.display = "none";
-        }, 2500);
+      if (totalPoints >= pointGoal && wasBelowGoal) {
+        showGoalEffects();
+      } else if (totalPoints >= pointGoal && !wasBelowGoal) {
+        // re-hit the goal again
+        showGoalEffects();
       }
 
       updateRewards();
     }
 
+    function showGoalEffects() {
+      celebration.style.display = "block";
+      goalSound.currentTime = 0;
+      goalSound.play().catch(() => {});
+      redFlash.style.display = "block";
+      redFlash.style.animation = "flash 1s ease-out";
+      setTimeout(() => {
+        redFlash.style.display = "none";
+        celebration.style.display = "none";
+      }, 2500);
+    }
+
     function deleteEntry(index) {
+      const wasAboveGoal = totalPoints >= pointGoal;
       totalPoints -= log[index].amount;
       log.splice(index, 1);
       updateDisplay();
       saveData();
+
+      if (wasAboveGoal && totalPoints < pointGoal) {
+        updateRewards(); // force removal
+      }
     }
 
     function updateDisplay() {
