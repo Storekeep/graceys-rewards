@@ -10,7 +10,7 @@
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(to bottom right, #1a1a1a, #3a3a3a);
       color: #fff;
-      padding-top: 200px;
+      padding-top: 20px;
     }
 
     h1 {
@@ -18,15 +18,42 @@
       text-shadow: 0 0 20px #ff6, 0 0 10px #f90;
       color: #fff1a8;
       text-align: center;
+      margin-bottom: 10px;
+    }
+
+    #editControls {
+      display: none;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    #editControls input,
+    #editControls button {
+      font-size: 1em;
+      margin: 5px;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+    }
+
+    #reasonInput {
+      width: 240px;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
     }
 
     #totalPoints {
       font-size: 2.5em;
       font-weight: bold;
-      margin: 10px auto 10px;
       color: #ffda75;
       text-align: center;
       display: block;
+      margin-bottom: 10px;
     }
 
     #earnedRewards {
@@ -65,41 +92,6 @@
       color: white;
       border: none;
       border-radius: 4px;
-      cursor: pointer;
-    }
-
-    #editControls {
-      position: fixed;
-      top: 80px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.8);
-      padding: 10px 20px;
-      border-radius: 10px;
-      z-index: 100;
-    }
-
-    #editControls input,
-    #editControls button {
-      font-size: 1em;
-      margin: 5px;
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-    }
-
-    #reasonInput {
-      width: 240px;
-    }
-
-    .buttons {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    button {
       cursor: pointer;
     }
 
@@ -184,6 +176,17 @@
 <body>
 
   <h1>Gracey's Rewards</h1>
+
+  <div id="editControls">
+    <input type="text" id="reasonInput" placeholder="Reason..." />
+    <div class="buttons">
+      <button onclick="awardPoints(1)">+1</button>
+      <button onclick="awardPoints(5)">+5</button>
+      <button onclick="awardPoints(10)">+10</button>
+      <button onclick="awardPoints(20)">+20</button>
+    </div>
+  </div>
+
   <span id="totalPoints">0</span>
   <div id="earnedRewards">Rewards you've earned:</div>
   <div id="logList"></div>
@@ -194,16 +197,6 @@
   <div id="passwordPrompt">
     <input type="password" id="passwordInput" placeholder="Password">
     <button onclick="checkPassword()">Unlock</button>
-  </div>
-
-  <div id="editControls" style="display:none;">
-    <input type="text" id="reasonInput" placeholder="Reason..." />
-    <div class="buttons">
-      <button onclick="awardPoints(1)">+1</button>
-      <button onclick="awardPoints(5)">+5</button>
-      <button onclick="awardPoints(10)">+10</button>
-      <button onclick="awardPoints(20)">+20</button>
-    </div>
   </div>
 
   <audio id="clapSound" src="sounds/clap.mp3" preload="auto"></audio>
@@ -289,7 +282,6 @@
     }
 
     function updateRewards() {
-      // Add or remove reward based on points
       const rewardName = "Dexter Action-Figure Set";
       const index = rewards.indexOf(rewardName);
 
@@ -299,7 +291,6 @@
         if (index !== -1) rewards.splice(index, 1);
       }
 
-      // Display rewards
       rewardsDisplay.innerHTML = "Rewards you've earned:<br>" +
         (rewards.length > 0
           ? rewards.map(r => `<span class="reward-name">${r}</span>`).join("<br>")
@@ -322,5 +313,4 @@
     loadData();
   </script>
 </body>
-</html>
 </html>
