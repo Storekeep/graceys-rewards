@@ -26,6 +26,7 @@
       padding: 0.8em;
       border-radius: 8px;
       margin-bottom: 0.5em;
+      position: relative;
     }
     input, button {
       padding: 0.6em;
@@ -162,6 +163,7 @@
     let totalPoints = 0;
     let rewards = [];
     let lastCelebrationPoints = 0;
+    let editUnlocked = false;
 
     const refPoints = db.ref("points");
     const refLog = db.ref("log");
@@ -179,8 +181,10 @@
     function checkPassword() {
       const pass = document.getElementById("passwordInput").value;
       if (pass === "ILoveGracey") {
+        editUnlocked = true;
         document.getElementById("passwordPrompt").style.display = "none";
         document.getElementById("editControls").style.display = "block";
+        updateDisplay();
       } else {
         alert("Incorrect password.");
       }
@@ -199,6 +203,13 @@
         const div = document.createElement("div");
         div.className = "log-entry";
         div.textContent = `+${entry.amount} - ${entry.reason}`;
+        if (editUnlocked) {
+          const btn = document.createElement("button");
+          btn.textContent = "✕";
+          btn.style.cssText = "position:absolute;right:10px;top:6px;background:crimson;color:white;border:none;border-radius:4px;cursor:pointer;";
+          btn.onclick = () => deleteEntry(i);
+          div.appendChild(btn);
+        }
         logList.appendChild(div);
       });
     });
@@ -212,6 +223,7 @@
     });
 
     function awardPoints(amount) {
+      if (!reasonInput) return;
       const wasBelowGoal = totalPoints < pointGoal;
       const reason = reasonInput.value || "No reason";
       const newTotal = totalPoints + amount;
@@ -223,18 +235,24 @@
       });
       clapSound.currentTime = 0;
       clapSound.play();
+      if (newTotal >= pointGoal && wasBelowGoal) showGoalEffects();
+      else if (newTotal >= pointGoal) showGoalEffects();
+    }
 
-      if (newTotal >= pointGoal && wasBelowGoal) {
-        showGoalEffects();
-      } else if (newTotal >= pointGoal) {
-        showGoalEffects();
-      }
+    function deleteEntry(index) {
+      refLog.once("value").then(snap => {
+        const logs = snap.val() || [];
+        const entry = logs[index];
+        if (!entry) return;
+        logs.splice(index, 1);
+        db.ref("log").set(logs);
+        db.ref("points").set(totalPoints - entry.amount);
+      });
     }
 
     function checkRewardStatus() {
       const rewardName = "Dexter Action-Figure Set";
       const index = rewards.indexOf(rewardName);
-
       if (totalPoints >= pointGoal) {
         if (index === -1) rewards.push(rewardName);
         refRewards.set(rewards);
@@ -256,6 +274,26 @@
         redFlash.style.display = "none";
         celebration.style.display = "none";
       }, 2500);
+    }
+
+    function updateDisplay() {
+      refLog.once("value").then(snap => {
+        const logs = snap.val() || [];
+        logList.innerHTML = "";
+        logs.forEach((entry, i) => {
+          const div = document.createElement("div");
+          div.className = "log-entry";
+          div.textContent = `+${entry.amount} - ${entry.reason}`;
+          if (editUnlocked) {
+            const btn = document.createElement("button");
+            btn.textContent = "✕";
+            btn.style.cssText = "position:absolute;right:10px;top:6px;background:crimson;color:white;border:none;border-radius:4px;cursor:pointer;";
+            btn.onclick = () => deleteEntry(i);
+            div.appendChild(btn);
+          }
+          logList.appendChild(div);
+        });
+      });
     }
   </script>
 </body>
