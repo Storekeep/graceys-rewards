@@ -10,12 +10,11 @@
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(to bottom right, #1a1a1a, #3a3a3a);
       color: #fff;
-      overflow-x: hidden;
+      padding-top: 200px;
     }
 
     h1 {
       font-size: 3em;
-      margin: 20px 0 10px;
       text-shadow: 0 0 20px #ff6, 0 0 10px #f90;
       color: #fff1a8;
       text-align: center;
@@ -24,16 +23,22 @@
     #totalPoints {
       font-size: 2.5em;
       font-weight: bold;
-      margin: 10px auto 20px;
+      margin: 10px auto 10px;
       color: #ffda75;
       text-align: center;
       display: block;
     }
 
-    #logList {
-      margin-top: 300px;
-      padding-bottom: 100px;
+    #earnedRewards {
+      font-size: 1.3em;
       text-align: center;
+      margin-bottom: 20px;
+      color: #7cfaff;
+    }
+
+    #logList {
+      text-align: center;
+      margin-bottom: 100px;
     }
 
     .log-entry {
@@ -59,10 +64,10 @@
 
     #editControls {
       position: fixed;
-      top: 100px;
+      top: 80px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.8);
       padding: 10px 20px;
       border-radius: 10px;
       z-index: 100;
@@ -174,20 +179,17 @@
 
   <h1>Gracey's Rewards</h1>
   <span id="totalPoints">0</span>
-
+  <div id="earnedRewards">Rewards you've earned:</div>
   <div id="logList"></div>
 
-  <!-- Celebration UI -->
   <div id="celebration">You've earned: Dexter Action-Figure Set!</div>
   <div id="redFlash"></div>
 
-  <!-- Password -->
   <div id="passwordPrompt">
     <input type="password" id="passwordInput" placeholder="Password">
     <button onclick="checkPassword()">Unlock</button>
   </div>
 
-  <!-- Fixed Edit Controls -->
   <div id="editControls" style="display:none;">
     <input type="text" id="reasonInput" placeholder="Reason..." />
     <div class="buttons">
@@ -198,7 +200,6 @@
     </div>
   </div>
 
-  <!-- Sounds -->
   <audio id="clapSound" src="sounds/clap.mp3" preload="auto"></audio>
   <audio id="goalSound" src="sounds/slash.mp3" preload="auto"></audio>
 
@@ -206,6 +207,7 @@
     let totalPoints = 0;
     const pointGoal = 350;
     let log = [];
+    let rewards = [];
 
     const totalDisplay = document.getElementById("totalPoints");
     const logList = document.getElementById("logList");
@@ -215,6 +217,7 @@
     const redFlash = document.getElementById("redFlash");
     const clapSound = document.getElementById("clapSound");
     const goalSound = document.getElementById("goalSound");
+    const rewardsDisplay = document.getElementById("earnedRewards");
 
     function checkPassword() {
       const pass = document.getElementById("passwordInput").value;
@@ -238,7 +241,8 @@
       clapSound.currentTime = 0;
       clapSound.play().catch(() => {});
 
-      if (totalPoints >= pointGoal) {
+      if (totalPoints >= pointGoal && !rewards.includes("Dexter Action-Figure Set")) {
+        rewards.push("Dexter Action-Figure Set");
         celebration.style.display = "block";
         goalSound.currentTime = 0;
         goalSound.play().catch(() => {});
@@ -249,6 +253,7 @@
           celebration.style.display = "none";
         }, 2500);
       }
+      updateRewards();
     }
 
     function deleteEntry(index) {
@@ -273,16 +278,23 @@
         }
         logList.appendChild(div);
       });
+      updateRewards();
+    }
+
+    function updateRewards() {
+      rewardsDisplay.innerHTML = "Rewards you've earned:<br>" + (rewards.length > 0 ? rewards.join("<br>") : "(None yet)");
     }
 
     function saveData() {
       localStorage.setItem("gr_points", totalPoints);
       localStorage.setItem("gr_log", JSON.stringify(log));
+      localStorage.setItem("gr_rewards", JSON.stringify(rewards));
     }
 
     function loadData() {
       totalPoints = parseInt(localStorage.getItem("gr_points")) || 0;
       log = JSON.parse(localStorage.getItem("gr_log")) || [];
+      rewards = JSON.parse(localStorage.getItem("gr_rewards")) || [];
       updateDisplay();
     }
 
