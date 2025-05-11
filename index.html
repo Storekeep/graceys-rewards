@@ -1,250 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gracey's Rewards</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #a1c4fd, #c2e9fb);
-      padding: 2rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-    }
-    .container {
-      background: white;
-      padding: 2rem;
-      border-radius: 15px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      font-family: Arial, sans-serif;
       text-align: center;
-      width: 100%;
-      max-width: 500px;
-      animation: fadeIn 1s ease-in-out;
-      position: relative;
-      z-index: 1;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    .button-group button {
-      margin: 0.3rem;
-      padding: 0.6rem 1.2rem;
-      font-size: 1.2rem;
-      background-color: #4CAF50;
+      background: linear-gradient(to bottom, #111, #333);
       color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: transform 0.2s, background-color 0.3s;
+      padding-top: 50px;
     }
-    .button-group button:hover {
-      background-color: #45a049;
-      transform: scale(1.1);
-    }
-    .log {
-      margin-top: 1.5rem;
-      background: #e3f2fd;
-      padding: 1rem;
-      border-radius: 10px;
-      max-height: 300px;
-      overflow-y: auto;
-    }
+
     .log-entry {
-      margin-bottom: 0.5rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid #ccc;
-      animation: popIn 0.3s ease-out;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      background: #222;
+      margin: 10px auto;
+      padding: 8px 12px;
+      border-radius: 6px;
+      width: 300px;
+      position: relative;
     }
+
     .log-entry button {
-      background-color: #f44336;
+      position: absolute;
+      right: 10px;
+      top: 5px;
+      background: red;
       color: white;
       border: none;
-      padding: 0.2rem 0.5rem;
-      border-radius: 5px;
+      border-radius: 3px;
       cursor: pointer;
     }
-    @keyframes popIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    #celebration {
-      display: none;
-      font-size: 1.4rem;
-      font-weight: bold;
-      color: #d32f2f;
-      margin-top: 1rem;
-      animation: bloodSplash 1s ease forwards;
-    }
-    @keyframes bloodSplash {
-      0% { color: #fff; transform: scale(0.5); }
-      50% { color: red; transform: scale(1.5) rotate(5deg); }
-      100% { color: darkred; transform: scale(1); }
-    }
-    .blood-overlay {
+
+    #bloodOverlay {
       display: none;
       position: fixed;
       top: 0;
-      left: 0;
+      left: -100%;
       width: 100%;
       height: 100%;
-      background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Blood-splatter.svg/1280px-Blood-splatter.svg.png') no-repeat center center;
+      background: url('https://i.imgur.com/EV0Ds9R.png') no-repeat center center;
       background-size: cover;
       z-index: 9999;
+      pointer-events: none;
     }
+
     @keyframes bloodSlide {
       from { left: -100%; }
       to { left: 0; }
     }
-    input[type="text"], input[type="password"] {
-      padding: 0.5rem;
-      width: 100%;
-      margin-top: 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+
+    #celebration {
+      display: none;
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2rem;
+      color: red;
+      font-weight: bold;
+      z-index: 10000;
     }
-    #lockscreen {
-      margin-top: 1rem;
+
+    #editControls {
+      display: none;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="blood-overlay" id="bloodOverlay"></div>
-  <div class="container">
-    <h2>Gracey's Rewards</h2>
-    <p>Total Points: <strong id="totalPoints">0</strong> / <span id="pointGoal">350</span></p>
-    <div id="celebration">🎉 You've earned: Dexter Action-Figure Set! 🔪🎁</div>
 
-    <div class="button-group">
-      <button onclick="awardPoints(1)" class="protected">+1</button>
-      <button onclick="awardPoints(5)" class="protected">+5</button>
-      <button onclick="awardPoints(10)" class="protected">+10</button>
-      <button onclick="awardPoints(20)" class="protected">+20</button>
-    </div>
+  <h1>Gracey's Rewards</h1>
 
-    <div style="margin-top: 1rem;">
-      <label for="reason">Reason:</label>
-      <input type="text" id="reason" placeholder="Enter reason...">
-    </div>
+  <p>Total Points: <span id="totalPoints">0</span> / 350</p>
 
-    <div class="log" id="log"></div>
-
-    <div id="lockscreen">
-      <h3>Editor Access</h3>
-      <input type="password" id="passwordInput" placeholder="Enter password">
-      <br><br>
-      <button onclick="unlockApp()">Unlock Editing</button>
-      <p id="passwordError" style="color: red; display: none;">Incorrect password.</p>
-    </div>
+  <div id="passwordPrompt">
+    <input type="password" id="passwordInput" placeholder="Enter password to edit">
+    <button onclick="checkPassword()">Submit</button>
   </div>
 
+  <div id="editControls">
+    <input type="text" id="reasonInput" placeholder="Reason..." />
+    <br/><br/>
+    <button onclick="awardPoints(1)">+1</button>
+    <button onclick="awardPoints(5)">+5</button>
+    <button onclick="awardPoints(10)">+10</button>
+    <button onclick="awardPoints(20)">+20</button>
+  </div>
+
+  <h3>Log:</h3>
+  <div id="logList"></div>
+
+  <div id="bloodOverlay"></div>
+  <div id="celebration">You've earned: Dexter Action-Figure Set!</div>
+
+  <!-- Sounds -->
+  <audio id="clapSound" src="sounds/clap.mp3" preload="auto"></audio>
   <audio id="goalSound" src="sounds/slash.mp3" preload="auto"></audio>
-  <audio id="pointSound" src="https://www.soundjay.com/human/clap-01.mp3" preload="auto"></audio>
 
   <script>
-    let totalPoints = parseInt(localStorage.getItem("totalPoints")) || 0;
     const pointGoal = 350;
+    let totalPoints = 0;
+    let log = [];
+
+    const totalDisplay = document.getElementById("totalPoints");
+    const logList = document.getElementById("logList");
     const goalSound = document.getElementById("goalSound");
-    const pointSound = document.getElementById("pointSound");
-    const celebration = document.getElementById("celebration");
-    const log = document.getElementById("log");
+    const clapSound = document.getElementById("clapSound");
     const bloodOverlay = document.getElementById("bloodOverlay");
+    const celebration = document.getElementById("celebration");
 
-    document.getElementById("totalPoints").textContent = totalPoints;
-
-    let logData = JSON.parse(localStorage.getItem("logData")) || [];
-    logData.forEach(entry => addLogEntry(entry.amount, entry.reason));
-    if (totalPoints >= pointGoal) celebration.style.display = "block";
+    function checkPassword() {
+      const pass = document.getElementById("passwordInput").value;
+      if (pass === "ILoveGracey") {
+        document.getElementById("editControls").style.display = "block";
+        document.getElementById("passwordPrompt").style.display = "none";
+      } else {
+        alert("Incorrect password.");
+      }
+    }
 
     function awardPoints(amount) {
-      const reasonInput = document.getElementById("reason");
-      const reason = reasonInput.value.trim();
-      if (!reason) {
-        alert("Please enter a reason for the points.");
-        return;
-      }
-
+      const reason = document.getElementById("reasonInput").value || "No reason";
       totalPoints += amount;
-      document.getElementById("totalPoints").textContent = totalPoints;
-      localStorage.setItem("totalPoints", totalPoints);
-
-      const entry = { amount, reason };
-      logData.unshift(entry);
-      localStorage.setItem("logData", JSON.stringify(logData));
-
-      addLogEntry(amount, reason);
-
-      reasonInput.value = "";
-      pointSound.currentTime = 0;
-      pointSound.play().catch(err => console.warn("Point sound error:", err));
+      log.push({ amount, reason });
+      updateDisplay();
+      clapSound.currentTime = 0;
+      clapSound.play().catch(() => {});
 
       if (totalPoints >= pointGoal) {
         celebration.style.display = "block";
         goalSound.currentTime = 0;
-        goalSound.play().catch(err => console.warn("Goal sound error:", err));
-
-        // Trigger blood animation
+        goalSound.play().catch(() => {});
         bloodOverlay.style.display = "block";
         bloodOverlay.style.animation = "none";
         void bloodOverlay.offsetWidth;
         bloodOverlay.style.animation = "bloodSlide 1s forwards";
-
-        // Optional: hide the overlay after 3 seconds
         setTimeout(() => {
           bloodOverlay.style.display = "none";
         }, 3000);
       }
+
+      saveData();
     }
 
-    function addLogEntry(amount, reason) {
-      const entry = document.createElement("div");
-      entry.className = "log-entry";
-      entry.innerHTML = `<span><strong>+${amount}</strong> - ${reason}</span> <button onclick="removePoints(this, ${amount})" class="protected">✕</button>`;
-      log.prepend(entry);
+    function deleteEntry(index) {
+      totalPoints -= log[index].amount;
+      log.splice(index, 1);
+      updateDisplay();
+      celebration.style.display = totalPoints >= pointGoal ? "block" : "none";
+      saveData();
     }
 
-    function removePoints(button, amount) {
-      if (button.disabled) return;
-      const entryDiv = button.parentElement;
-      entryDiv.remove();
-      totalPoints -= amount;
-      if (totalPoints < 0) totalPoints = 0;
-      document.getElementById("totalPoints").textContent = totalPoints;
-      localStorage.setItem("totalPoints", totalPoints);
-
-      const index = Array.from(log.children).indexOf(entryDiv);
-      if (index > -1) {
-        logData.splice(index, 1);
-        localStorage.setItem("logData", JSON.stringify(logData));
-      }
-
-      if (totalPoints < pointGoal) {
-        celebration.style.display = "none";
-        bloodOverlay.style.display = "none";
-      }
+    function updateDisplay() {
+      totalDisplay.textContent = totalPoints;
+      logList.innerHTML = "";
+      log.forEach((entry, i) => {
+        const div = document.createElement("div");
+        div.className = "log-entry";
+        div.textContent = `+${entry.amount} - ${entry.reason}`;
+        const btn = document.createElement("button");
+        btn.textContent = "✕";
+        btn.onclick = () => deleteEntry(i);
+        div.appendChild(btn);
+        logList.appendChild(div);
+      });
     }
 
-    function unlockApp() {
-      const password = document.getElementById("passwordInput").value;
-      const errorMsg = document.getElementById("passwordError");
-      if (password === "ILoveGracey") {
-        document.querySelectorAll(".protected").forEach(btn => btn.disabled = false);
-        errorMsg.style.display = "none";
-      } else {
-        errorMsg.style.display = "block";
-      }
+    function saveData() {
+      localStorage.setItem("gr_points", totalPoints);
+      localStorage.setItem("gr_log", JSON.stringify(log));
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      document.querySelectorAll(".protected").forEach(btn => btn.disabled = true);
-    });
+    function loadData() {
+      totalPoints = parseInt(localStorage.getItem("gr_points")) || 0;
+      log = JSON.parse(localStorage.getItem("gr_log")) || [];
+      updateDisplay();
+    }
+
+    loadData();
   </script>
 </body>
 </html>
