@@ -10,24 +10,30 @@
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(to bottom right, #1a1a1a, #3a3a3a);
       color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 30px;
+      overflow-x: hidden;
     }
 
     h1 {
-      font-size: 3.5em;
-      margin-bottom: 10px;
+      font-size: 3em;
+      margin: 20px 0 10px;
       text-shadow: 0 0 20px #ff6, 0 0 10px #f90;
       color: #fff1a8;
+      text-align: center;
     }
 
     #totalPoints {
-      font-size: 3em;
+      font-size: 2.5em;
       font-weight: bold;
-      margin: 10px 0 30px;
+      margin: 10px auto 20px;
       color: #ffda75;
+      text-align: center;
+      display: block;
+    }
+
+    #logList {
+      margin-top: 300px;
+      padding-bottom: 100px;
+      text-align: center;
     }
 
     .log-entry {
@@ -52,8 +58,14 @@
     }
 
     #editControls {
-      display: none;
-      margin-top: 20px;
+      position: fixed;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      padding: 10px 20px;
+      border-radius: 10px;
+      z-index: 100;
     }
 
     #editControls input,
@@ -71,7 +83,6 @@
 
     .buttons {
       display: flex;
-      flex-wrap: wrap;
       justify-content: center;
       gap: 10px;
       margin-top: 10px;
@@ -82,7 +93,38 @@
     }
 
     #passwordPrompt {
-      margin-top: 20px;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 12px 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.3);
+      transition: all 0.5s ease;
+      z-index: 200;
+    }
+
+    #passwordPrompt.hidden {
+      opacity: 0;
+      transform: translateX(150%);
+      pointer-events: none;
+    }
+
+    #passwordPrompt input {
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      margin-right: 5px;
+      box-shadow: 0 0 5px #fff5;
+    }
+
+    #passwordPrompt button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      background: #ffa07a;
+      color: #000;
+      cursor: pointer;
     }
 
     #celebration {
@@ -126,60 +168,27 @@
       20% { opacity: 0.6; }
       100% { opacity: 0; }
     }
-
-    #awayModal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.85);
-      z-index: 10002;
-      color: white;
-      padding: 40px;
-      box-sizing: border-box;
-    }
-
-    #awayModalContent {
-      background: #222;
-      padding: 30px;
-      max-width: 500px;
-      margin: 80px auto;
-      border-radius: 12px;
-      text-align: center;
-      box-shadow: 0 0 15px #000;
-    }
-
-    #awayModal ul {
-      text-align: left;
-      margin-top: 15px;
-    }
-
-    #awayModal button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 1em;
-      background: #ff6a6a;
-      border: none;
-      border-radius: 6px;
-      color: white;
-    }
   </style>
 </head>
 <body>
 
   <h1>Gracey's Rewards</h1>
-  <div>Total Points: <span id="totalPoints">0</span> / 350</div>
+  <span id="totalPoints">0</span>
 
-  <h3>Log:</h3>
   <div id="logList"></div>
 
+  <!-- Celebration UI -->
+  <div id="celebration">You've earned: Dexter Action-Figure Set!</div>
+  <div id="redFlash"></div>
+
+  <!-- Password -->
   <div id="passwordPrompt">
-    <input type="password" id="passwordInput" placeholder="Enter password to edit">
-    <button onclick="checkPassword()">Submit</button>
+    <input type="password" id="passwordInput" placeholder="Password">
+    <button onclick="checkPassword()">Unlock</button>
   </div>
 
-  <div id="editControls">
+  <!-- Fixed Edit Controls -->
+  <div id="editControls" style="display:none;">
     <input type="text" id="reasonInput" placeholder="Reason..." />
     <div class="buttons">
       <button onclick="awardPoints(1)">+1</button>
@@ -189,39 +198,30 @@
     </div>
   </div>
 
-  <!-- Sounds and Effects -->
-  <div id="redFlash"></div>
-  <div id="celebration">You've earned: Dexter Action-Figure Set!</div>
-  <div id="awayModal">
-    <div id="awayModalContent">
-      <h2>While You Were Away...</h2>
-      <ul id="awayLogList"></ul>
-      <button onclick="dismissAway()">Close</button>
-    </div>
-  </div>
-
+  <!-- Sounds -->
   <audio id="clapSound" src="sounds/clap.mp3" preload="auto"></audio>
   <audio id="goalSound" src="sounds/slash.mp3" preload="auto"></audio>
 
   <script>
-    const pointGoal = 350;
     let totalPoints = 0;
+    const pointGoal = 350;
     let log = [];
 
     const totalDisplay = document.getElementById("totalPoints");
     const logList = document.getElementById("logList");
-    const goalSound = document.getElementById("goalSound");
-    const clapSound = document.getElementById("clapSound");
+    const passwordPrompt = document.getElementById("passwordPrompt");
+    const editControls = document.getElementById("editControls");
     const celebration = document.getElementById("celebration");
     const redFlash = document.getElementById("redFlash");
-    const awayModal = document.getElementById("awayModal");
-    const awayLogList = document.getElementById("awayLogList");
+    const clapSound = document.getElementById("clapSound");
+    const goalSound = document.getElementById("goalSound");
 
     function checkPassword() {
       const pass = document.getElementById("passwordInput").value;
       if (pass === "ILoveGracey") {
-        document.getElementById("editControls").style.display = "block";
-        document.getElementById("passwordPrompt").style.display = "none";
+        passwordPrompt.classList.add("hidden");
+        setTimeout(() => passwordPrompt.style.display = "none", 500);
+        editControls.style.display = "block";
         updateDisplay();
       } else {
         alert("Incorrect password.");
@@ -230,10 +230,10 @@
 
     function awardPoints(amount) {
       const reason = document.getElementById("reasonInput").value || "No reason";
-      const timestamp = new Date().toISOString();
       totalPoints += amount;
-      log.push({ amount, reason, timestamp });
+      log.push({ amount, reason });
       updateDisplay();
+      saveData();
 
       clapSound.currentTime = 0;
       clapSound.play().catch(() => {});
@@ -249,8 +249,6 @@
           celebration.style.display = "none";
         }, 2500);
       }
-
-      saveData();
     }
 
     function deleteEntry(index) {
@@ -267,7 +265,7 @@
         const div = document.createElement("div");
         div.className = "log-entry";
         div.textContent = `+${entry.amount} - ${entry.reason}`;
-        if (document.getElementById("editControls").style.display === "block") {
+        if (editControls.style.display === "block") {
           const btn = document.createElement("button");
           btn.textContent = "✕";
           btn.onclick = () => deleteEntry(i);
@@ -280,34 +278,12 @@
     function saveData() {
       localStorage.setItem("gr_points", totalPoints);
       localStorage.setItem("gr_log", JSON.stringify(log));
-      localStorage.setItem("gr_lastVisit", new Date().toISOString());
     }
 
     function loadData() {
       totalPoints = parseInt(localStorage.getItem("gr_points")) || 0;
       log = JSON.parse(localStorage.getItem("gr_log")) || [];
       updateDisplay();
-
-      const lastVisit = localStorage.getItem("gr_lastVisit");
-      if (lastVisit) {
-        const since = new Date(lastVisit);
-        const missed = log.filter(entry => new Date(entry.timestamp) > since);
-        if (missed.length > 0) {
-          clapSound.currentTime = 0;
-          clapSound.play().catch(() => {});
-          missed.forEach(entry => {
-            const li = document.createElement("li");
-            li.textContent = `+${entry.amount} — ${entry.reason}`;
-            awayLogList.appendChild(li);
-          });
-          awayModal.style.display = "block";
-        }
-      }
-    }
-
-    function dismissAway() {
-      awayModal.style.display = "none";
-      localStorage.setItem("gr_lastVisit", new Date().toISOString());
     }
 
     loadData();
