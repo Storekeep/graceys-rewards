@@ -36,6 +36,12 @@
       color: #7cfaff;
     }
 
+    .reward-name {
+      font-weight: bold;
+      color: #ff6ec7;
+      text-shadow: 0 0 6px #ff6ec7;
+    }
+
     #logList {
       text-align: center;
       margin-bottom: 100px;
@@ -253,6 +259,7 @@
           celebration.style.display = "none";
         }, 2500);
       }
+
       updateRewards();
     }
 
@@ -282,7 +289,21 @@
     }
 
     function updateRewards() {
-      rewardsDisplay.innerHTML = "Rewards you've earned:<br>" + (rewards.length > 0 ? rewards.join("<br>") : "(None yet)");
+      // Add or remove reward based on points
+      const rewardName = "Dexter Action-Figure Set";
+      const index = rewards.indexOf(rewardName);
+
+      if (totalPoints >= pointGoal) {
+        if (index === -1) rewards.push(rewardName);
+      } else {
+        if (index !== -1) rewards.splice(index, 1);
+      }
+
+      // Display rewards
+      rewardsDisplay.innerHTML = "Rewards you've earned:<br>" +
+        (rewards.length > 0
+          ? rewards.map(r => `<span class="reward-name">${r}</span>`).join("<br>")
+          : "(None yet)");
     }
 
     function saveData() {
@@ -301,4 +322,5 @@
     loadData();
   </script>
 </body>
+</html>
 </html>
