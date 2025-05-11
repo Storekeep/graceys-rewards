@@ -67,6 +67,10 @@
       display: none;
       margin-top: 20px;
     }
+
+    #passwordPrompt {
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -75,11 +79,17 @@
 
   <p>Total Points: <span id="totalPoints">0</span> / 350</p>
 
+  <!-- Always visible -->
+  <h3>Log:</h3>
+  <div id="logList"></div>
+
+  <!-- Only shown if not logged in -->
   <div id="passwordPrompt">
     <input type="password" id="passwordInput" placeholder="Enter password to edit">
     <button onclick="checkPassword()">Submit</button>
   </div>
 
+  <!-- Hidden unless correct password is entered -->
   <div id="editControls">
     <input type="text" id="reasonInput" placeholder="Reason..." />
     <br/><br/>
@@ -89,9 +99,7 @@
     <button onclick="awardPoints(20)">+20</button>
   </div>
 
-  <h3>Log:</h3>
-  <div id="logList"></div>
-
+  <!-- Celebration -->
   <div id="bloodOverlay"></div>
   <div id="celebration">You've earned: Dexter Action-Figure Set!</div>
 
@@ -126,6 +134,8 @@
       totalPoints += amount;
       log.push({ amount, reason });
       updateDisplay();
+
+      // Play clap
       clapSound.currentTime = 0;
       clapSound.play().catch(() => {});
 
@@ -133,10 +143,12 @@
         celebration.style.display = "block";
         goalSound.currentTime = 0;
         goalSound.play().catch(() => {});
+
         bloodOverlay.style.display = "block";
         bloodOverlay.style.animation = "none";
         void bloodOverlay.offsetWidth;
         bloodOverlay.style.animation = "bloodSlide 1s forwards";
+
         setTimeout(() => {
           bloodOverlay.style.display = "none";
         }, 3000);
@@ -160,10 +172,12 @@
         const div = document.createElement("div");
         div.className = "log-entry";
         div.textContent = `+${entry.amount} - ${entry.reason}`;
-        const btn = document.createElement("button");
-        btn.textContent = "✕";
-        btn.onclick = () => deleteEntry(i);
-        div.appendChild(btn);
+        if (document.getElementById("editControls").style.display === "block") {
+          const btn = document.createElement("button");
+          btn.textContent = "✕";
+          btn.onclick = () => deleteEntry(i);
+          div.appendChild(btn);
+        }
         logList.appendChild(div);
       });
     }
