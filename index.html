@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gracey's Rewards</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 100%;
+      max-width: 500px;
+      animation: fadeIn 1s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .button-group button {
+      margin: 0.3rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 1.2rem;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.3s;
+    }
+    .button-group button:hover {
+      background-color: #45a049;
+      transform: scale(1.1);
+    }
+    .log {
+      margin-top: 1.5rem;
+      background: #e3f2fd;
+      padding: 1rem;
+      border-radius: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .log-entry {
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #ccc;
+      animation: popIn 0.3s ease-out;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .log-entry button {
+      background-color: #f44336;
+      color: white;
+      border: none;
+      padding: 0.2rem 0.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    #celebration {
+      display: none;
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #d32f2f;
+      margin-top: 1rem;
+      animation: bloodSplash 1s ease forwards;
+    }
+    @keyframes bloodSplash {
+      0% { color: #fff; transform: scale(0.5); }
+      50% { color: red; transform: scale(1.5) rotate(5deg); }
+      100% { color: darkred; transform: scale(1); }
+    }
+    input[type="text"] {
+      padding: 0.5rem;
+      width: 100%;
+      margin-top: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Gracey's Rewards</h2>
+    <p>Total Points: <strong id="totalPoints">0</strong> / <span id="pointGoal">350</span></p>
+    <div id="celebration">🎉 You've earned: Dexter Action-Figure Set! 🔪🎁</div>
+
+    <div class="button-group">
+      <button onclick="awardPoints(1)">+1</button>
+      <button onclick="awardPoints(5)">+5</button>
+      <button onclick="awardPoints(10)">+10</button>
+      <button onclick="awardPoints(20)">+20</button>
+    </div>
+
+    <div style="margin-top: 1rem;">
+      <label for="reason">Reason:</label>
+      <input type="text" id="reason" placeholder="Enter reason...">
+    </div>
+
+    <div class="log" id="log"></div>
+  </div>
+
+  <audio id="pointSound" src="https://www.soundjay.com/human/sounds/applause-01.mp3" preload="auto"></audio>
+  <audio id="goalSound" src="sounds/slash.mp3" preload="auto"></audio>
+
+
+  <script>
+    let totalPoints = parseInt(localStorage.getItem("totalPoints")) || 0;
+    const pointGoal = 350;
+    const pointSound = document.getElementById("pointSound");
+    const goalSound = document.getElementById("goalSound");
+    const celebration = document.getElementById("celebration");
+    const log = document.getElementById("log");
+
+    document.getElementById("totalPoints").textContent = totalPoints;
+
+    let logData = JSON.parse(localStorage.getItem("logData")) || [];
+    logData.forEach(entry => addLogEntry(entry.amount, entry.reason, false));
+    if (totalPoints >= pointGoal) celebration.style.display = "block";
+
+    function awardPoints(amount) {
+      const reasonInput = document.getElementById("reason");
+      const reason = reasonInput.value.trim();
+      if (!reason) {
+        alert("Please enter a reason for the points.");
+        return;
+      }
+
+      totalPoints += amount;
+      document.getElementById("totalPoints").textContent = totalPoints;
+      localStorage.setItem("totalPoints", totalPoints);
+
+      const entry = { amount, reason };
+      logData.unshift(entry);
+      localStorage.setItem("logData", JSON.stringify(logData));
+
+      addLogEntry(amount, reason);
+
+      reasonInput.value = "";
+      pointSound.play().catch(err => console.warn('Point sound error:', err));
+
+      if (totalPoints >= pointGoal) {
+        celebration.style.display = "block";
+        goalSound.play().catch(err => console.warn('Goal sound error:', err));
+      }
+    }
+
+    function addLogEntry(amount, reason, save = true) {
+      const entry = document.createElement("div");
+      entry.className = "log-entry";
+      entry.innerHTML = `<span><strong>+${amount}</strong> - ${reason}</span> <button onclick="removePoints(this, ${amount})">✕</button>`;
+      log.prepend(entry);
+    }
+
+    function removePoints(button, amount) {
+      const entryDiv = button.parentElement;
+      entryDiv.remove();
+      totalPoints -= amount;
+      if (totalPoints < 0) totalPoints = 0;
+      document.getElementById("totalPoints").textContent = totalPoints;
+      localStorage.setItem("totalPoints", totalPoints);
+
+      const index = Array.from(log.children).indexOf(entryDiv);
+      if (index > -1) {
+        logData.splice(index, 1);
+        localStorage.setItem("logData", JSON.stringify(logData));
+      }
+
+      if (totalPoints < pointGoal) {
+        celebration.style.display = "none";
+      }
+    }
+  </script>
+</body>
+</html>
