@@ -126,12 +126,49 @@
       20% { opacity: 0.6; }
       100% { opacity: 0; }
     }
+
+    #awayModal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 10002;
+      color: white;
+      padding: 40px;
+      box-sizing: border-box;
+    }
+
+    #awayModalContent {
+      background: #222;
+      padding: 30px;
+      max-width: 500px;
+      margin: 80px auto;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 0 15px #000;
+    }
+
+    #awayModal ul {
+      text-align: left;
+      margin-top: 15px;
+    }
+
+    #awayModal button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1em;
+      background: #ff6a6a;
+      border: none;
+      border-radius: 6px;
+      color: white;
+    }
   </style>
 </head>
 <body>
 
   <h1>Gracey's Rewards</h1>
-
   <div>Total Points: <span id="totalPoints">0</span> / 350</div>
 
   <h3>Log:</h3>
@@ -152,11 +189,17 @@
     </div>
   </div>
 
-  <!-- Celebration -->
+  <!-- Sounds and Effects -->
   <div id="redFlash"></div>
   <div id="celebration">You've earned: Dexter Action-Figure Set!</div>
+  <div id="awayModal">
+    <div id="awayModalContent">
+      <h2>While You Were Away...</h2>
+      <ul id="awayLogList"></ul>
+      <button onclick="dismissAway()">Close</button>
+    </div>
+  </div>
 
-  <!-- Sounds -->
   <audio id="clapSound" src="sounds/clap.mp3" preload="auto"></audio>
   <audio id="goalSound" src="sounds/slash.mp3" preload="auto"></audio>
 
@@ -171,6 +214,8 @@
     const clapSound = document.getElementById("clapSound");
     const celebration = document.getElementById("celebration");
     const redFlash = document.getElementById("redFlash");
+    const awayModal = document.getElementById("awayModal");
+    const awayLogList = document.getElementById("awayLogList");
 
     function checkPassword() {
       const pass = document.getElementById("passwordInput").value;
@@ -185,8 +230,9 @@
 
     function awardPoints(amount) {
       const reason = document.getElementById("reasonInput").value || "No reason";
+      const timestamp = new Date().toISOString();
       totalPoints += amount;
-      log.push({ amount, reason });
+      log.push({ amount, reason, timestamp });
       updateDisplay();
 
       clapSound.currentTime = 0;
@@ -234,12 +280,34 @@
     function saveData() {
       localStorage.setItem("gr_points", totalPoints);
       localStorage.setItem("gr_log", JSON.stringify(log));
+      localStorage.setItem("gr_lastVisit", new Date().toISOString());
     }
 
     function loadData() {
       totalPoints = parseInt(localStorage.getItem("gr_points")) || 0;
       log = JSON.parse(localStorage.getItem("gr_log")) || [];
       updateDisplay();
+
+      const lastVisit = localStorage.getItem("gr_lastVisit");
+      if (lastVisit) {
+        const since = new Date(lastVisit);
+        const missed = log.filter(entry => new Date(entry.timestamp) > since);
+        if (missed.length > 0) {
+          clapSound.currentTime = 0;
+          clapSound.play().catch(() => {});
+          missed.forEach(entry => {
+            const li = document.createElement("li");
+            li.textContent = `+${entry.amount} — ${entry.reason}`;
+            awayLogList.appendChild(li);
+          });
+          awayModal.style.display = "block";
+        }
+      }
+    }
+
+    function dismissAway() {
+      awayModal.style.display = "none";
+      localStorage.setItem("gr_lastVisit", new Date().toISOString());
     }
 
     loadData();
