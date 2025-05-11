@@ -6,149 +6,40 @@
   <title>Gracey's Rewards</title>
   <style>
     body {
-      margin: 0;
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(to bottom right, #1a1a1a, #3a3a3a);
       color: #fff;
-      padding-top: 20px;
+      margin: 0;
+      padding: 2em 1em;
     }
-
-    h1 {
-      font-size: 3em;
-      text-shadow: 0 0 20px #ff6, 0 0 10px #f90;
-      color: #fff1a8;
-      text-align: center;
-      margin-bottom: 10px;
-    }
-
-    #editControls {
-      display: none;
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    #editControls input,
-    #editControls button {
-      font-size: 1em;
-      margin: 5px;
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-    }
-
-    #reasonInput {
-      width: 240px;
-    }
-
-    .buttons {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    #totalPoints {
-      font-size: 2.5em;
-      font-weight: bold;
-      color: #ffda75;
-      text-align: center;
-      display: block;
-      margin-bottom: 10px;
-    }
-
-    #earnedRewards {
-      font-size: 1.3em;
-      text-align: center;
-      margin-bottom: 20px;
-      color: #7cfaff;
-    }
-
+    h1 { text-align: center; color: #fff1a8; text-shadow: 0 0 15px #ff0; }
+    #totalPoints { font-size: 2.5em; text-align: center; margin: 0.5em 0; color: #ffda75; }
+    #earnedRewards { text-align: center; color: #7cfaff; font-size: 1.2em; }
     .reward-name {
       font-weight: bold;
       color: #ff6ec7;
       text-shadow: 0 0 6px #ff6ec7;
     }
-
-    #logList {
-      text-align: center;
-      margin-bottom: 100px;
-    }
-
+    .controls, .log-entry { text-align: center; margin: 1em auto; max-width: 400px; }
     .log-entry {
-      background: #252525;
-      margin: 8px auto;
-      padding: 10px 12px;
+      background: #333;
+      padding: 0.8em;
       border-radius: 8px;
-      width: 320px;
-      position: relative;
-      box-shadow: 0 0 5px #000;
+      margin-bottom: 0.5em;
     }
-
-    .log-entry button {
-      position: absolute;
-      right: 10px;
-      top: 6px;
-      background: crimson;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    #passwordPrompt {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 12px 15px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(255,255,255,0.3);
-      transition: all 0.5s ease;
-      z-index: 200;
-    }
-
-    #passwordPrompt.hidden {
-      opacity: 0;
-      transform: translateX(150%);
-      pointer-events: none;
-    }
-
-    #passwordPrompt input {
-      padding: 8px;
-      border: none;
+    input, button {
+      padding: 0.6em;
+      margin: 0.2em;
+      font-size: 1em;
       border-radius: 6px;
-      margin-right: 5px;
-      box-shadow: 0 0 5px #fff5;
-    }
-
-    #passwordPrompt button {
-      padding: 8px 12px;
       border: none;
-      border-radius: 6px;
-      background: #ffa07a;
-      color: #000;
-      cursor: pointer;
     }
-
-    /* Mobile-friendly positioning */
-    @media (max-width: 600px) {
-      #passwordPrompt {
-        top: auto;
-        bottom: 20px;
-        right: 20px;
-        padding: 10px 12px;
-        font-size: 0.9em;
-      }
-
-      #passwordPrompt input {
-        width: 100px;
-      }
-
-      #passwordPrompt button {
-        font-size: 0.9em;
-      }
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
     }
-
     #celebration {
       display: none;
       position: fixed;
@@ -156,49 +47,81 @@
       left: 50%;
       transform: translateX(-50%);
       font-size: 2em;
-      color: #fff;
-      font-weight: bold;
       background: rgba(255, 0, 0, 0.9);
-      padding: 20px 40px;
+      padding: 20px;
       border-radius: 10px;
-      z-index: 10001;
+      z-index: 1001;
       animation: popFade 2.5s ease-out forwards;
       box-shadow: 0 0 20px red;
     }
-
+    #redFlash {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255,0,0,0.6);
+      z-index: 1000;
+      animation: flash 1s ease-out;
+      pointer-events: none;
+    }
+    @keyframes flash {
+      0% { opacity: 0; }
+      20% { opacity: 0.6; }
+      100% { opacity: 0; }
+    }
     @keyframes popFade {
       0% { transform: translateX(-50%) scale(0.5); opacity: 0; }
       50% { transform: translateX(-50%) scale(1.2); opacity: 1; }
       100% { transform: translateX(-50%) scale(1); opacity: 0; }
     }
 
-    #redFlash {
+    #passwordPrompt {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255, 0, 0, 0.6);
-      z-index: 9999;
-      display: none;
-      animation: flash 1s ease-out;
-      pointer-events: none;
+      top: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.7);
+      padding: 12px;
+      border-radius: 10px;
+      z-index: 1100;
+      box-shadow: 0 0 10px #fff3;
     }
 
-    @keyframes flash {
-      0% { opacity: 0; }
-      20% { opacity: 0.6; }
-      100% { opacity: 0; }
+    #passwordPrompt input {
+      padding: 8px;
+      border: none;
+      border-radius: 5px;
+      margin-right: 5px;
+    }
+
+    #passwordPrompt button {
+      padding: 8px;
+      background: #ffa07a;
+      border: none;
+      border-radius: 5px;
+      color: #000;
+      cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+      #passwordPrompt {
+        top: auto;
+        bottom: 20px;
+        right: 20px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- App Header -->
-  <h1>Gracey's Rewards</h1>
+  <div id="passwordPrompt">
+    <input type="password" id="passwordInput" placeholder="Password">
+    <button onclick="checkPassword()">Unlock</button>
+  </div>
 
-  <!-- Point controls -->
-  <div id="editControls">
+  <h1>Gracey's Rewards</h1>
+  <div id="totalPoints">0</div>
+  <div id="earnedRewards">Rewards you've earned:</div>
+
+  <div class="controls" id="editControls" style="display:none;">
     <input type="text" id="reasonInput" placeholder="Reason..." />
     <div class="buttons">
       <button onclick="awardPoints(1)">+1</button>
@@ -208,79 +131,125 @@
     </div>
   </div>
 
-  <!-- Display points & rewards -->
-  <span id="totalPoints">0</span>
-  <div id="earnedRewards">Rewards you've earned:</div>
   <div id="logList"></div>
 
-  <!-- Effects -->
   <div id="celebration">You've earned: Dexter Action-Figure Set!</div>
   <div id="redFlash"></div>
 
-  <!-- Password box -->
-  <div id="passwordPrompt">
-    <input type="password" id="passwordInput" placeholder="Password">
-    <button onclick="checkPassword()">Unlock</button>
-  </div>
-
-  <!-- Sounds -->
   <audio id="clapSound" src="sounds/clap.mp3" preload="auto"></audio>
   <audio id="goalSound" src="sounds/slash.mp3" preload="auto"></audio>
 
-  <!-- JavaScript logic remains unchanged -->
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <script>
-    let totalPoints = 0;
+    const firebaseConfig = {
+      apiKey: "AIzaSyCVxmCeRSheujRlo2ddOcUSaNYx1pq1gFY",
+      authDomain: "gracey-s-rewards.firebaseapp.com",
+      databaseURL: "https://gracey-s-rewards-default-rtdb.firebaseio.com",
+      projectId: "gracey-s-rewards",
+      storageBucket: "gracey-s-rewards.firebasestorage.app",
+      messagingSenderId: "320157110840",
+      appId: "1:320157110840:web:ede94a3e448889b55f0ccd",
+      measurementId: "G-PRPNSPJELJ"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+  </script>
+
+  <script>
     const pointGoal = 350;
-    let log = [];
+    let totalPoints = 0;
     let rewards = [];
+    let lastCelebrationPoints = 0;
+
+    const refPoints = db.ref("points");
+    const refLog = db.ref("log");
+    const refRewards = db.ref("rewards");
 
     const totalDisplay = document.getElementById("totalPoints");
     const logList = document.getElementById("logList");
-    const passwordPrompt = document.getElementById("passwordPrompt");
-    const editControls = document.getElementById("editControls");
-    const celebration = document.getElementById("celebration");
-    const redFlash = document.getElementById("redFlash");
+    const reasonInput = document.getElementById("reasonInput");
+    const rewardsDisplay = document.getElementById("earnedRewards");
     const clapSound = document.getElementById("clapSound");
     const goalSound = document.getElementById("goalSound");
-    const rewardsDisplay = document.getElementById("earnedRewards");
+    const redFlash = document.getElementById("redFlash");
+    const celebration = document.getElementById("celebration");
 
     function checkPassword() {
       const pass = document.getElementById("passwordInput").value;
       if (pass === "ILoveGracey") {
-        passwordPrompt.classList.add("hidden");
-        setTimeout(() => passwordPrompt.style.display = "none", 500);
-        editControls.style.display = "block";
-        updateDisplay();
+        document.getElementById("passwordPrompt").style.display = "none";
+        document.getElementById("editControls").style.display = "block";
       } else {
         alert("Incorrect password.");
       }
     }
 
+    refPoints.on("value", snap => {
+      totalPoints = snap.val() || 0;
+      totalDisplay.textContent = totalPoints;
+      checkRewardStatus();
+    });
+
+    refLog.on("value", snap => {
+      const logs = snap.val() || [];
+      logList.innerHTML = "";
+      logs.forEach((entry, i) => {
+        const div = document.createElement("div");
+        div.className = "log-entry";
+        div.textContent = `+${entry.amount} - ${entry.reason}`;
+        logList.appendChild(div);
+      });
+    });
+
+    refRewards.on("value", snap => {
+      rewards = snap.val() || [];
+      rewardsDisplay.innerHTML = "Rewards you've earned:<br>" +
+        (rewards.length > 0
+          ? rewards.map(r => `<span class='reward-name'>${r}</span>`).join("<br>")
+          : "(None yet)");
+    });
+
     function awardPoints(amount) {
       const wasBelowGoal = totalPoints < pointGoal;
-
-      const reason = document.getElementById("reasonInput").value || "No reason";
-      totalPoints += amount;
-      log.push({ amount, reason });
-      updateDisplay();
-      saveData();
-
+      const reason = reasonInput.value || "No reason";
+      const newTotal = totalPoints + amount;
+      db.ref("points").set(newTotal);
+      refLog.once("value").then(snap => {
+        const current = snap.val() || [];
+        current.push({ amount, reason });
+        refLog.set(current);
+      });
       clapSound.currentTime = 0;
-      clapSound.play().catch(() => {});
+      clapSound.play();
 
-      if (totalPoints >= pointGoal && wasBelowGoal) {
+      if (newTotal >= pointGoal && wasBelowGoal) {
         showGoalEffects();
-      } else if (totalPoints >= pointGoal && !wasBelowGoal) {
+      } else if (newTotal >= pointGoal) {
         showGoalEffects();
       }
+    }
 
-      updateRewards();
+    function checkRewardStatus() {
+      const rewardName = "Dexter Action-Figure Set";
+      const index = rewards.indexOf(rewardName);
+
+      if (totalPoints >= pointGoal) {
+        if (index === -1) rewards.push(rewardName);
+        refRewards.set(rewards);
+      } else {
+        if (index !== -1) {
+          rewards = rewards.filter(r => r !== rewardName);
+          refRewards.set(rewards);
+        }
+      }
     }
 
     function showGoalEffects() {
       celebration.style.display = "block";
       goalSound.currentTime = 0;
-      goalSound.play().catch(() => {});
+      goalSound.play();
       redFlash.style.display = "block";
       redFlash.style.animation = "flash 1s ease-out";
       setTimeout(() => {
@@ -288,64 +257,6 @@
         celebration.style.display = "none";
       }, 2500);
     }
-
-    function deleteEntry(index) {
-      const wasAboveGoal = totalPoints >= pointGoal;
-      totalPoints -= log[index].amount;
-      log.splice(index, 1);
-      updateDisplay();
-      saveData();
-      if (wasAboveGoal && totalPoints < pointGoal) updateRewards();
-    }
-
-    function updateDisplay() {
-      totalDisplay.textContent = totalPoints;
-      logList.innerHTML = "";
-      log.forEach((entry, i) => {
-        const div = document.createElement("div");
-        div.className = "log-entry";
-        div.textContent = `+${entry.amount} - ${entry.reason}`;
-        if (editControls.style.display === "block") {
-          const btn = document.createElement("button");
-          btn.textContent = "✕";
-          btn.onclick = () => deleteEntry(i);
-          div.appendChild(btn);
-        }
-        logList.appendChild(div);
-      });
-      updateRewards();
-    }
-
-    function updateRewards() {
-      const rewardName = "Dexter Action-Figure Set";
-      const index = rewards.indexOf(rewardName);
-
-      if (totalPoints >= pointGoal) {
-        if (index === -1) rewards.push(rewardName);
-      } else {
-        if (index !== -1) rewards.splice(index, 1);
-      }
-
-      rewardsDisplay.innerHTML = "Rewards you've earned:<br>" +
-        (rewards.length > 0
-          ? rewards.map(r => `<span class="reward-name">${r}</span>`).join("<br>")
-          : "(None yet)");
-    }
-
-    function saveData() {
-      localStorage.setItem("gr_points", totalPoints);
-      localStorage.setItem("gr_log", JSON.stringify(log));
-      localStorage.setItem("gr_rewards", JSON.stringify(rewards));
-    }
-
-    function loadData() {
-      totalPoints = parseInt(localStorage.getItem("gr_points")) || 0;
-      log = JSON.parse(localStorage.getItem("gr_log")) || [];
-      rewards = JSON.parse(localStorage.getItem("gr_rewards")) || [];
-      updateDisplay();
-    }
-
-    loadData();
   </script>
 </body>
 </html>
