@@ -130,6 +130,25 @@
       cursor: pointer;
     }
 
+    /* Mobile-friendly positioning */
+    @media (max-width: 600px) {
+      #passwordPrompt {
+        top: auto;
+        bottom: 20px;
+        right: 20px;
+        padding: 10px 12px;
+        font-size: 0.9em;
+      }
+
+      #passwordPrompt input {
+        width: 100px;
+      }
+
+      #passwordPrompt button {
+        font-size: 0.9em;
+      }
+    }
+
     #celebration {
       display: none;
       position: fixed;
@@ -175,8 +194,10 @@
 </head>
 <body>
 
+  <!-- App Header -->
   <h1>Gracey's Rewards</h1>
 
+  <!-- Point controls -->
   <div id="editControls">
     <input type="text" id="reasonInput" placeholder="Reason..." />
     <div class="buttons">
@@ -187,21 +208,26 @@
     </div>
   </div>
 
+  <!-- Display points & rewards -->
   <span id="totalPoints">0</span>
   <div id="earnedRewards">Rewards you've earned:</div>
   <div id="logList"></div>
 
+  <!-- Effects -->
   <div id="celebration">You've earned: Dexter Action-Figure Set!</div>
   <div id="redFlash"></div>
 
+  <!-- Password box -->
   <div id="passwordPrompt">
     <input type="password" id="passwordInput" placeholder="Password">
     <button onclick="checkPassword()">Unlock</button>
   </div>
 
+  <!-- Sounds -->
   <audio id="clapSound" src="sounds/clap.mp3" preload="auto"></audio>
   <audio id="goalSound" src="sounds/slash.mp3" preload="auto"></audio>
 
+  <!-- JavaScript logic remains unchanged -->
   <script>
     let totalPoints = 0;
     const pointGoal = 350;
@@ -245,7 +271,6 @@
       if (totalPoints >= pointGoal && wasBelowGoal) {
         showGoalEffects();
       } else if (totalPoints >= pointGoal && !wasBelowGoal) {
-        // re-hit the goal again
         showGoalEffects();
       }
 
@@ -270,10 +295,7 @@
       log.splice(index, 1);
       updateDisplay();
       saveData();
-
-      if (wasAboveGoal && totalPoints < pointGoal) {
-        updateRewards(); // force removal
-      }
+      if (wasAboveGoal && totalPoints < pointGoal) updateRewards();
     }
 
     function updateDisplay() {
