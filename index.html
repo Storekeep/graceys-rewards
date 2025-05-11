@@ -6,49 +6,74 @@
   <title>Gracey's Rewards</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: linear-gradient(to bottom, #111, #333);
-      color: white;
-      padding-top: 50px;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #1a1a1a, #3a3a3a);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    #totalPoints {
+      font-size: 3em;
+      font-weight: bold;
+      margin: 10px 0 20px;
+      color: #ffda75;
+      display: inline-block;
     }
 
     .log-entry {
-      background: #222;
-      margin: 10px auto;
-      padding: 8px 12px;
-      border-radius: 6px;
-      width: 300px;
+      background: #252525;
+      margin: 8px auto;
+      padding: 10px 12px;
+      border-radius: 8px;
+      width: 320px;
       position: relative;
+      box-shadow: 0 0 5px #000;
     }
 
     .log-entry button {
       position: absolute;
       right: 10px;
-      top: 5px;
-      background: red;
+      top: 6px;
+      background: crimson;
       color: white;
       border: none;
-      border-radius: 3px;
+      border-radius: 4px;
       cursor: pointer;
     }
 
-    #bloodOverlay {
+    #editControls {
       display: none;
-      position: fixed;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: url('https://i.imgur.com/EV0Ds9R.png') no-repeat center center;
-      background-size: cover;
-      z-index: 9999;
-      pointer-events: none;
+      margin-top: 20px;
     }
 
-    @keyframes bloodSlide {
-      from { left: -100%; }
-      to { left: 0; }
+    #editControls input,
+    #editControls button {
+      font-size: 1em;
+      margin: 5px;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+    }
+
+    #reasonInput {
+      width: 240px;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    #passwordPrompt {
+      margin-top: 20px;
     }
 
     #celebration {
@@ -57,19 +82,39 @@
       top: 30%;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 2rem;
+      font-size: 2em;
       color: red;
       font-weight: bold;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px 40px;
+      border-radius: 10px;
       z-index: 10000;
+      animation: popFade 2s ease-out forwards;
     }
 
-    #editControls {
+    @keyframes popFade {
+      0% { transform: translateX(-50%) scale(0.5); opacity: 0; }
+      50% { transform: translateX(-50%) scale(1.2); opacity: 1; }
+      100% { transform: translateX(-50%) scale(1); opacity: 0; }
+    }
+
+    #redFlash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 0, 0, 0.8);
+      z-index: 9999;
       display: none;
-      margin-top: 20px;
+      animation: flash 1s ease-out;
+      pointer-events: none;
     }
 
-    #passwordPrompt {
-      margin-top: 20px;
+    @keyframes flash {
+      0% { opacity: 0; }
+      20% { opacity: 0.8; }
+      100% { opacity: 0; }
     }
   </style>
 </head>
@@ -77,22 +122,18 @@
 
   <h1>Gracey's Rewards</h1>
 
-  <p>Total Points: <span id="totalPoints">0</span> / 350</p>
+  <div>Total Points: <span id="totalPoints">0</span> / 350</div>
 
-  <!-- Always visible -->
   <h3>Log:</h3>
   <div id="logList"></div>
 
-  <!-- Only shown if not logged in -->
   <div id="passwordPrompt">
     <input type="password" id="passwordInput" placeholder="Enter password to edit">
     <button onclick="checkPassword()">Submit</button>
   </div>
 
-  <!-- Hidden unless correct password is entered -->
   <div id="editControls">
     <input type="text" id="reasonInput" placeholder="Reason..." />
-    <br/><br/>
     <button onclick="awardPoints(1)">+1</button>
     <button onclick="awardPoints(5)">+5</button>
     <button onclick="awardPoints(10)">+10</button>
@@ -100,7 +141,7 @@
   </div>
 
   <!-- Celebration -->
-  <div id="bloodOverlay"></div>
+  <div id="redFlash"></div>
   <div id="celebration">You've earned: Dexter Action-Figure Set!</div>
 
   <!-- Sounds -->
@@ -116,14 +157,15 @@
     const logList = document.getElementById("logList");
     const goalSound = document.getElementById("goalSound");
     const clapSound = document.getElementById("clapSound");
-    const bloodOverlay = document.getElementById("bloodOverlay");
     const celebration = document.getElementById("celebration");
+    const redFlash = document.getElementById("redFlash");
 
     function checkPassword() {
       const pass = document.getElementById("passwordInput").value;
       if (pass === "ILoveGracey") {
         document.getElementById("editControls").style.display = "block";
         document.getElementById("passwordPrompt").style.display = "none";
+        updateDisplay(); // Show delete buttons
       } else {
         alert("Incorrect password.");
       }
@@ -135,7 +177,6 @@
       log.push({ amount, reason });
       updateDisplay();
 
-      // Play clap
       clapSound.currentTime = 0;
       clapSound.play().catch(() => {});
 
@@ -143,15 +184,12 @@
         celebration.style.display = "block";
         goalSound.currentTime = 0;
         goalSound.play().catch(() => {});
-
-        bloodOverlay.style.display = "block";
-        bloodOverlay.style.animation = "none";
-        void bloodOverlay.offsetWidth;
-        bloodOverlay.style.animation = "bloodSlide 1s forwards";
-
+        redFlash.style.display = "block";
+        redFlash.style.animation = "flash 1s ease-out";
         setTimeout(() => {
-          bloodOverlay.style.display = "none";
-        }, 3000);
+          redFlash.style.display = "none";
+          celebration.style.display = "none";
+        }, 2000);
       }
 
       saveData();
@@ -161,7 +199,6 @@
       totalPoints -= log[index].amount;
       log.splice(index, 1);
       updateDisplay();
-      celebration.style.display = totalPoints >= pointGoal ? "block" : "none";
       saveData();
     }
 
