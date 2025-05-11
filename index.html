@@ -85,26 +85,55 @@
       50% { color: red; transform: scale(1.5) rotate(5deg); }
       100% { color: darkred; transform: scale(1); }
     }
-    input[type="text"] {
+    input[type="text"], input[type="password"] {
       padding: 0.5rem;
       width: 100%;
       margin-top: 0.5rem;
       border: 1px solid #ccc;
       border-radius: 6px;
     }
+    #lockscreen {
+      background-color: rgba(255, 255, 255, 0.95);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #lockscreen-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      text-align: center;
+    }
   </style>
 </head>
 <body>
+  <div id="lockscreen">
+    <div id="lockscreen-content">
+      <h2>Enter Password</h2>
+      <input type="password" id="passwordInput" placeholder="Password">
+      <br><br>
+      <button onclick="unlockApp()">Unlock</button>
+      <p id="passwordError" style="color: red; display: none;">Incorrect password.</p>
+    </div>
+  </div>
+
   <div class="container">
     <h2>Gracey's Rewards</h2>
     <p>Total Points: <strong id="totalPoints">0</strong> / <span id="pointGoal">350</span></p>
     <div id="celebration">🎉 You've earned: Dexter Action-Figure Set! 🔪🎁</div>
 
     <div class="button-group">
-      <button onclick="awardPoints(1)">+1</button>
-      <button onclick="awardPoints(5)">+5</button>
-      <button onclick="awardPoints(10)">+10</button>
-      <button onclick="awardPoints(20)">+20</button>
+      <button onclick="awardPoints(1)" class="protected">+1</button>
+      <button onclick="awardPoints(5)" class="protected">+5</button>
+      <button onclick="awardPoints(10)" class="protected">+10</button>
+      <button onclick="awardPoints(20)" class="protected">+20</button>
     </div>
 
     <div style="margin-top: 1rem;">
@@ -115,14 +144,11 @@
     <div class="log" id="log"></div>
   </div>
 
-  <audio id="pointSound" src="https://www.soundjay.com/human/sounds/applause-01.mp3" preload="auto"></audio>
   <audio id="goalSound" src="sounds/slash.mp3" preload="auto"></audio>
-
 
   <script>
     let totalPoints = parseInt(localStorage.getItem("totalPoints")) || 0;
     const pointGoal = 350;
-    const pointSound = document.getElementById("pointSound");
     const goalSound = document.getElementById("goalSound");
     const celebration = document.getElementById("celebration");
     const log = document.getElementById("log");
@@ -152,15 +178,14 @@
       addLogEntry(amount, reason);
 
       reasonInput.value = "";
-      pointSound.play().catch(err => console.warn('Point sound error:', err));
-
+      goalSound.currentTime = 0;
       if (totalPoints >= pointGoal) {
         celebration.style.display = "block";
-        goalSound.play().catch(err => console.warn('Goal sound error:', err));
+        goalSound.play().catch(err => console.warn("Goal sound error:", err));
       }
     }
 
-    function addLogEntry(amount, reason, save = true) {
+    function addLogEntry(amount, reason) {
       const entry = document.createElement("div");
       entry.className = "log-entry";
       entry.innerHTML = `<span><strong>+${amount}</strong> - ${reason}</span> <button onclick="removePoints(this, ${amount})">✕</button>`;
@@ -185,6 +210,22 @@
         celebration.style.display = "none";
       }
     }
+
+    function unlockApp() {
+      const password = document.getElementById("passwordInput").value;
+      const errorMsg = document.getElementById("passwordError");
+      if (password === "ILoveGracey") {
+        document.getElementById("lockscreen").style.display = "none";
+        document.querySelectorAll(".protected").forEach(btn => btn.disabled = false);
+      } else {
+        errorMsg.style.display = "block";
+      }
+    }
+
+    // Initially disable protected buttons
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".protected").forEach(btn => btn.disabled = true);
+    });
   </script>
 </body>
 </html>
