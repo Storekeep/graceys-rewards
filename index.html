@@ -12,40 +12,109 @@
       margin: 0;
       padding: 2em 1em;
     }
-    h1 { text-align: center; color: #fff1a8; text-shadow: 0 0 15px #ff0; }
-    #totalPoints { font-size: 2.5em; text-align: center; margin: 0.5em 0; color: #ffda75; }
-    #earnedRewards { text-align: center; color: #7cfaff; font-size: 1.2em; }
-    .reward-name { font-weight: bold; color: #ff6ec7; text-shadow: 0 0 6px #ff6ec7; }
-    .controls, .log-entry { text-align: center; margin: 1em auto; max-width: 400px; }
-    .log-entry {
-      background: #333; padding: 0.8em; border-radius: 8px; margin-bottom: 0.5em; position: relative;
+    h1 {
+      text-align: center;
+      color: #fff1a8;
+      text-shadow: 0 0 15px #ff0;
     }
-    .buttons { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    #totalPoints {
+      font-size: 2.5em;
+      text-align: center;
+      margin: 0.5em 0;
+      color: #ffda75;
+    }
+    .controls, .log-entry {
+      text-align: center;
+      margin: 1em auto;
+      max-width: 400px;
+    }
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
     input, button {
-      padding: 0.6em; margin: 0.2em; font-size: 1em; border-radius: 6px; border: none;
+      padding: 0.6em;
+      margin: 0.2em;
+      font-size: 1em;
+      border-radius: 6px;
+      border: none;
     }
     #passwordPrompt {
-      position: fixed; top: 20px; right: 20px;
-      background: rgba(0,0,0,0.7); padding: 12px; border-radius: 10px;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.7);
+      padding: 12px;
+      border-radius: 10px;
       z-index: 1100;
     }
-    .effect-overlay {
-      display: none; position: fixed; top: 0; left: 0;
-      width: 100%; height: 100%; z-index: 1000; pointer-events: none; opacity: 0.85;
+    .log-entry {
+      background: #333;
+      padding: 0.8em;
+      border-radius: 8px;
+      margin-bottom: 0.5em;
+      position: relative;
     }
-    .scream { background: red; animation: flashEffect 0.6s ease; }
-    .bell { background: rgba(150, 0, 255, 0.7); animation: glowEffect 1s ease; }
-    .angel { background: rgba(255, 255, 255, 0.9); animation: fadeInOut 1.5s ease; }
-    .chain { background: linear-gradient(45deg, gray, silver); animation: pulse 0.8s ease; }
-    .kiss { background: pink; animation: popEffect 1s ease; }
-    .slash { background: rgba(255, 0, 0, 0.7); animation: slashEffect 0.7s ease; }
 
-    @keyframes flashEffect { 0% {opacity:0;} 50%{opacity:1;} 100%{opacity:0;} }
-    @keyframes glowEffect { 0% {opacity:0;} 50%{opacity:0.8;} 100%{opacity:0;} }
-    @keyframes fadeInOut { 0% {opacity:0;} 50%{opacity:1;} 100%{opacity:0;} }
-    @keyframes pulse { 0% {transform:scale(1);} 50%{transform:scale(1.1);} 100%{transform:scale(1);} }
-    @keyframes popEffect { 0% {transform:scale(0.8);opacity:0;} 50%{transform:scale(1.1);opacity:1;} 100%{opacity:0;} }
-    @keyframes slashEffect { 0% {transform: skewX(20deg);} 50% {transform: skewX(-20deg);} 100% {opacity: 0;} }
+    /* Inventory */
+    #inventory {
+      margin-top: 2em;
+      text-align: center;
+    }
+    #inventory h2 {
+      margin-bottom: 0.5em;
+    }
+    .item-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1em;
+    }
+    .item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+    .item img {
+      width: 100px;
+      height: auto;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+    }
+    .item span {
+      margin-top: 0.3em;
+      font-size: 0.9em;
+      font-weight: bold;
+    }
+
+    /* Item name themes */
+    .horror { color: #ff4b4b; }
+    .gothic { color: #c28bff; }
+    .lace { color: #87f2ff; }
+    .belt { color: #cccccc; }
+    .baby { color: #ffc1e3; }
+    .dexter { color: #ff0000; }
+
+    /* Fullscreen image modal */
+    #itemModal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+    #itemModal img {
+      max-width: 90%;
+      max-height: 90%;
+      border: 5px solid white;
+      border-radius: 8px;
+    }
 
     @media (max-width: 600px) {
       #passwordPrompt { top: auto; bottom: 20px; right: 20px; }
@@ -53,194 +122,198 @@
   </style>
 </head>
 <body>
-  <div id="passwordPrompt">
-    <input type="password" id="passwordInput" placeholder="Password">
-    <button onclick="checkPassword()">Unlock</button>
+
+<div id="passwordPrompt">
+  <input type="password" id="passwordInput" placeholder="Password">
+  <button onclick="checkPassword()">Unlock</button>
+</div>
+
+<h1>Gracey's Rewards</h1>
+<div id="totalPoints">0</div>
+
+<!-- Controls -->
+<div class="controls" id="editControls" style="display:none;">
+  <input type="text" id="reasonInput" placeholder="Reason..." />
+  <div class="buttons">
+    <button onclick="awardPoints(1)">+1</button>
+    <button onclick="awardPoints(5)">+5</button>
+    <button onclick="awardPoints(10)">+10</button>
+    <button onclick="awardPoints(20)">+20</button>
   </div>
+</div>
 
-  <h1>Gracey's Rewards</h1>
-  <div id="totalPoints">0</div>
-  <div id="earnedRewards">Rewards you've earned:</div>
+<!-- Logs -->
+<div id="logList"></div>
 
-  <div class="controls" id="editControls" style="display:none;">
-    <input type="text" id="reasonInput" placeholder="Reason..." />
-    <div class="buttons">
-      <button onclick="awardPoints(1)">+1</button>
-      <button onclick="awardPoints(5)">+5</button>
-      <button onclick="awardPoints(10)">+10</button>
-      <button onclick="awardPoints(20)">+20</button>
-    </div>
-  </div>
+<!-- Inventory Section -->
+<div id="inventory">
+  <h2>🎁 Inventory</h2>
+  <div class="item-grid" id="inventoryGrid"></div>
+</div>
 
-  <div id="logList"></div>
+<!-- Modal for Full Image -->
+<div id="itemModal" onclick="this.style.display='none'">
+  <img id="modalImage" src="" alt="Item Image">
+</div>
+<!-- Firebase + Script -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCVxmCeRSheujRlo2ddOcUSaNYx1pq1gFY",
+    authDomain: "gracey-s-rewards.firebaseapp.com",
+    databaseURL: "https://gracey-s-rewards-default-rtdb.firebaseio.com",
+    projectId: "gracey-s-rewards",
+    storageBucket: "gracey-s-rewards.firebasestorage.app",
+    messagingSenderId: "320157110840",
+    appId: "1:320157110840:web:ede94a3e448889b55f0ccd",
+    measurementId: "G-PRPNSPJELJ"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
-  <!-- Effect Overlays -->
-  <div id="effect_scream" class="effect-overlay scream"></div>
-  <div id="effect_bell" class="effect-overlay bell"></div>
-  <div id="effect_angelhum" class="effect-overlay angel"></div>
-  <div id="effect_ding" class="effect-overlay chain"></div>
-  <div id="effect_kiss" class="effect-overlay kiss"></div>
-  <div id="effect_slash" class="effect-overlay slash"></div>
+  const refPoints = db.ref("points");
+  const refLog = db.ref("log");
+  const refRewards = db.ref("rewards");
 
-  <!-- Reward Sound Effects -->
-  <audio id="sound_scream" src="sounds/scream.mp3" preload="auto"></audio>
-  <audio id="sound_bell" src="sounds/bell.mp3" preload="auto"></audio>
-  <audio id="sound_angelhum" src="sounds/angelhum.mp3" preload="auto"></audio>
-  <audio id="sound_ding" src="sounds/ding.mp3" preload="auto"></audio>
-  <audio id="sound_kiss" src="sounds/kiss.mp3" preload="auto"></audio>
-  <audio id="sound_slash" src="sounds/slash.mp3" preload="auto"></audio>
+  let totalPoints = 0;
+  let rewards = [];
+  let editUnlocked = false;
 
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCVxmCeRSheujRlo2ddOcUSaNYx1pq1gFY",
-      authDomain: "gracey-s-rewards.firebaseapp.com",
-      databaseURL: "https://gracey-s-rewards-default-rtdb.firebaseio.com",
-      projectId: "gracey-s-rewards",
-      storageBucket: "gracey-s-rewards.firebasestorage.app",
-      messagingSenderId: "320157110840",
-      appId: "1:320157110840:web:ede94a3e448889b55f0ccd",
-      measurementId: "G-PRPNSPJELJ"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+  const inventoryItems = [
+    {
+      name: "Horror Anime T-Shirt",
+      points: 60,
+      img: "https://m.media-amazon.com/images/I/B1pppR4gVKL._CLa%7C2140%2C2000%7C91wBHUyvxuL.png%7C0%2C0%2C2140%2C2000%2B0.0%2C0.0%2C2140.0%2C2000.0_AC_SX679_.png",
+      class: "horror"
+    },
+    {
+      name: "Gothic Graphic Crop Top",
+      points: 75,
+      img: "https://m.media-amazon.com/images/I/61CH-IigCtL._AC_SY741_.jpg",
+      class: "gothic"
+    },
+    {
+      name: "Striped Gothic Lace Shirt",
+      points: 95,
+      img: "https://m.media-amazon.com/images/I/61XF9gOHCQL._AC_SY879_.jpg",
+      class: "lace"
+    },
+    {
+      name: "Metal Chain Belt",
+      points: 115,
+      img: "https://m.media-amazon.com/images/I/71rI66+vjeL._AC_SX679_.jpg",
+      class: "belt"
+    },
+    {
+      name: "Baby Girl Top",
+      points: 150,
+      img: "https://m.media-amazon.com/images/I/41ih9Eazx1L._AC_.jpg",
+      class: "baby"
+    },
+    {
+      name: "Dexter Action-Figure Set",
+      points: 350,
+      img: "https://i.ebayimg.com/images/g/qc0AAOSwhHNndjJG/s-l1600.webp",
+      class: "dexter"
+    }
+  ];
 
-    const rewardsConfig = [
-      { points: 60, name: "Horror Anime T-Shirt", sound: "scream" },
-      { points: 75, name: "Gothic Graphic Crop Top", sound: "bell" },
-      { points: 95, name: "Striped Gothic Lace Shirt", sound: "angelhum" },
-      { points: 115, name: "Metal Chain Belt", sound: "ding" },
-      { points: 150, name: "Baby Girl Top", sound: "kiss" },
-      { points: 350, name: "Dexter Action-Figure Set", sound: "slash" }
-    ];
+  function checkPassword() {
+    const pass = document.getElementById("passwordInput").value;
+    if (pass === "ILoveGracey") {
+      editUnlocked = true;
+      document.getElementById("passwordPrompt").style.display = "none";
+      document.getElementById("editControls").style.display = "block";
+    } else {
+      alert("Incorrect password.");
+    }
+  }
 
-    let totalPoints = 0;
-    let rewards = [];
-    let editUnlocked = false;
+  refPoints.on("value", snap => {
+    totalPoints = snap.val() || 0;
+    document.getElementById("totalPoints").textContent = totalPoints;
+    updateInventory();
+  });
 
-    const refPoints = db.ref("points");
-    const refLog = db.ref("log");
-    const refRewards = db.ref("rewards");
-
-    const totalDisplay = document.getElementById("totalPoints");
+  refLog.on("value", snap => {
+    const logs = snap.val() || [];
     const logList = document.getElementById("logList");
-    const reasonInput = document.getElementById("reasonInput");
-    const rewardsDisplay = document.getElementById("earnedRewards");
-
-    function checkPassword() {
-      const pass = document.getElementById("passwordInput").value;
-      if (pass === "ILoveGracey") {
-        editUnlocked = true;
-        document.getElementById("passwordPrompt").style.display = "none";
-        document.getElementById("editControls").style.display = "block";
-        updateDisplay();
-      } else {
-        alert("Incorrect password.");
+    logList.innerHTML = "";
+    logs.forEach((entry, i) => {
+      const div = document.createElement("div");
+      div.className = "log-entry";
+      div.textContent = `+${entry.amount} - ${entry.reason}`;
+      if (editUnlocked) {
+        const btn = document.createElement("button");
+        btn.textContent = "✕";
+        btn.style.cssText = "position:absolute;right:10px;top:6px;background:crimson;color:white;border:none;border-radius:4px;cursor:pointer;";
+        btn.onclick = () => deleteEntry(i);
+        div.appendChild(btn);
       }
-    }
-
-    refPoints.on("value", snap => {
-      totalPoints = snap.val() || 0;
-      totalDisplay.textContent = totalPoints;
-      checkRewardStatus();
+      logList.appendChild(div);
     });
+  });
 
-    refLog.on("value", snap => {
+  refRewards.on("value", snap => {
+    rewards = snap.val() || [];
+    updateInventory();
+  });
+
+  function awardPoints(amount) {
+    const reason = document.getElementById("reasonInput").value || "No reason";
+    const newTotal = totalPoints + amount;
+    db.ref("points").set(newTotal);
+    refLog.once("value").then(snap => {
+      const current = snap.val() || [];
+      current.push({ amount, reason });
+      refLog.set(current);
+    });
+  }
+
+  function deleteEntry(index) {
+    refLog.once("value").then(snap => {
       const logs = snap.val() || [];
-      logList.innerHTML = "";
-      logs.forEach((entry, i) => {
+      const entry = logs[index];
+      if (!entry) return;
+      logs.splice(index, 1);
+      db.ref("log").set(logs);
+      db.ref("points").set(totalPoints - entry.amount);
+    });
+  }
+
+  function updateInventory() {
+    const grid = document.getElementById("inventoryGrid");
+    grid.innerHTML = "";
+
+    inventoryItems.forEach(item => {
+      const hasItem = totalPoints >= item.points;
+      const alreadyAdded = rewards.includes(item.name);
+
+      if (hasItem && !alreadyAdded) {
+        rewards.push(item.name);
+        refRewards.set(rewards);
+      } else if (!hasItem && alreadyAdded) {
+        rewards = rewards.filter(r => r !== item.name);
+        refRewards.set(rewards);
+      }
+
+      if (rewards.includes(item.name)) {
         const div = document.createElement("div");
-        div.className = "log-entry";
-        div.textContent = `+${entry.amount} - ${entry.reason}`;
-        if (editUnlocked) {
-          const btn = document.createElement("button");
-          btn.textContent = "✕";
-          btn.style.cssText = "position:absolute;right:10px;top:6px;background:crimson;color:white;border:none;border-radius:4px;cursor:pointer;";
-          btn.onclick = () => deleteEntry(i);
-          div.appendChild(btn);
-        }
-        logList.appendChild(div);
-      });
-    });
-
-    refRewards.on("value", snap => {
-      rewards = snap.val() || [];
-      rewardsDisplay.innerHTML = "Rewards you've earned:<br>" +
-        (rewards.length > 0
-          ? rewards.map(r => `<span class='reward-name'>${r}</span>`).join("<br>")
-          : "(None yet)");
-    });
-
-    function awardPoints(amount) {
-      const reason = reasonInput.value || "No reason";
-      const newTotal = totalPoints + amount;
-      db.ref("points").set(newTotal);
-      refLog.once("value").then(snap => {
-        const current = snap.val() || [];
-        current.push({ amount, reason });
-        refLog.set(current);
-      });
-    }
-
-    function deleteEntry(index) {
-      refLog.once("value").then(snap => {
-        const logs = snap.val() || [];
-        const entry = logs[index];
-        if (!entry) return;
-        logs.splice(index, 1);
-        db.ref("log").set(logs);
-        db.ref("points").set(totalPoints - entry.amount);
-      });
-    }
-
-    function checkRewardStatus() {
-      rewardsConfig.forEach(({ points, name, sound }) => {
-        if (totalPoints >= points && !rewards.includes(name)) {
-          rewards.push(name);
-          refRewards.set(rewards);
-          playReward(sound);
-        } else if (totalPoints < points && rewards.includes(name)) {
-          rewards = rewards.filter(r => r !== name);
-          refRewards.set(rewards);
-        }
-      });
-    }
-
-    function playReward(id) {
-      const audio = document.getElementById("sound_" + id);
-      const effect = document.getElementById("effect_" + id);
-      if (audio) {
-        audio.currentTime = 0;
-        audio.play().catch(() => {});
+        div.className = "item";
+        div.innerHTML = `
+          <img src="${item.img}" alt="${item.name}" onclick="showFullImage('${item.img}')">
+          <span class="${item.class}">${item.name}</span>
+        `;
+        grid.appendChild(div);
       }
-      if (effect) {
-        effect.style.display = "block";
-        setTimeout(() => {
-          effect.style.display = "none";
-        }, 1500);
-      }
-    }
+    });
+  }
 
-    function updateDisplay() {
-      refLog.once("value").then(snap => {
-        const logs = snap.val() || [];
-        logList.innerHTML = "";
-        logs.forEach((entry, i) => {
-          const div = document.createElement("div");
-          div.className = "log-entry";
-          div.textContent = `+${entry.amount} - ${entry.reason}`;
-          if (editUnlocked) {
-            const btn = document.createElement("button");
-            btn.textContent = "✕";
-            btn.style.cssText = "position:absolute;right:10px;top:6px;background:crimson;color:white;border:none;border-radius:4px;cursor:pointer;";
-            btn.onclick = () => deleteEntry(i);
-            div.appendChild(btn);
-          }
-          logList.appendChild(div);
-        });
-      });
-    }
-  </script>
+  function showFullImage(src) {
+    document.getElementById("modalImage").src = src;
+    document.getElementById("itemModal").style.display = "flex";
+  }
+</script>
 </body>
 </html>
