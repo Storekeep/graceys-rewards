@@ -315,7 +315,9 @@
     refLog.once("value").then(() => refLog.emit("value"));
   } else {
     alert("Incorrect password.");
-  }refLog.once("value").then(() => refLog.emit("value")); // Force refresh to show delete buttons
+  }
+  refLog.once("value").then(() => refLog.emit("value")); // Force refresh to show delete buttons
+
 }
   refPoints.on("value", snap => {
     totalPoints = snap.val() || 0;
