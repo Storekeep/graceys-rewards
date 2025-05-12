@@ -268,6 +268,7 @@
 <div id="effect_ding" class="effect-overlay ding"></div>
 <div id="effect_kiss" class="effect-overlay kiss"></div>
 <div id="effect_slash" class="effect-overlay slash"></div><script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
   const firebaseConfig = {
@@ -291,6 +292,8 @@
   let rewards = [];
   let editUnlocked = false;
   let unseenRewards = [];
+  let popupQueue = [];
+  let popupShowing = false;
 
   const rewardItems = [
     { name: "Horror Anime T-Shirt", points: 60, img: "https://m.media-amazon.com/images/I/B1pppR4gVKL._CLa%7C2140%2C2000%7C91wBHUyvxuL.png%7C0%2C0%2C2140%2C2000%2B0.0%2C0.0%2C2140.0%2C2000.0_AC_SX679_.png", class: "horror", sound: "scream" },
@@ -376,9 +379,7 @@
       if (hasItem && !alreadyEarned) {
         rewards.push(item.name);
         unseenRewards.push(item.name);
-        playReward(item.sound);
-        showEffect(item.sound);
-        showPopup(item);
+        popupQueue.push(item); // Queue reward
         updated = true;
       } else if (!hasItem && alreadyEarned) {
         rewards = rewards.filter(r => r !== item.name);
@@ -398,6 +399,7 @@
 
     if (updated) refRewards.set(rewards);
     updateBadge();
+    processPopupQueue(); // show queued popups
   }
 
   function playReward(soundId) {
@@ -414,7 +416,7 @@
 
   function showPopup(item) {
     const popup = document.getElementById("rewardPopup");
-    popup.className = ""; // Reset
+    popup.className = "";
     popup.innerHTML = `
       <strong>You just earned:</strong><br>
       <span class="${item.class}">${item.name}</span><br>
@@ -422,9 +424,21 @@
     `;
     popup.classList.add("popup-" + item.class);
     popup.style.display = "block";
+    playReward(item.sound);
+    showEffect(item.sound);
+
     setTimeout(() => {
       popup.style.display = "none";
-    }, 3000);
+      popupShowing = false;
+      processPopupQueue(); // Show next if any
+    }, 4000);
+  }
+
+  function processPopupQueue() {
+    if (popupShowing || popupQueue.length === 0) return;
+    popupShowing = true;
+    const next = popupQueue.shift();
+    showPopup(next);
   }
 
   function showFullImage(src) {
