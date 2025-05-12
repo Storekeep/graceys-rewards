@@ -305,16 +305,18 @@
   ];
 
   function checkPassword() {
-    const pass = document.getElementById("passwordInput").value;
-    if (pass === "ILoveGracey") {
-      editUnlocked = true;
-      document.getElementById("passwordPrompt").style.display = "none";
-      document.getElementById("editControls").style.display = "block";
-    } else {
-      alert("Incorrect password.");
-    }
-  }
+  const pass = document.getElementById("passwordInput").value;
+  if (pass === "ILoveGracey") {
+    editUnlocked = true;
+    document.getElementById("passwordPrompt").style.display = "none";
+    document.getElementById("editControls").style.display = "block";
 
+    // Force refresh the log so delete buttons show
+    refLog.once("value").then(() => refLog.emit("value"));
+  } else {
+    alert("Incorrect password.");
+  }refLog.once("value").then(() => refLog.emit("value")); // Force refresh to show delete buttons
+}
   refPoints.on("value", snap => {
     totalPoints = snap.val() || 0;
     document.getElementById("totalPoints").textContent = totalPoints;
