@@ -368,39 +368,58 @@
   }
 
   function updateInventory() {
-    const grid = document.getElementById("inventoryGrid");
-    grid.innerHTML = "";
-    let updated = false;
+  const grid = document.getElementById("inventoryGrid");
+  grid.innerHTML = "";
+  let updated = false;
 
-    rewardItems.forEach(item => {
-      const hasItem = totalPoints >= item.points;
-      const alreadyEarned = rewards.includes(item.name);
+  // Get previously known rewards from localStorage
+  const seen = JSON.parse(localStorage.getItem("seenRewards") || "[]");
+  const newSeen = [...seen];
+  const justEarned = [];
 
-      if (hasItem && !alreadyEarned) {
-        rewards.push(item.name);
-        unseenRewards.push(item.name);
-        popupQueue.push(item); // Queue reward
-        updated = true;
-      } else if (!hasItem && alreadyEarned) {
-        rewards = rewards.filter(r => r !== item.name);
-        updated = true;
-      }
+  rewardItems.forEach(item => {
+    const hasItem = totalPoints >= item.points;
+    const alreadyEarned = rewards.includes(item.name);
 
-      if (hasItem) {
-        const div = document.createElement("div");
-        div.className = "item";
-        div.innerHTML = `
-          <img src="${item.img}" alt="${item.name}" onclick="showFullImage('${item.img}')">
-          <span class="${item.class}">${item.name}</span>
-        `;
-        grid.appendChild(div);
-      }
-    });
+    if (hasItem && !alreadyEarned) {
+      rewards.push(item.name);
+      unseenRewards.push(item.name);
+      justEarned.push(item); // Mark for popup queue
+      updated = true;
+    } else if (!hasItem && alreadyEarned) {
+      rewards = rewards.filter(r => r !== item.name);
+      updated = true;
+    }
 
-    if (updated) refRewards.set(rewards);
-    updateBadge();
-    processPopupQueue(); // show queued popups
+    if (hasItem) {
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `
+        <img src="${item.img}" alt="${item.name}" onclick="showFullImage('${item.img}')">
+        <span class="${item.class}">${item.name}</span>
+      `;
+      grid.appendChild(div);
+    }
+  });
+
+  if (updated) {
+    refRewards.set(rewards);
   }
+
+  // Only popup if new rewards were truly just unlocked
+  justEarned.forEach(item => {
+    if (!seen.includes(item.name)) {
+      popupQueue.push(item);
+      newSeen.push(item.name);
+    }
+  });
+
+  // Save updated seen rewards to localStorage
+  localStorage.setItem("seenRewards", JSON.stringify(newSeen));
+
+  updateBadge();
+  processPopupQueue();
+}
 
   function playReward(soundId) {
     const audio = new Audio("sounds/" + soundId + ".mp3");
