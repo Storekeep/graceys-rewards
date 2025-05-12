@@ -28,6 +28,12 @@
       margin-bottom: 0.5em;
       position: relative;
     }
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
     input, button {
       padding: 0.6em;
       margin: 0.2em;
@@ -35,46 +41,6 @@
       border-radius: 6px;
       border: none;
     }
-    .buttons {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    #celebration {
-      display: none;
-      position: fixed;
-      top: 35%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 2em;
-      background: rgba(255, 0, 0, 0.9);
-      padding: 20px;
-      border-radius: 10px;
-      z-index: 1001;
-      animation: popFade 2.5s ease-out forwards;
-      box-shadow: 0 0 20px red;
-    }
-    #redFlash {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(255,0,0,0.6);
-      z-index: 1000;
-      animation: flash 1s ease-out;
-      pointer-events: none;
-    }
-    @keyframes flash {
-      0% { opacity: 0; }
-      20% { opacity: 0.6; }
-      100% { opacity: 0; }
-    }
-    @keyframes popFade {
-      0% { transform: translateX(-50%) scale(0.5); opacity: 0; }
-      50% { transform: translateX(-50%) scale(1.2); opacity: 1; }
-      100% { transform: translateX(-50%) scale(1); opacity: 0; }
-    }
-
     #passwordPrompt {
       position: fixed;
       top: 20px;
@@ -83,218 +49,224 @@
       padding: 12px;
       border-radius: 10px;
       z-index: 1100;
-      box-shadow: 0 0 10px #fff3;
     }
+    .effect-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 1000;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+    .scream { background: red; animation: flashEffect 0.6s ease; }
+    .bell { background: rgba(150, 0, 255, 0.7); animation: glowEffect 1s ease; }
+    .angel { background: rgba(255, 255, 255, 0.9); animation: fadeInOut 1.5s ease; }
+    .chain { background: linear-gradient(45deg, gray, silver); animation: pulse 0.8s ease; }
+    .kiss { background: pink; animation: popEffect 1s ease; }
+    .slash { background: rgba(255, 0, 0, 0.7); animation: slashEffect 0.7s ease; }
 
-    #passwordPrompt input {
-      padding: 8px;
-      border: none;
-      border-radius: 5px;
-      margin-right: 5px;
-    }
-
-    #passwordPrompt button {
-      padding: 8px;
-      background: #ffa07a;
-      border: none;
-      border-radius: 5px;
-      color: #000;
-      cursor: pointer;
-    }
+    @keyframes flashEffect { 0% {opacity:0;} 50%{opacity:1;} 100%{opacity:0;} }
+    @keyframes glowEffect { 0% {opacity:0;} 50%{opacity:0.8;} 100%{opacity:0;} }
+    @keyframes fadeInOut { 0% {opacity:0;} 50%{opacity:1;} 100%{opacity:0;} }
+    @keyframes pulse { 0% {transform:scale(1);} 50%{transform:scale(1.1);} 100%{transform:scale(1);} }
+    @keyframes popEffect { 0% {transform:scale(0.8);opacity:0;} 50%{transform:scale(1.1);opacity:1;} 100%{opacity:0;} }
+    @keyframes slashEffect { 0% {transform: skewX(20deg);} 50% {transform: skewX(-20deg);} 100% {opacity: 0;} }
 
     @media (max-width: 600px) {
-      #passwordPrompt {
-        top: auto;
-        bottom: 20px;
-        right: 20px;
-      }
+      #passwordPrompt { top: auto; bottom: 20px; right: 20px; }
     }
   </style>
 </head>
 <body>
 
-  <div id="passwordPrompt">
-    <input type="password" id="passwordInput" placeholder="Password">
-    <button onclick="checkPassword()">Unlock</button>
+<div id="passwordPrompt">
+  <input type="password" id="passwordInput" placeholder="Password">
+  <button onclick="checkPassword()">Unlock</button>
+</div>
+
+<h1>Gracey's Rewards</h1>
+<div id="totalPoints">0</div>
+<div id="earnedRewards">Rewards you've earned:</div>
+
+<div class="controls" id="editControls" style="display:none;">
+  <input type="text" id="reasonInput" placeholder="Reason..." />
+  <div class="buttons">
+    <button onclick="awardPoints(1)">+1</button>
+    <button onclick="awardPoints(5)">+5</button>
+    <button onclick="awardPoints(10)">+10</button>
+    <button onclick="awardPoints(20)">+20</button>
   </div>
+</div>
 
-  <h1>Gracey's Rewards</h1>
-  <div id="totalPoints">0</div>
-  <div id="earnedRewards">Rewards you've earned:</div>
+<div id="logList"></div>
 
-  <div class="controls" id="editControls" style="display:none;">
-    <input type="text" id="reasonInput" placeholder="Reason..." />
-    <div class="buttons">
-      <button onclick="awardPoints(1)">+1</button>
-      <button onclick="awardPoints(5)">+5</button>
-      <button onclick="awardPoints(10)">+10</button>
-      <button onclick="awardPoints(20)">+20</button>
-    </div>
+<!-- Visual Effect Overlays -->
+<div id="effect_scream" class="effect-overlay scream"></div>
+<div id="effect_bell" class="effect-overlay bell"></div>
+<div id="effect_angelhum" class="effect-overlay angel"></div>
+<div id="effect_ding" class="effect-overlay chain"></div>
+<div id="effect_kiss" class="effect-overlay kiss"></div>
+<div id="effect_slash" class="effect-overlay slash"></div>
+
+<!-- Reward Sound Effects -->
+<audio id="sound_scream" src="sounds/scream.mp3" preload="auto"></audio>
+<audio id="sound_bell" src="sounds/bell.mp3" preload="auto"></audio>
+<audio id="sound_angelhum" src="sounds/angelhum.mp3" preload="auto"></audio>
+<audio id="sound_ding" src="sounds/ding.mp3" preload="auto"></audio>
+<audio id="sound_kiss" src="sounds/kiss.mp3" preload="auto"></audio>
+<audio id="sound_slash" src="sounds/slash.mp3" preload="auto"></audio>
+
+<!-- Firebase Setup -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCVxmCeRSheujRlo2ddOcUSaNYx1pq1gFY",
+    authDomain: "gracey-s-rewards.firebaseapp.com",
+    databaseURL: "https://gracey-s-rewards-default-rtdb.firebaseio.com",
+    projectId: "gracey-s-rewards",
+    storageBucket: "gracey-s-rewards.firebasestorage.app",
+    messagingSenderId: "320157110840",
+    appId: "1:320157110840:web:ede94a3e448889b55f0ccd",
+    measurementId: "G-PRPNSPJELJ"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gracey's Rewards</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #1a1a1a, #3a3a3a);
+      color: #fff;
+      margin: 0;
+      padding: 2em 1em;
+    }
+    h1 { text-align: center; color: #fff1a8; text-shadow: 0 0 15px #ff0; }
+    #totalPoints { font-size: 2.5em; text-align: center; margin: 0.5em 0; color: #ffda75; }
+    #earnedRewards { text-align: center; color: #7cfaff; font-size: 1.2em; }
+    .reward-name {
+      font-weight: bold;
+      color: #ff6ec7;
+      text-shadow: 0 0 6px #ff6ec7;
+    }
+    .controls, .log-entry { text-align: center; margin: 1em auto; max-width: 400px; }
+    .log-entry {
+      background: #333;
+      padding: 0.8em;
+      border-radius: 8px;
+      margin-bottom: 0.5em;
+      position: relative;
+    }
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    input, button {
+      padding: 0.6em;
+      margin: 0.2em;
+      font-size: 1em;
+      border-radius: 6px;
+      border: none;
+    }
+    #passwordPrompt {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.7);
+      padding: 12px;
+      border-radius: 10px;
+      z-index: 1100;
+    }
+    .effect-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 1000;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+    .scream { background: red; animation: flashEffect 0.6s ease; }
+    .bell { background: rgba(150, 0, 255, 0.7); animation: glowEffect 1s ease; }
+    .angel { background: rgba(255, 255, 255, 0.9); animation: fadeInOut 1.5s ease; }
+    .chain { background: linear-gradient(45deg, gray, silver); animation: pulse 0.8s ease; }
+    .kiss { background: pink; animation: popEffect 1s ease; }
+    .slash { background: rgba(255, 0, 0, 0.7); animation: slashEffect 0.7s ease; }
+
+    @keyframes flashEffect { 0% {opacity:0;} 50%{opacity:1;} 100%{opacity:0;} }
+    @keyframes glowEffect { 0% {opacity:0;} 50%{opacity:0.8;} 100%{opacity:0;} }
+    @keyframes fadeInOut { 0% {opacity:0;} 50%{opacity:1;} 100%{opacity:0;} }
+    @keyframes pulse { 0% {transform:scale(1);} 50%{transform:scale(1.1);} 100%{transform:scale(1);} }
+    @keyframes popEffect { 0% {transform:scale(0.8);opacity:0;} 50%{transform:scale(1.1);opacity:1;} 100%{opacity:0;} }
+    @keyframes slashEffect { 0% {transform: skewX(20deg);} 50% {transform: skewX(-20deg);} 100% {opacity: 0;} }
+
+    @media (max-width: 600px) {
+      #passwordPrompt { top: auto; bottom: 20px; right: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="passwordPrompt">
+  <input type="password" id="passwordInput" placeholder="Password">
+  <button onclick="checkPassword()">Unlock</button>
+</div>
+
+<h1>Gracey's Rewards</h1>
+<div id="totalPoints">0</div>
+<div id="earnedRewards">Rewards you've earned:</div>
+
+<div class="controls" id="editControls" style="display:none;">
+  <input type="text" id="reasonInput" placeholder="Reason..." />
+  <div class="buttons">
+    <button onclick="awardPoints(1)">+1</button>
+    <button onclick="awardPoints(5)">+5</button>
+    <button onclick="awardPoints(10)">+10</button>
+    <button onclick="awardPoints(20)">+20</button>
   </div>
+</div>
 
-  <div id="logList"></div>
+<div id="logList"></div>
 
-  <div id="celebration">You've earned: Dexter Action-Figure Set!</div>
-  <div id="redFlash"></div>
+<!-- Visual Effect Overlays -->
+<div id="effect_scream" class="effect-overlay scream"></div>
+<div id="effect_bell" class="effect-overlay bell"></div>
+<div id="effect_angelhum" class="effect-overlay angel"></div>
+<div id="effect_ding" class="effect-overlay chain"></div>
+<div id="effect_kiss" class="effect-overlay kiss"></div>
+<div id="effect_slash" class="effect-overlay slash"></div>
 
-  <audio id="clapSound" src="sounds/clap.mp3" preload="auto"></audio>
-  <audio id="goalSound" src="sounds/slash.mp3" preload="auto"></audio>
+<!-- Reward Sound Effects -->
+<audio id="sound_scream" src="sounds/scream.mp3" preload="auto"></audio>
+<audio id="sound_bell" src="sounds/bell.mp3" preload="auto"></audio>
+<audio id="sound_angelhum" src="sounds/angelhum.mp3" preload="auto"></audio>
+<audio id="sound_ding" src="sounds/ding.mp3" preload="auto"></audio>
+<audio id="sound_kiss" src="sounds/kiss.mp3" preload="auto"></audio>
+<audio id="sound_slash" src="sounds/slash.mp3" preload="auto"></audio>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCVxmCeRSheujRlo2ddOcUSaNYx1pq1gFY",
-      authDomain: "gracey-s-rewards.firebaseapp.com",
-      databaseURL: "https://gracey-s-rewards-default-rtdb.firebaseio.com",
-      projectId: "gracey-s-rewards",
-      storageBucket: "gracey-s-rewards.firebasestorage.app",
-      messagingSenderId: "320157110840",
-      appId: "1:320157110840:web:ede94a3e448889b55f0ccd",
-      measurementId: "G-PRPNSPJELJ"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-  </script>
-
-  <script>
-    const pointGoal = 350;
-    let totalPoints = 0;
-    let rewards = [];
-    let lastCelebrationPoints = 0;
-    let editUnlocked = false;
-
-    const refPoints = db.ref("points");
-    const refLog = db.ref("log");
-    const refRewards = db.ref("rewards");
-
-    const totalDisplay = document.getElementById("totalPoints");
-    const logList = document.getElementById("logList");
-    const reasonInput = document.getElementById("reasonInput");
-    const rewardsDisplay = document.getElementById("earnedRewards");
-    const clapSound = document.getElementById("clapSound");
-    const goalSound = document.getElementById("goalSound");
-    const redFlash = document.getElementById("redFlash");
-    const celebration = document.getElementById("celebration");
-
-    function checkPassword() {
-      const pass = document.getElementById("passwordInput").value;
-      if (pass === "ILoveGracey") {
-        editUnlocked = true;
-        document.getElementById("passwordPrompt").style.display = "none";
-        document.getElementById("editControls").style.display = "block";
-        updateDisplay();
-      } else {
-        alert("Incorrect password.");
-      }
-    }
-
-    refPoints.on("value", snap => {
-      totalPoints = snap.val() || 0;
-      totalDisplay.textContent = totalPoints;
-      checkRewardStatus();
-    });
-
-    refLog.on("value", snap => {
-      const logs = snap.val() || [];
-      logList.innerHTML = "";
-      logs.forEach((entry, i) => {
-        const div = document.createElement("div");
-        div.className = "log-entry";
-        div.textContent = `+${entry.amount} - ${entry.reason}`;
-        if (editUnlocked) {
-          const btn = document.createElement("button");
-          btn.textContent = "✕";
-          btn.style.cssText = "position:absolute;right:10px;top:6px;background:crimson;color:white;border:none;border-radius:4px;cursor:pointer;";
-          btn.onclick = () => deleteEntry(i);
-          div.appendChild(btn);
-        }
-        logList.appendChild(div);
-      });
-    });
-
-    refRewards.on("value", snap => {
-      rewards = snap.val() || [];
-      rewardsDisplay.innerHTML = "Rewards you've earned:<br>" +
-        (rewards.length > 0
-          ? rewards.map(r => `<span class='reward-name'>${r}</span>`).join("<br>")
-          : "(None yet)");
-    });
-
-    function awardPoints(amount) {
-      if (!reasonInput) return;
-      const wasBelowGoal = totalPoints < pointGoal;
-      const reason = reasonInput.value || "No reason";
-      const newTotal = totalPoints + amount;
-      db.ref("points").set(newTotal);
-      refLog.once("value").then(snap => {
-        const current = snap.val() || [];
-        current.push({ amount, reason });
-        refLog.set(current);
-      });
-      clapSound.currentTime = 0;
-      clapSound.play();
-      if (newTotal >= pointGoal && wasBelowGoal) showGoalEffects();
-      else if (newTotal >= pointGoal) showGoalEffects();
-    }
-
-    function deleteEntry(index) {
-      refLog.once("value").then(snap => {
-        const logs = snap.val() || [];
-        const entry = logs[index];
-        if (!entry) return;
-        logs.splice(index, 1);
-        db.ref("log").set(logs);
-        db.ref("points").set(totalPoints - entry.amount);
-      });
-    }
-
-    function checkRewardStatus() {
-      const rewardName = "Dexter Action-Figure Set";
-      const index = rewards.indexOf(rewardName);
-      if (totalPoints >= pointGoal) {
-        if (index === -1) rewards.push(rewardName);
-        refRewards.set(rewards);
-      } else {
-        if (index !== -1) {
-          rewards = rewards.filter(r => r !== rewardName);
-          refRewards.set(rewards);
-        }
-      }
-    }
-
-    function showGoalEffects() {
-      celebration.style.display = "block";
-      goalSound.currentTime = 0;
-      goalSound.play();
-      redFlash.style.display = "block";
-      redFlash.style.animation = "flash 1s ease-out";
-      setTimeout(() => {
-        redFlash.style.display = "none";
-        celebration.style.display = "none";
-      }, 2500);
-    }
-
-    function updateDisplay() {
-      refLog.once("value").then(snap => {
-        const logs = snap.val() || [];
-        logList.innerHTML = "";
-        logs.forEach((entry, i) => {
-          const div = document.createElement("div");
-          div.className = "log-entry";
-          div.textContent = `+${entry.amount} - ${entry.reason}`;
-          if (editUnlocked) {
-            const btn = document.createElement("button");
-            btn.textContent = "✕";
-            btn.style.cssText = "position:absolute;right:10px;top:6px;background:crimson;color:white;border:none;border-radius:4px;cursor:pointer;";
-            btn.onclick = () => deleteEntry(i);
-            div.appendChild(btn);
-          }
-          logList.appendChild(div);
-        });
-      });
-    }
-  </script>
-</body>
-</html>
+<!-- Firebase Setup -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCVxmCeRSheujRlo2ddOcUSaNYx1pq1gFY",
+    authDomain: "gracey-s-rewards.firebaseapp.com",
+    databaseURL: "https://gracey-s-rewards-default-rtdb.firebaseio.com",
+    projectId: "gracey-s-rewards",
+    storageBucket: "gracey-s-rewards.firebasestorage.app",
+    messagingSenderId: "320157110840",
+    appId: "1:320157110840:web:ede94a3e448889b55f0ccd",
+    measurementId: "G-PRPNSPJELJ"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>
