@@ -59,7 +59,37 @@
     }
 
     /* Inventory */
+    #inventoryToggle {
+      text-align: center;
+      margin-top: 1em;
+    }
+    #inventoryButton {
+      position: relative;
+      font-size: 1.1em;
+      padding: 10px 16px;
+      background: #555;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: red;
+      color: white;
+      font-size: 0.75em;
+      font-weight: bold;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+      text-align: center;
+      display: none;
+    }
     #inventory {
+      display: none;
       margin-top: 2em;
       text-align: center;
     }
@@ -90,15 +120,13 @@
       font-weight: bold;
     }
 
-    /* Item name themes */
     .horror { color: #ff4b4b; }
     .gothic { color: #c28bff; }
-    .lace { color: #87f2ff; }
-    .belt { color: #cccccc; }
-    .baby { color: #ffc1e3; }
+    .lace   { color: #87f2ff; }
+    .belt   { color: #cccccc; }
+    .baby   { color: #ffc1e3; }
     .dexter { color: #ff0000; }
 
-    /* Fullscreen image modal */
     #itemModal {
       display: none;
       position: fixed;
@@ -145,9 +173,16 @@
 <!-- Logs -->
 <div id="logList"></div>
 
+<!-- Inventory Toggle -->
+<div id="inventoryToggle">
+  <button id="inventoryButton" onclick="toggleInventory()">
+    🧺 Inventory <span id="badge">0</span>
+  </button>
+</div>
+
 <!-- Inventory Section -->
 <div id="inventory">
-  <h2>🎁 Inventory</h2>
+  <h2>🎁 Rewards You've Earned</h2>
   <div class="item-grid" id="inventoryGrid"></div>
 </div>
 
@@ -179,43 +214,50 @@
   let totalPoints = 0;
   let rewards = [];
   let editUnlocked = false;
+  let unseenRewards = [];
 
-  const inventoryItems = [
+  const rewardItems = [
     {
       name: "Horror Anime T-Shirt",
       points: 60,
       img: "https://m.media-amazon.com/images/I/B1pppR4gVKL._CLa%7C2140%2C2000%7C91wBHUyvxuL.png%7C0%2C0%2C2140%2C2000%2B0.0%2C0.0%2C2140.0%2C2000.0_AC_SX679_.png",
-      class: "horror"
+      class: "horror",
+      sound: "scream"
     },
     {
       name: "Gothic Graphic Crop Top",
       points: 75,
       img: "https://m.media-amazon.com/images/I/61CH-IigCtL._AC_SY741_.jpg",
-      class: "gothic"
+      class: "gothic",
+      sound: "bell"
     },
     {
       name: "Striped Gothic Lace Shirt",
       points: 95,
       img: "https://m.media-amazon.com/images/I/61XF9gOHCQL._AC_SY879_.jpg",
-      class: "lace"
+      class: "lace",
+      sound: "angelhum"
     },
     {
       name: "Metal Chain Belt",
       points: 115,
       img: "https://m.media-amazon.com/images/I/71rI66+vjeL._AC_SX679_.jpg",
-      class: "belt"
+      class: "belt",
+      sound: "ding"
     },
     {
       name: "Baby Girl Top",
       points: 150,
       img: "https://m.media-amazon.com/images/I/41ih9Eazx1L._AC_.jpg",
-      class: "baby"
+      class: "baby",
+      sound: "kiss"
     },
     {
       name: "Dexter Action-Figure Set",
       points: 350,
       img: "https://i.ebayimg.com/images/g/qc0AAOSwhHNndjJG/s-l1600.webp",
-      class: "dexter"
+      class: "dexter",
+      sound: "slash"
     }
   ];
 
@@ -285,14 +327,18 @@
   function updateInventory() {
     const grid = document.getElementById("inventoryGrid");
     grid.innerHTML = "";
+    const newRewards = [];
 
-    inventoryItems.forEach(item => {
+    rewardItems.forEach(item => {
       const hasItem = totalPoints >= item.points;
       const alreadyAdded = rewards.includes(item.name);
 
       if (hasItem && !alreadyAdded) {
         rewards.push(item.name);
         refRewards.set(rewards);
+        newRewards.push(item);
+        unseenRewards.push(item.name);
+        playSound(item.sound);
       } else if (!hasItem && alreadyAdded) {
         rewards = rewards.filter(r => r !== item.name);
         refRewards.set(rewards);
@@ -308,11 +354,40 @@
         grid.appendChild(div);
       }
     });
+
+    updateBadge();
   }
 
   function showFullImage(src) {
     document.getElementById("modalImage").src = src;
     document.getElementById("itemModal").style.display = "flex";
+  }
+
+  function playSound(id) {
+    const audio = new Audio("sounds/" + id + ".mp3");
+    audio.play().catch(() => {});
+  }
+
+  function toggleInventory() {
+    const inv = document.getElementById("inventory");
+    const badge = document.getElementById("badge");
+    if (inv.style.display === "none") {
+      inv.style.display = "block";
+      unseenRewards = [];
+      badge.style.display = "none";
+    } else {
+      inv.style.display = "none";
+    }
+  }
+
+  function updateBadge() {
+    const badge = document.getElementById("badge");
+    if (unseenRewards.length > 0) {
+      badge.style.display = "inline-block";
+      badge.textContent = unseenRewards.length;
+    } else {
+      badge.style.display = "none";
+    }
   }
 </script>
 </body>
