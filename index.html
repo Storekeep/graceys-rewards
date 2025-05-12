@@ -167,7 +167,6 @@
     @keyframes pop { 0%{transform:scale(0.8);opacity:0;} 50%{transform:scale(1.1);opacity:1;} 100%{opacity:0;} }
     @keyframes slash { 0%{transform: skewX(20deg);} 50%{transform: skewX(-20deg);} 100%{opacity: 0;} }
 
-    /* Reward Popup */
     #rewardPopup {
       display: none;
       position: fixed;
@@ -184,7 +183,6 @@
       box-shadow: 0 0 25px #fff4;
       animation: popBounce 0.8s ease, fadeHold 3s ease;
     }
-
     #rewardPopup img {
       max-width: 100px;
       max-height: 100px;
@@ -193,20 +191,17 @@
       border: 2px solid white;
       box-shadow: 0 0 10px #fff3;
     }
-
     @keyframes popBounce {
       0% { transform: scale(0.5) translate(-50%, -50%); opacity: 0; }
       50% { transform: scale(1.1) translate(-50%, -50%); opacity: 1; }
       100% { transform: scale(1) translate(-50%, -50%); }
     }
-
     @keyframes fadeHold {
       0%   { opacity: 0; }
       10%  { opacity: 1; }
       90%  { opacity: 1; }
       100% { opacity: 0; }
     }
-
     .popup-horror  { border: 3px solid #ff4b4b; box-shadow: 0 0 20px #ff4b4b88; }
     .popup-gothic  { border: 3px solid #c28bff; box-shadow: 0 0 20px #c28bff88; }
     .popup-lace    { border: 3px solid #87f2ff; box-shadow: 0 0 20px #87f2ff88; }
@@ -229,7 +224,6 @@
 <h1>Gracey's Rewards</h1>
 <div id="totalPoints">0</div>
 
-<!-- Controls -->
 <div class="controls" id="editControls" style="display:none;">
   <input type="text" id="reasonInput" placeholder="Reason..." />
   <div class="buttons">
@@ -242,7 +236,6 @@
 
 <div id="logList"></div>
 
-<!-- Inventory Toggle -->
 <div id="inventoryToggle">
   <button id="inventoryButton" onclick="toggleInventory()">
     🧺 Inventory <span id="badge">0</span>
@@ -258,128 +251,124 @@
   <img id="modalImage" src="" alt="Item Image">
 </div>
 
-<!-- Reward Popup -->
 <div id="rewardPopup"></div>
 
-<!-- Visual Effects -->
 <div id="effect_scream" class="effect-overlay scream"></div>
 <div id="effect_bell" class="effect-overlay bell"></div>
 <div id="effect_angelhum" class="effect-overlay angelhum"></div>
 <div id="effect_ding" class="effect-overlay ding"></div>
 <div id="effect_kiss" class="effect-overlay kiss"></div>
-<div id="effect_slash" class="effect-overlay slash"></div><script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<div id="effect_slash" class="effect-overlay slash"></div>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCVxmCeRSheujRlo2ddOcUSaNYx1pq1gFY",
-    authDomain: "gracey-s-rewards.firebaseapp.com",
-    databaseURL: "https://gracey-s-rewards-default-rtdb.firebaseio.com",
-    projectId: "gracey-s-rewards",
-    storageBucket: "gracey-s-rewards.firebasestorage.app",
-    messagingSenderId: "320157110840",
-    appId: "1:320157110840:web:ede94a3e448889b55f0ccd",
-    measurementId: "G-PRPNSPJELJ"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
+const firebaseConfig = {
+  apiKey: "AIzaSyCVxmCeRSheujRlo2ddOcUSaNYx1pq1gFY",
+  authDomain: "gracey-s-rewards.firebaseapp.com",
+  databaseURL: "https://gracey-s-rewards-default-rtdb.firebaseio.com",
+  projectId: "gracey-s-rewards",
+  storageBucket: "gracey-s-rewards.firebasestorage.app",
+  messagingSenderId: "320157110840",
+  appId: "1:320157110840:web:ede94a3e448889b55f0ccd",
+  measurementId: "G-PRPNSPJELJ"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const refPoints = db.ref("points");
+const refLog = db.ref("log");
+const refRewards = db.ref("rewards");
 
-  const refPoints = db.ref("points");
-  const refLog = db.ref("log");
-  const refRewards = db.ref("rewards");
+let totalPoints = 0;
+let rewards = [];
+let editUnlocked = false;
+let unseenRewards = [];
+let popupQueue = [];
+let popupShowing = false;
 
-  let totalPoints = 0;
-  let rewards = [];
-  let editUnlocked = false;
-  let unseenRewards = [];
-  let popupQueue = [];
-  let popupShowing = false;
+const rewardItems = [
+  { name: "Horror Anime T-Shirt", points: 60, img: "https://m.media-amazon.com/images/I/B1pppR4gVKL._CLa%7C2140%2C2000%7C91wBHUyvxuL.png%7C0%2C0%2C2140%2C2000%2B0.0%2C0.0%2C2140.0%2C2000.0_AC_SX679_.png", class: "horror", sound: "scream" },
+  { name: "Gothic Graphic Crop Top", points: 75, img: "https://m.media-amazon.com/images/I/61CH-IigCtL._AC_SY741_.jpg", class: "gothic", sound: "bell" },
+  { name: "Striped Gothic Lace Shirt", points: 95, img: "https://m.media-amazon.com/images/I/61XF9gOHCQL._AC_SY879_.jpg", class: "lace", sound: "angelhum" },
+  { name: "Metal Chain Belt", points: 115, img: "https://m.media-amazon.com/images/I/71rI66+vjeL._AC_SX679_.jpg", class: "belt", sound: "ding" },
+  { name: "Baby Girl Top", points: 150, img: "https://m.media-amazon.com/images/I/41ih9Eazx1L._AC_.jpg", class: "baby", sound: "kiss" },
+  { name: "Dexter Action-Figure Set", points: 350, img: "https://i.ebayimg.com/images/g/qc0AAOSwhHNndjJG/s-l1600.webp", class: "dexter", sound: "slash" }
+];
 
-  const rewardItems = [
-    { name: "Horror Anime T-Shirt", points: 60, img: "https://m.media-amazon.com/images/I/B1pppR4gVKL._CLa%7C2140%2C2000%7C91wBHUyvxuL.png%7C0%2C0%2C2140%2C2000%2B0.0%2C0.0%2C2140.0%2C2000.0_AC_SX679_.png", class: "horror", sound: "scream" },
-    { name: "Gothic Graphic Crop Top", points: 75, img: "https://m.media-amazon.com/images/I/61CH-IigCtL._AC_SY741_.jpg", class: "gothic", sound: "bell" },
-    { name: "Striped Gothic Lace Shirt", points: 95, img: "https://m.media-amazon.com/images/I/61XF9gOHCQL._AC_SY879_.jpg", class: "lace", sound: "angelhum" },
-    { name: "Metal Chain Belt", points: 115, img: "https://m.media-amazon.com/images/I/71rI66+vjeL._AC_SX679_.jpg", class: "belt", sound: "ding" },
-    { name: "Baby Girl Top", points: 150, img: "https://m.media-amazon.com/images/I/41ih9Eazx1L._AC_.jpg", class: "baby", sound: "kiss" },
-    { name: "Dexter Action-Figure Set", points: 350, img: "https://i.ebayimg.com/images/g/qc0AAOSwhHNndjJG/s-l1600.webp", class: "dexter", sound: "slash" }
-  ];
-
-  function checkPassword() {
+function checkPassword() {
   const pass = document.getElementById("passwordInput").value;
   if (pass === "ILoveGracey") {
     editUnlocked = true;
     document.getElementById("passwordPrompt").style.display = "none";
     document.getElementById("editControls").style.display = "block";
-
-    // Force refresh the log so delete buttons show
     refLog.once("value").then(() => refLog.emit("value"));
   } else {
     alert("Incorrect password.");
   }
-  refLog.once("value").then(() => refLog.emit("value")); // Force refresh to show delete buttons
-
 }
-  refPoints.on("value", snap => {
-    totalPoints = snap.val() || 0;
-    document.getElementById("totalPoints").textContent = totalPoints;
-    updateInventory();
-  });
 
-  refLog.on("value", snap => {
+refPoints.on("value", snap => {
+  totalPoints = snap.val() || 0;
+  document.getElementById("totalPoints").textContent = totalPoints;
+  updateInventory();
+});
+
+refLog.on("value", snap => {
+  const logs = snap.val() || [];
+  const logList = document.getElementById("logList");
+  logList.innerHTML = "";
+
+  if (logs.length === 0 && editUnlocked) {
+    logList.innerHTML = "<div style='text-align:center;opacity:0.6;'>No entries yet</div>";
+    return;
+  }
+
+  logs.forEach((entry, i) => {
+    const div = document.createElement("div");
+    div.className = "log-entry";
+    div.textContent = `+${entry.amount} - ${entry.reason}`;
+    if (editUnlocked) {
+      const btn = document.createElement("button");
+      btn.textContent = "✕";
+      btn.style.cssText = "position:absolute;right:10px;top:6px;background:crimson;color:white;border:none;border-radius:4px;cursor:pointer;";
+      btn.onclick = () => deleteEntry(i);
+      div.appendChild(btn);
+    }
+    logList.appendChild(div);
+  });
+});
+
+refRewards.on("value", snap => {
+  rewards = snap.val() || [];
+  updateInventory();
+});
+
+function awardPoints(amount) {
+  const reason = document.getElementById("reasonInput").value || "No reason";
+  const newTotal = totalPoints + amount;
+  db.ref("points").set(newTotal);
+  refLog.once("value").then(snap => {
+    const current = snap.val() || [];
+    current.push({ amount, reason });
+    refLog.set(current);
+  });
+}
+
+function deleteEntry(index) {
+  refLog.once("value").then(snap => {
     const logs = snap.val() || [];
-    const logList = document.getElementById("logList");
-    logList.innerHTML = "";
-    if (logs.length === 0 && editUnlocked) {
-  logList.innerHTML = "<div style='text-align:center;opacity:0.6;'>No entries yet</div>";
-  return;
+    const entry = logs[index];
+    if (!entry) return;
+    logs.splice(index, 1);
+    db.ref("log").set(logs);
+    db.ref("points").set(totalPoints - entry.amount);
+  });
 }
-    logs.forEach((entry, i) => {
-      const div = document.createElement("div");
-      div.className = "log-entry";
-      div.textContent = `+${entry.amount} - ${entry.reason}`;
-      if (editUnlocked) {
-        const btn = document.createElement("button");
-        btn.textContent = "✕";
-        btn.style.cssText = "position:absolute;right:10px;top:6px;background:crimson;color:white;border:none;border-radius:4px;cursor:pointer;";
-        btn.onclick = () => deleteEntry(i);
-        div.appendChild(btn);
-      }
-      logList.appendChild(div);
-    });
-  });
 
-  refRewards.on("value", snap => {
-    rewards = snap.val() || [];
-    updateInventory();
-  });
-
-  function awardPoints(amount) {
-    const reason = document.getElementById("reasonInput").value || "No reason";
-    const newTotal = totalPoints + amount;
-    db.ref("points").set(newTotal);
-    refLog.once("value").then(snap => {
-      const current = snap.val() || [];
-      current.push({ amount, reason });
-      refLog.set(current);
-    });
-  }
-
-  function deleteEntry(index) {
-    refLog.once("value").then(snap => {
-      const logs = snap.val() || [];
-      const entry = logs[index];
-      if (!entry) return;
-      logs.splice(index, 1);
-      db.ref("log").set(logs);
-      db.ref("points").set(totalPoints - entry.amount);
-    });
-  }
-
-  function updateInventory() {
+function updateInventory() {
   const grid = document.getElementById("inventoryGrid");
   grid.innerHTML = "";
-
   let updated = false;
+
   const sessionShown = window.sessionStorage.getItem("shownRewards");
   const shownRewards = sessionShown ? JSON.parse(sessionShown) : [];
   const justEarned = [];
@@ -396,8 +385,6 @@
     } else if (!hasItem && alreadyEarned) {
       rewards = rewards.filter(r => r !== item.name);
       updated = true;
-
-      // remove from sessionStorage so popup can happen again if re-earned
       const index = shownRewards.indexOf(item.name);
       if (index !== -1) shownRewards.splice(index, 1);
     }
@@ -415,7 +402,6 @@
 
   if (updated) refRewards.set(rewards);
 
-  // Popup only if it hasn't been shown this session
   justEarned.forEach(item => {
     if (!shownRewards.includes(item.name)) {
       popupQueue.push(item);
@@ -423,77 +409,76 @@
     }
   });
 
-  window.sessionStorage.setItem("shownRewards", JSON.stringify(shownRewards));
+  sessionStorage.setItem("shownRewards", JSON.stringify(shownRewards));
 
   updateBadge();
   processPopupQueue();
 }
 
-  function playReward(soundId) {
-    const audio = new Audio("sounds/" + soundId + ".mp3");
-    audio.play().catch(() => {});
-  }
+function showPopup(item) {
+  const popup = document.getElementById("rewardPopup");
+  popup.className = "";
+  popup.innerHTML = `
+    <strong>You just earned:</strong><br>
+    <span class="${item.class}">${item.name}</span><br>
+    <img src="${item.img}" alt="${item.name}">
+  `;
+  popup.classList.add("popup-" + item.class);
+  popup.style.display = "block";
+  playReward(item.sound);
+  showEffect(item.sound);
+  setTimeout(() => {
+    popup.style.display = "none";
+    popupShowing = false;
+    processPopupQueue();
+  }, 4000);
+}
 
-  function showEffect(effectId) {
-    const el = document.getElementById("effect_" + effectId);
-    if (!el) return;
-    el.style.display = "block";
-    setTimeout(() => { el.style.display = "none"; }, 1500);
-  }
+function processPopupQueue() {
+  if (popupShowing || popupQueue.length === 0) return;
+  popupShowing = true;
+  const next = popupQueue.shift();
+  showPopup(next);
+}
 
-  function showPopup(item) {
-    const popup = document.getElementById("rewardPopup");
-    popup.className = "";
-    popup.innerHTML = `
-      <strong>You just earned:</strong><br>
-      <span class="${item.class}">${item.name}</span><br>
-      <img src="${item.img}" alt="${item.name}">
-    `;
-    popup.classList.add("popup-" + item.class);
-    popup.style.display = "block";
-    playReward(item.sound);
-    showEffect(item.sound);
+function playReward(soundId) {
+  const audio = new Audio("sounds/" + soundId + ".mp3");
+  audio.play().catch(() => {});
+}
 
-    setTimeout(() => {
-      popup.style.display = "none";
-      popupShowing = false;
-      processPopupQueue(); // Show next if any
-    }, 4000);
-  }
+function showEffect(effectId) {
+  const el = document.getElementById("effect_" + effectId);
+  if (!el) return;
+  el.style.display = "block";
+  setTimeout(() => { el.style.display = "none"; }, 1500);
+}
 
-  function processPopupQueue() {
-    if (popupShowing || popupQueue.length === 0) return;
-    popupShowing = true;
-    const next = popupQueue.shift();
-    showPopup(next);
-  }
+function showFullImage(src) {
+  document.getElementById("modalImage").src = src;
+  document.getElementById("itemModal").style.display = "flex";
+}
 
-  function showFullImage(src) {
-    document.getElementById("modalImage").src = src;
-    document.getElementById("itemModal").style.display = "flex";
+function toggleInventory() {
+  const inv = document.getElementById("inventory");
+  const badge = document.getElementById("badge");
+  if (inv.style.display === "none") {
+    inv.style.display = "block";
+    unseenRewards = [];
+    badge.style.display = "none";
+  } else {
+    inv.style.display = "none";
   }
+}
 
-  function toggleInventory() {
-    const inv = document.getElementById("inventory");
-    const badge = document.getElementById("badge");
-    if (inv.style.display === "none") {
-      inv.style.display = "block";
-      unseenRewards = [];
-      badge.style.display = "none";
-    } else {
-      inv.style.display = "none";
-    }
+function updateBadge() {
+  const badge = document.getElementById("badge");
+  if (unseenRewards.length > 0) {
+    badge.style.display = "inline-block";
+    badge.textContent = unseenRewards.length;
+  } else {
+    badge.style.display = "none";
   }
-
-  function updateBadge() {
-    const badge = document.getElementById("badge");
-    if (unseenRewards.length > 0) {
-      badge.style.display = "inline-block";
-      badge.textContent = unseenRewards.length;
-    } else {
-      badge.style.display = "none";
-    }
-  }
+}
 </script>
 </body>
 </html>
