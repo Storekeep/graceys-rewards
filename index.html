@@ -142,7 +142,21 @@
       border: 5px solid white;
       border-radius: 8px;
     }
+.butterfly {
+  color: #b3f0ff;
+  text-shadow: 0 0 8px #a3e9ff, 0 0 16px #ffffff;
+}
 
+.popup-butterfly {
+  border: 3px solid #aeeeff;
+  box-shadow: 0 0 25px #aeeeffaa;
+  animation: shimmer 1s infinite alternate;
+}
+
+@keyframes shimmer {
+  0%   { box-shadow: 0 0 15px #aeeeff55; }
+  100% { box-shadow: 0 0 30px #ffffffcc; }
+}
     .effect-overlay {
       display: none;
       position: fixed;
@@ -290,6 +304,7 @@ const rewardItems = [
   { name: "Gothic Graphic Crop Top", points: 75, img: "https://m.media-amazon.com/images/I/61CH-IigCtL._AC_SY741_.jpg", class: "gothic", sound: "bell" },
   { name: "Striped Gothic Lace Shirt", points: 95, img: "https://m.media-amazon.com/images/I/61XF9gOHCQL._AC_SY879_.jpg", class: "lace", sound: "angelhum" },
   { name: "Metal Chain Belt", points: 115, img: "https://m.media-amazon.com/images/I/71rI66+vjeL._AC_SX679_.jpg", class: "belt", sound: "ding" },
+  { name: "Mystic Butterfly Mug", points: 130, img: "https://i.etsystatic.com/24694628/r/il/fa052b/5704527119/il_1588xN.5704527119_2zap.jpg", class: "butterfly", sound: "magical" },
   { name: "Baby Girl Top", points: 150, img: "https://m.media-amazon.com/images/I/41ih9Eazx1L._AC_.jpg", class: "baby", sound: "kiss" },
   { name: "Dexter Action-Figure Set", points: 350, img: "https://i.ebayimg.com/images/g/qc0AAOSwhHNndjJG/s-l1600.webp", class: "dexter", sound: "slash" }
 ];
