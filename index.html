@@ -374,11 +374,10 @@
   function updateInventory() {
   const grid = document.getElementById("inventoryGrid");
   grid.innerHTML = "";
-  let updated = false;
 
-  // Get previously known rewards from localStorage
-  const seen = JSON.parse(localStorage.getItem("seenRewards") || "[]");
-  const newSeen = [...seen];
+  let updated = false;
+  const sessionShown = window.sessionStorage.getItem("shownRewards");
+  const shownRewards = sessionShown ? JSON.parse(sessionShown) : [];
   const justEarned = [];
 
   rewardItems.forEach(item => {
@@ -388,11 +387,15 @@
     if (hasItem && !alreadyEarned) {
       rewards.push(item.name);
       unseenRewards.push(item.name);
-      justEarned.push(item); // Mark for popup queue
+      justEarned.push(item);
       updated = true;
     } else if (!hasItem && alreadyEarned) {
       rewards = rewards.filter(r => r !== item.name);
       updated = true;
+
+      // remove from sessionStorage so popup can happen again if re-earned
+      const index = shownRewards.indexOf(item.name);
+      if (index !== -1) shownRewards.splice(index, 1);
     }
 
     if (hasItem) {
@@ -406,17 +409,17 @@
     }
   });
 
-  if (updated) {
-    refRewards.set(rewards);
-  }
+  if (updated) refRewards.set(rewards);
 
-  // Only popup if new rewards were truly just unlocked
+  // Popup only if it hasn't been shown this session
   justEarned.forEach(item => {
-    popupQueue.push(item);
+    if (!shownRewards.includes(item.name)) {
+      popupQueue.push(item);
+      shownRewards.push(item.name);
+    }
   });
 
-  // Save updated seen rewards to localStorage
-  localStorage.setItem("seenRewards", JSON.stringify(newSeen));
+  window.sessionStorage.setItem("shownRewards", JSON.stringify(shownRewards));
 
   updateBadge();
   processPopupQueue();
