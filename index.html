@@ -323,24 +323,24 @@
   function updateInventory() {
     const grid = document.getElementById("inventoryGrid");
     grid.innerHTML = "";
-    const newRewards = [];
+    let updated = false;
 
     rewardItems.forEach(item => {
       const hasItem = totalPoints >= item.points;
-      const alreadyAdded = rewards.includes(item.name);
+      const alreadyEarned = rewards.includes(item.name);
 
-      if (hasItem && !alreadyAdded) {
+      if (hasItem && !alreadyEarned) {
         rewards.push(item.name);
-        refRewards.set(rewards);
         unseenRewards.push(item.name);
         playReward(item.sound);
         showEffect(item.sound);
-      } else if (!hasItem && alreadyAdded) {
+        updated = true;
+      } else if (!hasItem && alreadyEarned) {
         rewards = rewards.filter(r => r !== item.name);
-        refRewards.set(rewards);
+        updated = true;
       }
 
-      if (rewards.includes(item.name)) {
+      if (hasItem) {
         const div = document.createElement("div");
         div.className = "item";
         div.innerHTML = `
@@ -351,6 +351,7 @@
       }
     });
 
+    if (updated) refRewards.set(rewards);
     updateBadge();
   }
 
