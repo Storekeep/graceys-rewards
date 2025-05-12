@@ -172,10 +172,49 @@
     @media (max-width: 600px) {
       #passwordPrompt { top: auto; bottom: 20px; right: 20px; }
     }
-  </style>
+  </style><!-- Reward Pop-Up Styles -->
+<style>
+  #rewardPopup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1600;
+    padding: 1em;
+    background: rgba(0, 0, 0, 0.85);
+    border-radius: 12px;
+    text-align: center;
+    color: white;
+    font-size: 1em;
+    animation: fadeInOut 3s ease;
+    box-shadow: 0 0 20px #fff4;
+  }
+  #rewardPopup img {
+    max-width: 120px;
+    max-height: 120px;
+    margin-top: 0.5em;
+    border-radius: 8px;
+  }
+
+  @keyframes fadeInOut {
+    0% { opacity: 0; transform: scale(0.9) translate(-50%, -50%); }
+    10% { opacity: 1; transform: scale(1) translate(-50%, -50%); }
+    90% { opacity: 1; transform: scale(1) translate(-50%, -50%); }
+    100% { opacity: 0; transform: scale(0.9) translate(-50%, -50%); }
+  }
+
+  .popup-horror  { border: 2px solid #ff4b4b; }
+  .popup-gothic  { border: 2px solid #c28bff; }
+  .popup-lace    { border: 2px solid #87f2ff; }
+  .popup-belt    { border: 2px solid #ccc; }
+  .popup-baby    { border: 2px solid #ffc1e3; }
+  .popup-dexter  { border: 2px solid red; }
+</style>
+
 </head>
 <body>
-
+<div id="rewardPopup"></div>
 <div id="passwordPrompt">
   <input type="password" id="passwordInput" placeholder="Password">
   <button onclick="checkPassword()">Unlock</button>
