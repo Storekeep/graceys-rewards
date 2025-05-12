@@ -371,7 +371,23 @@
       if (hasItem && !alreadyEarned) {
         rewards.push(item.name);
         unseenRewards.push(item.name);
-        playReward(item.sound);
+       playReward(item.sound);
+showEffect(item.sound);
+showPopup(item);
+        function showPopup(item) {
+  const popup = document.getElementById("rewardPopup");
+  popup.className = ""; // Reset class
+  popup.innerHTML = `
+    <strong>You just earned:</strong><br>
+    <span class="${item.class}">${item.name}</span><br>
+    <img src="${item.img}" alt="${item.name}">
+  `;
+  popup.classList.add("popup-" + item.class);
+  popup.style.display = "block";
+  setTimeout(() => {
+    popup.style.display = "none";
+  }, 3000);
+}
         showEffect(item.sound);
         updated = true;
       } else if (!hasItem && alreadyEarned) {
