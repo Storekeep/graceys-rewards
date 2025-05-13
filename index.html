@@ -495,27 +495,19 @@ function showPopup(item) {
   audio.play().catch(() => {});
   showEffect(item.sound);
 
-  // For Shadow Shirt (delay text + image)
-  if (item.sound === "ultimatepower") {
-    setTimeout(() => {
-      popup.innerHTML = `
-        <strong>You just earned:</strong><br>
-        <span class="${item.class}">${item.name}</span><br>
-        <img src="${item.img}" alt="${item.name}">
-      `;
-      popup.style.display = "block";
-    }, 1000); // Show at 1 second
-  } else {
-    // Normal rewards: show immediately
+  // Sync popup for Shadow Shirt (delayed to match scream)
+  const delay = item.sound === "ultimatepower" ? 1300 : 0;
+
+  setTimeout(() => {
     popup.innerHTML = `
       <strong>You just earned:</strong><br>
       <span class="${item.class}">${item.name}</span><br>
       <img src="${item.img}" alt="${item.name}">
     `;
     popup.style.display = "block";
-  }
+  }, delay);
 
-  // Hide popup when audio ends
+  // Hide popup after audio ends
   audio.addEventListener("ended", () => {
     popup.style.display = "none";
     popupShowing = false;
