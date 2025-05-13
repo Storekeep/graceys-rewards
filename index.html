@@ -142,6 +142,23 @@
       border: 5px solid white;
       border-radius: 8px;
     }
+    .shadow {
+  color: #ff003c;
+  text-shadow: 0 0 8px #ff003c, 0 0 14px #000000;
+}
+
+.popup-shadow {
+  border: 3px solid #ff003c;
+  box-shadow: 0 0 20px #ff003caa;
+  background: linear-gradient(to right, #000000 0%, #1a1a1a 50%, #000000 100%);
+  animation: shadowPulse 1.2s ease-in-out;
+}
+
+@keyframes shadowPulse {
+  0%   { transform: scale(0.8); box-shadow: 0 0 10px #ff003c55; }
+  50%  { transform: scale(1.05); box-shadow: 0 0 25px #ff003cdd; }
+  100% { transform: scale(1); box-shadow: 0 0 10px #ff003c55; }
+}
 .butterfly {
   color: #b3f0ff;
   text-shadow: 0 0 8px #a3e9ff, 0 0 16px #ffffff;
@@ -302,6 +319,7 @@ let popupShowing = false;
 const rewardItems = [
   { name: "Horror Anime T-Shirt", points: 60, img: "https://m.media-amazon.com/images/I/B1pppR4gVKL._CLa%7C2140%2C2000%7C91wBHUyvxuL.png%7C0%2C0%2C2140%2C2000%2B0.0%2C0.0%2C2140.0%2C2000.0_AC_SX679_.png", class: "horror", sound: "scream" },
   { name: "Gothic Graphic Crop Top", points: 75, img: "https://m.media-amazon.com/images/I/61CH-IigCtL._AC_SY741_.jpg", class: "gothic", sound: "bell" },
+ { name: "Marlboro Shadow T-Shirt", points: 85, img: "https://i0.wp.com/ellieshirt.com/wp-content/uploads/2025/04/SHADOW-SMOKING-THIS-POWER-CHANGES-ME-SHIRT-Sonic-the-Hedgehog-Marlboro-X-Shadow.gif?fit=1000%2C1000&ssl=1", class: "shadow", sound: "ultimatepower" },
   { name: "Striped Gothic Lace Shirt", points: 95, img: "https://m.media-amazon.com/images/I/61XF9gOHCQL._AC_SY879_.jpg", class: "lace", sound: "angelhum" },
   { name: "Metal Chain Belt", points: 115, img: "https://m.media-amazon.com/images/I/71rI66+vjeL._AC_SX679_.jpg", class: "belt", sound: "ding" },
   { name: "Mystic Butterfly Mug", points: 130, img: "https://i.etsystatic.com/24694628/r/il/fa052b/5704527119/il_1588xN.5704527119_2zap.jpg", class: "butterfly", sound: "magical" },
