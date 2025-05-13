@@ -233,63 +233,62 @@
     }
   </style>
 </head>
-<body>
-  <div id="passwordPrompt">
-    <input type="password" id="passwordInput" placeholder="Password">
-    <button onclick="checkPassword()">Unlock</button>
+<div id="passwordPrompt">
+  <input type="password" id="passwordInput" placeholder="Password">
+  <button onclick="submitPassword()">Unlock</button>
+</div>
+
+<h1>Gracey's Rewards</h1>
+<div id="totalPoints">0</div>
+
+<div class="controls" id="editControls" style="display:none;">
+  <input type="text" id="reasonInput" placeholder="Reason..." />
+  <div class="buttons">
+    <button onclick="awardPoints(1)">+1</button>
+    <button onclick="awardPoints(5)">+5</button>
+    <button onclick="awardPoints(10)">+10</button>
+    <button onclick="awardPoints(20)">+20</button>
   </div>
+</div>
 
-  <h1>Gracey's Rewards</h1>
-  <div id="totalPoints">0</div>
+<div id="logList"></div>
 
-  <div class="controls" id="editControls" style="display:none;">
-    <input type="text" id="reasonInput" placeholder="Reason..." />
-    <div class="buttons">
-      <button onclick="awardPoints(1)">+1</button>
-      <button onclick="awardPoints(5)">+5</button>
-      <button onclick="awardPoints(10)">+10</button>
-      <button onclick="awardPoints(20)">+20</button>
-    </div>
-  </div>
+<div id="inventoryToggle">
+  <button id="inventoryButton" onclick="toggleInventory()">
+    🧺 Inventory <span id="badge">0</span>
+  </button>
+</div>
 
-  <div id="logList"></div>
+<div id="inventory">
+  <h2>🎁 Rewards You've Earned</h2>
+  <div class="item-grid" id="inventoryGrid"></div>
+</div>
 
-  <div id="inventoryToggle">
-    <button id="inventoryButton" onclick="toggleInventory()">
-      🧺 Inventory <span id="badge">0</span>
-    </button>
-  </div>
+<div id="itemModal" onclick="this.style.display='none'">
+  <img id="modalImage" src="" alt="Item Image">
+</div>
 
-  <div id="inventory">
-    <h2>🎁 Rewards You've Earned</h2>
-    <div class="item-grid" id="inventoryGrid"></div>
-  </div>
+<div id="rewardPopup"></div>
 
-  <div id="itemModal" onclick="this.style.display='none'">
-    <img id="modalImage" src="" alt="Item Image">
-  </div>
+<!-- Effects -->
+<div id="effect_scream" class="effect-overlay scream"></div>
+<div id="effect_bell" class="effect-overlay bell"></div>
+<div id="effect_angelhum" class="effect-overlay angelhum"></div>
+<div id="effect_ding" class="effect-overlay ding"></div>
+<div id="effect_kiss" class="effect-overlay kiss"></div>
+<div id="effect_slash" class="effect-overlay slash"></div>
+<div id="effect_ultimatepower" class="effect-overlay"></div>
+<div id="effect_magical" class="effect-overlay sparkle"></div>
 
-  <div id="rewardPopup"></div>
+<!-- Dev Mode Toggle -->
+<div id="devModeToggle">
+  <label for="devSwitch">Dev Mode</label>
+  <input type="checkbox" id="devSwitch" />
+</div>
 
-  <!-- Effect overlays -->
-  <div id="effect_scream" class="effect-overlay scream"></div>
-  <div id="effect_bell" class="effect-overlay bell"></div>
-  <div id="effect_angelhum" class="effect-overlay angelhum"></div>
-  <div id="effect_ding" class="effect-overlay ding"></div>
-  <div id="effect_kiss" class="effect-overlay kiss"></div>
-  <div id="effect_slash" class="effect-overlay slash"></div>
-  <div id="effect_ultimatepower" class="effect-overlay"></div>
-  <div id="effect_magical" class="effect-overlay sparkle"></div>
-
-  <!-- Dev Mode Toggle -->
-  <div id="devModeToggle">
-    <label for="devSwitch">Dev Mode</label>
-    <input type="checkbox" id="devSwitch" />
-  </div>
-
-  <!-- Firebase and script placeholder -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyCVxmCeRSheujRlo2ddOcUSaNYx1pq1gFY",
@@ -306,50 +305,71 @@ const db = firebase.database();
 
 let editUnlocked = false;
 let devMode = false;
+let listenersAttached = false;
 let rewards = [];
 let unseenRewards = [];
 let popupQueue = [];
 let popupShowing = false;
-
-const refPoints = () => db.ref(devMode ? "dev/points" : "points");
-const refLog = () => db.ref(devMode ? "dev/log" : "log");
-const refRewards = () => db.ref(devMode ? "dev/rewards" : "rewards");
-
 let totalPoints = 0;
 
-// ... rewardItems array (unchanged) ...
-const rewardItems = [/* same as before */];
+const rewardItems = [
+  { name: "Horror Anime T-Shirt", points: 60, img: "https://m.media-amazon.com/images/I/B1pppR4gVKL.png", class: "horror", sound: "scream" },
+  { name: "Gothic Graphic Crop Top", points: 75, img: "https://m.media-amazon.com/images/I/61CH-IigCtL._AC_SY741_.jpg", class: "gothic", sound: "bell" },
+  { name: "Marlboro Shadow T-Shirt", points: 85, img: "https://i0.wp.com/ellieshirt.com/wp-content/uploads/2025/04/SHADOW-SMOKING-THIS-POWER-CHANGES-ME-SHIRT-Sonic-the-Hedgehog-Marlboro-X-Shadow.gif", class: "shadow", sound: "ultimatepower" },
+  { name: "Striped Gothic Lace Shirt", points: 95, img: "https://m.media-amazon.com/images/I/61XF9gOHCQL._AC_SY879_.jpg", class: "lace", sound: "angelhum" },
+  { name: "Metal Chain Belt", points: 115, img: "https://m.media-amazon.com/images/I/71rI66+vjeL._AC_SX679_.jpg", class: "belt", sound: "ding" },
+  { name: "Mystic Butterfly Mug", points: 150, img: "https://i.etsystatic.com/24694628/r/il/fa052b/5704527119/il_1588xN.5704527119_2zap.jpg", class: "butterfly", sound: "magical" },
+  { name: "Baby Girl Top", points: 150, img: "https://m.media-amazon.com/images/I/41ih9Eazx1L._AC_.jpg", class: "baby", sound: "kiss" },
+  { name: "Dexter Action-Figure Set", points: 350, img: "https://i.ebayimg.com/images/g/qc0AAOSwhHNndjJG/s-l1600.webp", class: "dexter", sound: "slash" }
+];
 
-function checkPassword() {
+function getPath(base) {
+  return devMode ? `dev/${base}` : base;
+}
+
+function ref(base) {
+  return db.ref(getPath(base));
+}
+
+function submitPassword() {
   const pass = document.getElementById("passwordInput").value;
   if (pass === "ILoveGracey") {
     editUnlocked = true;
     document.getElementById("passwordPrompt").style.display = "none";
     document.getElementById("editControls").style.display = "block";
+    if (!listenersAttached) initApp();
   } else {
     alert("Incorrect password.");
   }
 }
 
+document.getElementById("devSwitch").addEventListener("change", () => {
+  devMode = document.getElementById("devSwitch").checked;
+  editUnlocked = false;
+  document.getElementById("editControls").style.display = "none";
+  document.getElementById("passwordPrompt").style.display = "block";
+  detachListeners();
+});
+
 function awardPoints(amount) {
   const reason = document.getElementById("reasonInput").value || "No reason";
   const newTotal = totalPoints + amount;
-  refPoints().set(newTotal);
-  refLog().once("value").then(snap => {
+  ref("points").set(newTotal);
+  ref("log").once("value").then(snap => {
     const current = snap.val() || [];
     current.push({ amount, reason });
-    refLog().set(current);
+    ref("log").set(current);
   });
 }
 
 function deleteEntry(index) {
-  refLog().once("value").then(snap => {
+  ref("log").once("value").then(snap => {
     const logs = snap.val() || [];
     const entry = logs[index];
     if (!entry) return;
     logs.splice(index, 1);
-    refLog().set(logs);
-    refPoints().set(totalPoints - entry.amount);
+    ref("log").set(logs);
+    ref("points").set(totalPoints - entry.amount);
   });
 }
 
@@ -380,7 +400,7 @@ function updateInventory() {
     }
   });
 
-  refRewards().set(rewards);
+  ref("rewards").set(rewards);
 
   justEarned.forEach(item => {
     if (!shownRewards.includes(item.name)) {
@@ -498,15 +518,24 @@ function showFullImage(src) {
   document.getElementById("itemModal").style.display = "flex";
 }
 
-// --- Dev Mode Live Sync Fix ---
-function attachListeners() {
-  refPoints().on("value", snap => {
+function detachListeners() {
+  ["points", "log", "rewards", "dev/points", "dev/log", "dev/rewards"].forEach(path => {
+    db.ref(path).off();
+  });
+  listenersAttached = false;
+}
+
+function initApp() {
+  if (listenersAttached) return;
+  listenersAttached = true;
+
+  ref("points").on("value", snap => {
     totalPoints = snap.val() || 0;
     document.getElementById("totalPoints").textContent = totalPoints;
     updateInventory();
   });
 
-  refLog().on("value", snap => {
+  ref("log").on("value", snap => {
     const logs = snap.val() || [];
     const logList = document.getElementById("logList");
     logList.innerHTML = "";
@@ -514,7 +543,7 @@ function attachListeners() {
       const div = document.createElement("div");
       div.className = "log-entry";
       div.textContent = `+${entry.amount} - ${entry.reason}`;
-      if (editUnlocked || devMode) {
+      if (editUnlocked) {
         const btn = document.createElement("button");
         btn.textContent = "✕";
         btn.style.cssText = "position:absolute;right:10px;top:6px;background:crimson;color:white;border:none;border-radius:4px;cursor:pointer;";
@@ -525,29 +554,11 @@ function attachListeners() {
     });
   });
 
-  refRewards().on("value", snap => {
+  ref("rewards").on("value", snap => {
     rewards = snap.val() || [];
     updateInventory();
   });
 }
-
-function detachListeners() {
-  ["points", "log", "rewards", "dev/points", "dev/log", "dev/rewards"].forEach(path => {
-    db.ref(path).off();
-  });
-}
-
-document.getElementById("devSwitch").addEventListener("change", () => {
-  devMode = document.getElementById("devSwitch").checked;
-  detachListeners();
-  if (editUnlocked || devMode) {
-    document.getElementById("editControls").style.display = "block";
-  }
-  attachListeners();
-});
-
-// Initial listeners (default mode)
-attachListeners();
 </script>
 </body>
 </html>
