@@ -527,9 +527,8 @@ function showEffect(effectId) {
   const el = document.getElementById("effect_" + effectId);
   if (!el) return;
 
-  // Timing map based on real audio
   const timing = {
-    ultimatepower: { start: 1000, fadeStart: 5000, end: 7270 },
+    ultimatepower: { start: 1300, fadeStart: 5500, end: 7270 },
     angelhum: { start: 200, fadeStart: 1800, end: 2420 },
     bell: { start: 500, fadeStart: 2500, end: 3530 },
     ding: { start: 100, fadeStart: 1300, end: 1850 },
@@ -540,7 +539,6 @@ function showEffect(effectId) {
 
   const t = timing[effectId];
   if (!t) {
-    // default fallback
     el.style.display = "block";
     setTimeout(() => { el.style.display = "none"; }, 1500);
     return;
@@ -555,7 +553,6 @@ function showEffect(effectId) {
       document.body.classList.add("shadow-theme");
     }
 
-    // Start fade out
     setTimeout(() => {
       el.classList.add("fadeout");
       if (effectId === "ultimatepower") {
@@ -564,7 +561,6 @@ function showEffect(effectId) {
       }
     }, t.fadeStart - t.start);
 
-    // Fully hide
     setTimeout(() => {
       el.style.display = "none";
       el.classList.remove("fadeout");
@@ -572,7 +568,6 @@ function showEffect(effectId) {
 
   }, t.start);
 }
-
 function processPopupQueue() {
   if (popupShowing || popupQueue.length === 0) return;
   popupShowing = true;
