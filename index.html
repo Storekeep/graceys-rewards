@@ -430,8 +430,9 @@ function updateInventory() {
   grid.innerHTML = "";
   let updated = false;
 
-  const sessionShown = window.sessionStorage.getItem("shownRewards");
-  const shownRewards = sessionShown ? JSON.parse(sessionShown) : [];
+  // Use localStorage instead of sessionStorage to persist across Snapchat reloads
+  const stored = localStorage.getItem("shownRewards");
+  const shownRewards = stored ? JSON.parse(stored) : [];
   const justEarned = [];
 
   rewardItems.forEach(item => {
@@ -446,6 +447,8 @@ function updateInventory() {
     } else if (!hasItem && alreadyEarned) {
       rewards = rewards.filter(r => r !== item.name);
       updated = true;
+
+      // If reward is lost, remove from shown list so it can be re-earned again later
       const index = shownRewards.indexOf(item.name);
       if (index !== -1) shownRewards.splice(index, 1);
     }
@@ -463,6 +466,7 @@ function updateInventory() {
 
   if (updated) refRewards.set(rewards);
 
+  // Only queue popups for rewards not shown yet
   justEarned.forEach(item => {
     if (!shownRewards.includes(item.name)) {
       popupQueue.push(item);
@@ -470,8 +474,7 @@ function updateInventory() {
     }
   });
 
-  sessionStorage.setItem("shownRewards", JSON.stringify(shownRewards));
-
+  localStorage.setItem("shownRewards", JSON.stringify(shownRewards));
   updateBadge();
   processPopupQueue();
 }
