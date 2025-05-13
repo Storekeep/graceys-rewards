@@ -551,12 +551,20 @@
   }
 
  function showEffect(effectId) {
-  const el = document.getElementById("effect_" + effectId);
-  if (!el) return;
+  console.log("Triggering effect:", effectId); // DEBUG
 
-  // Special delayed timing for Shadow Shirt
+  const el = document.getElementById("effect_" + effectId);
+  if (!el) {
+    console.warn("No element found for effect:", effectId);
+    return;
+  }
+
+  // Shadow Shirt special timing
   if (effectId === "ultimatepower") {
+    console.log("Delaying shadow effect by 1s");
+
     setTimeout(() => {
+      console.log("Showing shadow effect now");
       el.style.display = "block";
       document.body.classList.add("shaking");
       document.body.classList.add("shadow-theme");
@@ -565,17 +573,20 @@
         el.style.display = "none";
         document.body.classList.remove("shaking");
         document.body.classList.remove("shadow-theme");
-      }, 4000); // Ends at 5s (1s delay + 4s duration)
-    }, 1000); // Starts at 1s
-  } else {
-    // Normal effect logic
+        console.log("Shadow effect ended");
+      }, 4000); // lasts from 1s to 5s
+    }, 1000); // starts at 1s
+  }
+
+  // All other effects
+  else {
+    console.log("Showing normal effect immediately");
     el.style.display = "block";
     setTimeout(() => {
       el.style.display = "none";
     }, 1500);
   }
 }
-
   function showFullImage(src) {
     document.getElementById("modalImage").src = src;
     document.getElementById("itemModal").style.display = "flex";
