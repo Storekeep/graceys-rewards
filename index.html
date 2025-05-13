@@ -489,15 +489,33 @@ function updateInventory() {
 function showPopup(item) {
   const popup = document.getElementById("rewardPopup");
   popup.className = "";
-  popup.innerHTML = `
-    <strong>You just earned:</strong><br>
-    <span class="${item.class}">${item.name}</span><br>
-    <img src="${item.img}" alt="${item.name}">
-  `;
-  popup.style.display = "block";
+  popup.innerHTML = "";
+
   const audio = new Audio("sounds/" + item.sound + ".mp3");
   audio.play().catch(() => {});
   showEffect(item.sound);
+
+  // For Shadow Shirt (delay text + image)
+  if (item.sound === "ultimatepower") {
+    setTimeout(() => {
+      popup.innerHTML = `
+        <strong>You just earned:</strong><br>
+        <span class="${item.class}">${item.name}</span><br>
+        <img src="${item.img}" alt="${item.name}">
+      `;
+      popup.style.display = "block";
+    }, 1000); // Show at 1 second
+  } else {
+    // Normal rewards: show immediately
+    popup.innerHTML = `
+      <strong>You just earned:</strong><br>
+      <span class="${item.class}">${item.name}</span><br>
+      <img src="${item.img}" alt="${item.name}">
+    `;
+    popup.style.display = "block";
+  }
+
+  // Hide popup when audio ends
   audio.addEventListener("ended", () => {
     popup.style.display = "none";
     popupShowing = false;
