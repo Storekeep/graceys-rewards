@@ -11,7 +11,6 @@
       color: #fff;
       margin: 0;
       padding: 2em 1em;
-      transition: background 0.3s, color 0.3s;
     }
     h1 {
       text-align: center;
@@ -24,7 +23,7 @@
       margin: 0.5em 0;
       color: #ffda75;
     }
-    .controls, .log-entry {
+    .controls {
       text-align: center;
       margin: 1em auto;
       max-width: 400px;
@@ -42,6 +41,7 @@
       border-radius: 6px;
       border: none;
     }
+
     #passwordPrompt {
       position: fixed;
       top: 20px;
@@ -51,6 +51,7 @@
       border-radius: 10px;
       z-index: 1100;
     }
+
     .switch {
       position: relative;
       display: inline-block;
@@ -86,10 +87,12 @@
     input:checked + .slider:before {
       transform: translateX(24px);
     }
+
     #inventoryToggle {
       text-align: center;
       margin-top: 1em;
     }
+
     #inventoryButton {
       position: relative;
       font-size: 1.1em;
@@ -100,6 +103,7 @@
       border-radius: 8px;
       cursor: pointer;
     }
+
     #badge {
       position: absolute;
       top: -6px;
@@ -115,23 +119,27 @@
       text-align: center;
       display: none;
     }
+
     #inventory {
       display: none;
       margin-top: 2em;
       text-align: center;
     }
+
     .item-grid {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 1em;
     }
+
     .item {
       display: flex;
       flex-direction: column;
       align-items: center;
       cursor: pointer;
     }
+
     .item img {
       width: 100px;
       height: auto;
@@ -139,17 +147,17 @@
       border-radius: 6px;
     }
 
-    /* Reward name colors */
-    .horror { color: #ff4b4b; }
-    .gothic { color: #c28bff; }
-    .lace   { color: #87f2ff; }
-    .belt   { color: #cccccc; }
-    .baby   { color: #ffc1e3; }
-    .dexter { color: #ff0000; }
-    .butterfly { color: #b3f0ff; text-shadow: 0 0 8px #a3e9ff, 0 0 16px #ffffff; }
-    .shadow { color: #ff003c; text-shadow: 0 0 8px #ff003c, 0 0 14px #000000; }
+    /* Reward name themes */
+    .horror     { color: #ff4b4b; }
+    .gothic     { color: #c28bff; }
+    .lace       { color: #87f2ff; }
+    .belt       { color: #cccccc; }
+    .baby       { color: #ffc1e3; }
+    .dexter     { color: #ff0000; }
+    .butterfly  { color: #b3f0ff; text-shadow: 0 0 8px #a3e9ff, 0 0 16px #ffffff; }
+    .shadow     { color: #ff003c; text-shadow: 0 0 8px #ff003c, 0 0 14px #000000; }
 
-    /* Reward Popup Base Style */
+    /* Popup Base */
     #rewardPopup {
       display: none;
       position: fixed;
@@ -168,6 +176,7 @@
       max-height: 80%;
       overflow: hidden;
     }
+
     #rewardPopup img {
       max-width: 100px;
       max-height: 100px;
@@ -183,6 +192,7 @@
       50% { transform: scale(1.1) translate(-50%, -50%); opacity: 1; }
       100% { transform: scale(1) translate(-50%, -50%); }
     }
+
     @keyframes shakeScream {
       0%, 100% { transform: translate(-50%, -50%) rotate(0); }
       20% { transform: translate(-48%, -52%) rotate(-3deg); }
@@ -190,11 +200,13 @@
       60% { transform: translate(-50%, -50%) rotate(-2deg); }
       80% { transform: translate(-49%, -51%) rotate(2deg); }
     }
+
     @keyframes floatGentle {
       0% { transform: translate(-50%, -52%) scale(0.9); opacity: 0; }
       50% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
       100% { transform: translate(-50%, -50%) scale(1); }
     }
+
     @keyframes ringBell {
       0% { transform: rotate(0deg); }
       25% { transform: rotate(10deg); }
@@ -202,18 +214,19 @@
       75% { transform: rotate(10deg); }
       100% { transform: rotate(0deg); }
     }
+
     @keyframes popMetal {
       0% { transform: scale(0.7) translate(-50%, -50%); opacity: 0; }
       50% { transform: scale(1.2) translate(-50%, -50%); opacity: 1; }
       100% { transform: scale(1) translate(-50%, -50%); }
     }
+
     @keyframes sparkleMagic {
       0% { transform: scale(0.5) translate(-50%, -50%); opacity: 0; filter: brightness(1.2); }
       50% { transform: scale(1.05) translate(-50%, -50%); opacity: 1; filter: brightness(1.4); }
       100% { transform: scale(1) translate(-50%, -50%); filter: brightness(1); }
     }
 
-    /* Class-to-Animation Mappings */
     .popup-shadow   { animation: bounceIn 0.8s ease-out; }
     .popup-scream   { animation: shakeScream 0.8s ease-in-out; }
     .popup-bell     { animation: ringBell 0.8s ease-in-out; }
@@ -225,6 +238,15 @@
   </style>
 </head>
 <body>
+  <!-- Dev Mode Toggle -->
+<div style="text-align:center; margin-bottom: 1em;">
+  <label class="switch">
+    <input type="checkbox" id="devModeToggle" onchange="handleDevToggle()">
+    <span class="slider"></span>
+  </label>
+  <span style="font-size: 0.9em;">Dev Mode</span>
+</div>
+
 <div id="passwordPrompt">
   <input type="password" id="passwordInput" placeholder="Password">
   <button onclick="checkPassword()">Unlock</button>
@@ -261,7 +283,7 @@
 
 <div id="rewardPopup"></div>
 
-<!-- Effects (must match sound IDs) -->
+<!-- Effect overlays -->
 <div id="effect_scream" class="effect-overlay scream"></div>
 <div id="effect_bell" class="effect-overlay bell"></div>
 <div id="effect_angelhum" class="effect-overlay angelhum"></div>
@@ -270,7 +292,7 @@
 <div id="effect_slash" class="effect-overlay slash"></div>
 <div id="effect_ultimatepower" class="effect-overlay"></div>
 
-<!-- Firebase & Script -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
@@ -279,22 +301,19 @@ const firebaseConfig = {
   authDomain: "gracey-s-rewards.firebaseapp.com",
   databaseURL: "https://gracey-s-rewards-default-rtdb.firebaseio.com",
   projectId: "gracey-s-rewards",
-  storageBucket: "gracey-s-rewards.firebasestorage.app",
+  storageBucket: "gracey-s-rewards.appspot.com",
   messagingSenderId: "320157110840",
-  appId: "1:320157110840:web:ede94a3e448889b55f0ccd",
-  measurementId: "G-PRPNSPJELJ"
+  appId: "1:320157110840:web:ede94a3e448889b55f0ccd"
 };
 firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
 
+let devMode = false;
 let editUnlocked = false;
 let rewards = [];
 let unseenRewards = [];
 let popupQueue = [];
 let popupShowing = false;
-let refPoints = db.ref("points");
-let refLog = db.ref("log");
-let refRewards = db.ref("rewards");
+let refPoints, refLog, refRewards;
 let totalPoints = 0;
 
 const rewardItems = [
@@ -308,6 +327,29 @@ const rewardItems = [
   { name: "Dexter Action-Figure Set", points: 350, img: "https://i.ebayimg.com/images/g/qc0AAOSwhHNndjJG/s-l1600.webp", class: "dexter", sound: "slash" }
 ];
 
+function handleDevToggle() {
+  const toggle = document.getElementById("devModeToggle");
+  if (toggle.checked) {
+    const pwd = prompt("Enter password to enable Dev Mode:");
+    if (pwd === "ILoveGracey") {
+      devMode = true;
+      editUnlocked = true;
+      document.getElementById("editControls").style.display = "block";
+      document.getElementById("passwordPrompt").style.display = "none";
+      setupRefs();
+    } else {
+      alert("Incorrect password.");
+      toggle.checked = false;
+    }
+  } else {
+    devMode = false;
+    editUnlocked = false;
+    document.getElementById("editControls").style.display = "none";
+    document.getElementById("passwordPrompt").style.display = "block";
+    setupRefs();
+  }
+}
+
 function checkPassword() {
   const pass = document.getElementById("passwordInput").value;
   if (pass === "ILoveGracey") {
@@ -317,6 +359,42 @@ function checkPassword() {
   } else {
     alert("Incorrect password.");
   }
+}
+
+function setupRefs() {
+  refPoints = firebase.database().ref(devMode ? "dev_points" : "points");
+  refLog = firebase.database().ref(devMode ? "dev_log" : "log");
+  refRewards = firebase.database().ref(devMode ? "dev_rewards" : "rewards");
+
+  refPoints.on("value", snap => {
+    totalPoints = snap.val() || 0;
+    document.getElementById("totalPoints").textContent = totalPoints;
+    updateInventory();
+  });
+
+  refLog.on("value", snap => {
+    const logs = snap.val() || [];
+    const logList = document.getElementById("logList");
+    logList.innerHTML = "";
+    logs.forEach((entry, i) => {
+      const div = document.createElement("div");
+      div.className = "log-entry";
+      div.textContent = `+${entry.amount} - ${entry.reason}`;
+      if (editUnlocked) {
+        const btn = document.createElement("button");
+        btn.textContent = "✕";
+        btn.style.cssText = "position:absolute;right:10px;top:6px;background:crimson;color:white;border:none;border-radius:4px;cursor:pointer;";
+        btn.onclick = () => deleteEntry(i);
+        div.appendChild(btn);
+      }
+      logList.appendChild(div);
+    });
+  });
+
+  refRewards.on("value", snap => {
+    rewards = snap.val() || [];
+    updateInventory();
+  });
 }
 
 function awardPoints(amount) {
@@ -362,8 +440,7 @@ function updateInventory() {
     if (hasItem) {
       const div = document.createElement("div");
       div.className = "item";
-      div.innerHTML = `<img src="${item.img}" alt="${item.name}" onclick="showFullImage('${item.img}')">
-        <span class="${item.class}">${item.name}</span>`;
+      div.innerHTML = `<img src="${item.img}" alt="${item.name}" onclick="showFullImage('${item.img}')"><span class="${item.class}">${item.name}</span>`;
       grid.appendChild(div);
     }
   });
@@ -371,7 +448,8 @@ function updateInventory() {
   refRewards.set(rewards);
 
   justEarned.forEach(item => {
-    if (!shownRewards.includes(item.name)) {
+    const shown = shownRewards.includes(item.name);
+    if (!shown) {
       popupQueue.push(item);
       shownRewards.push(item.name);
     }
@@ -395,11 +473,7 @@ function showPopup(item) {
   const delay = item.sound === "ultimatepower" ? 1300 : 0;
 
   setTimeout(() => {
-    popup.innerHTML = `
-      <strong>You just earned:</strong><br>
-      <span class="${item.class}">${item.name}</span><br>
-      <img src="${item.img}" alt="${item.name}">
-    `;
+    popup.innerHTML = `<strong>You just earned:</strong><br><span class="${item.class}">${item.name}</span><br><img src="${item.img}" alt="${item.name}">`;
     popup.classList.add("popup-" + item.sound);
     popup.style.display = "block";
   }, delay);
@@ -486,35 +560,7 @@ function showFullImage(src) {
   document.getElementById("itemModal").style.display = "flex";
 }
 
-refPoints.on("value", snap => {
-  totalPoints = snap.val() || 0;
-  document.getElementById("totalPoints").textContent = totalPoints;
-  updateInventory();
-});
-
-refLog.on("value", snap => {
-  const logs = snap.val() || [];
-  const logList = document.getElementById("logList");
-  logList.innerHTML = "";
-  logs.forEach((entry, i) => {
-    const div = document.createElement("div");
-    div.className = "log-entry";
-    div.textContent = `+${entry.amount} - ${entry.reason}`;
-    if (editUnlocked) {
-      const btn = document.createElement("button");
-      btn.textContent = "✕";
-      btn.style.cssText = "position:absolute;right:10px;top:6px;background:crimson;color:white;border:none;border-radius:4px;cursor:pointer;";
-      btn.onclick = () => deleteEntry(i);
-      div.appendChild(btn);
-    }
-    logList.appendChild(div);
-  });
-});
-
-refRewards.on("value", snap => {
-  rewards = snap.val() || [];
-  updateInventory();
-});
+setupRefs();
 </script>
 </body>
 </html>
