@@ -239,10 +239,15 @@
     .popup-belt    { border: 3px solid #ccc;     box-shadow: 0 0 20px #ccc8; }
     .popup-baby    { border: 3px solid #ffc1e3;  box-shadow: 0 0 20px #ffc1e388; }
     .popup-dexter  { border: 3px solid red;      box-shadow: 0 0 20px red; }
-
-    @media (max-width: 600px) {
-      #passwordPrompt { top: auto; bottom: 20px; right: 20px; }
-    }
+@media (max-width: 600px) {
+  #passwordPrompt {
+    top: 10px;
+    left: 10px;
+    right: auto;
+    bottom: auto;
+    transform: scale(0.9);
+  }
+}
   </style>
 </head>
 <body>
