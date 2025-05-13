@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gracey's Rewards</title>
   <style>
+    .effect-overlay {
+  opacity: 1;
+  transition: opacity 2s ease;
+}
+
+.fadeout {
+  opacity: 0 !important;
+}
     #rewardPopup {
   display: none;
   position: fixed;
@@ -501,23 +509,50 @@ function showEffect(effectId) {
   const el = document.getElementById("effect_" + effectId);
   if (!el) return;
 
-  if (effectId === "ultimatepower") {
-    setTimeout(() => {
-      el.style.display = "block";
+  // Timing map based on real audio
+  const timing = {
+    ultimatepower: { start: 1000, fadeStart: 5000, end: 7270 },
+    angelhum: { start: 200, fadeStart: 1800, end: 2420 },
+    bell: { start: 500, fadeStart: 2500, end: 3530 },
+    ding: { start: 100, fadeStart: 1300, end: 1850 },
+    kiss: { start: 200, fadeStart: 1100, end: 1630 },
+    magical: { start: 1000, fadeStart: 6000, end: 7780 },
+    scream: { start: 400, fadeStart: 5200, end: 6050 }
+  };
+
+  const t = timing[effectId];
+  if (!t) {
+    // default fallback
+    el.style.display = "block";
+    setTimeout(() => { el.style.display = "none"; }, 1500);
+    return;
+  }
+
+  setTimeout(() => {
+    el.style.display = "block";
+    el.classList.remove("fadeout");
+
+    if (effectId === "ultimatepower") {
       document.body.classList.add("shaking");
       document.body.classList.add("shadow-theme");
-      setTimeout(() => {
-        el.style.display = "none";
+    }
+
+    // Start fade out
+    setTimeout(() => {
+      el.classList.add("fadeout");
+      if (effectId === "ultimatepower") {
         document.body.classList.remove("shaking");
         document.body.classList.remove("shadow-theme");
-      }, 4000);
-    }, 1000);
-  } else {
-    el.style.display = "block";
+      }
+    }, t.fadeStart - t.start);
+
+    // Fully hide
     setTimeout(() => {
       el.style.display = "none";
-    }, 1500);
-  }
+      el.classList.remove("fadeout");
+    }, t.end - t.start);
+
+  }, t.start);
 }
 
 function processPopupQueue() {
