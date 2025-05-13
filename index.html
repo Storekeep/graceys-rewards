@@ -550,32 +550,31 @@
     });
   }
 
-  function showEffect(effectId) {
-    const el = document.getElementById("effect_" + effectId);
-    if (!el) return;
+ function showEffect(effectId) {
+  const el = document.getElementById("effect_" + effectId);
+  if (!el) return;
 
-    el.style.display = "block";
-
-    if (effectId === "ultimatepower") {
+  // Special delayed timing for Shadow Shirt
+  if (effectId === "ultimatepower") {
+    setTimeout(() => {
+      el.style.display = "block";
       document.body.classList.add("shaking");
       document.body.classList.add("shadow-theme");
+
       setTimeout(() => {
+        el.style.display = "none";
         document.body.classList.remove("shaking");
         document.body.classList.remove("shadow-theme");
-      }, 1500);
-    }
-
+      }, 4000); // Ends at 5s (1s delay + 4s duration)
+    }, 1000); // Starts at 1s
+  } else {
+    // Normal effect logic
+    el.style.display = "block";
     setTimeout(() => {
       el.style.display = "none";
     }, 1500);
   }
-
-  function processPopupQueue() {
-    if (popupShowing || popupQueue.length === 0) return;
-    popupShowing = true;
-    const next = popupQueue.shift();
-    showPopup(next);
-  }
+}
 
   function showFullImage(src) {
     document.getElementById("modalImage").src = src;
