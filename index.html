@@ -147,18 +147,18 @@
       position: fixed;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%) scale(1);
+      transform: translate(-50%, -50%);
       background: rgba(0, 0, 0, 0.85);
       padding: 20px;
       border-radius: 20px;
       z-index: 1500;
-      animation: bounceIn 0.6s ease;
+      text-align: center;
     }
 
-    @keyframes bounceIn {
-      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
-      60% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-      100% { transform: translate(-50%, -50%) scale(1); }
+    #rewardPopup img {
+      max-width: 200px;
+      max-height: 200px;
+      border-radius: 15px;
     }
 
     #devModeToggle {
@@ -233,62 +233,63 @@
     }
   </style>
 </head>
-<div id="passwordPrompt">
-  <input type="password" id="passwordInput" placeholder="Password">
-  <button onclick="submitPassword()">Unlock</button>
-</div>
-
-<h1>Gracey's Rewards</h1>
-<div id="totalPoints">0</div>
-
-<div class="controls" id="editControls" style="display:none;">
-  <input type="text" id="reasonInput" placeholder="Reason..." />
-  <div class="buttons">
-    <button onclick="awardPoints(1)">+1</button>
-    <button onclick="awardPoints(5)">+5</button>
-    <button onclick="awardPoints(10)">+10</button>
-    <button onclick="awardPoints(20)">+20</button>
+<body>
+  <div id="passwordPrompt">
+    <input type="password" id="passwordInput" placeholder="Password">
+    <button onclick="checkPassword()">Unlock</button>
   </div>
-</div>
 
-<div id="logList"></div>
+  <h1>Gracey's Rewards</h1>
+  <div id="totalPoints">0</div>
 
-<div id="inventoryToggle">
-  <button id="inventoryButton" onclick="toggleInventory()">
-    🧺 Inventory <span id="badge">0</span>
-  </button>
-</div>
+  <div class="controls" id="editControls" style="display:none;">
+    <input type="text" id="reasonInput" placeholder="Reason..." />
+    <div class="buttons">
+      <button onclick="awardPoints(1)">+1</button>
+      <button onclick="awardPoints(5)">+5</button>
+      <button onclick="awardPoints(10)">+10</button>
+      <button onclick="awardPoints(20)">+20</button>
+    </div>
+  </div>
 
-<div id="inventory">
-  <h2>🎁 Rewards You've Earned</h2>
-  <div class="item-grid" id="inventoryGrid"></div>
-</div>
+  <div id="logList"></div>
 
-<div id="itemModal" onclick="this.style.display='none'">
-  <img id="modalImage" src="" alt="Item Image">
-</div>
+  <div id="inventoryToggle">
+    <button id="inventoryButton" onclick="toggleInventory()">
+      🧺 Inventory <span id="badge">0</span>
+    </button>
+  </div>
 
-<div id="rewardPopup"></div>
+  <div id="inventory">
+    <h2>🎁 Rewards You've Earned</h2>
+    <div class="item-grid" id="inventoryGrid"></div>
+  </div>
 
-<!-- Effects -->
-<div id="effect_scream" class="effect-overlay scream"></div>
-<div id="effect_bell" class="effect-overlay bell"></div>
-<div id="effect_angelhum" class="effect-overlay angelhum"></div>
-<div id="effect_ding" class="effect-overlay ding"></div>
-<div id="effect_kiss" class="effect-overlay kiss"></div>
-<div id="effect_slash" class="effect-overlay slash"></div>
-<div id="effect_ultimatepower" class="effect-overlay"></div>
-<div id="effect_magical" class="effect-overlay sparkle"></div>
+  <div id="itemModal" onclick="this.style.display='none'">
+    <img id="modalImage" src="" alt="Item Image">
+  </div>
 
-<!-- Dev Mode Toggle -->
-<div id="devModeToggle">
-  <label for="devSwitch">Dev Mode</label>
-  <input type="checkbox" id="devSwitch" />
-</div>
+  <div id="rewardPopup"></div>
 
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <!-- Effects -->
+  <div id="effect_scream" class="effect-overlay scream"></div>
+  <div id="effect_bell" class="effect-overlay bell"></div>
+  <div id="effect_angelhum" class="effect-overlay angelhum"></div>
+  <div id="effect_ding" class="effect-overlay ding"></div>
+  <div id="effect_kiss" class="effect-overlay kiss"></div>
+  <div id="effect_slash" class="effect-overlay slash"></div>
+  <div id="effect_ultimatepower" class="effect-overlay"></div>
+  <div id="effect_magical" class="effect-overlay sparkle"></div>
+
+  <!-- Dev Mode Toggle -->
+  <div id="devModeToggle">
+    <label for="devSwitch">Dev Mode</label>
+    <input type="checkbox" id="devSwitch" />
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyCVxmCeRSheujRlo2ddOcUSaNYx1pq1gFY",
@@ -305,12 +306,15 @@ const db = firebase.database();
 
 let editUnlocked = false;
 let devMode = false;
-let listenersAttached = false;
 let rewards = [];
 let unseenRewards = [];
 let popupQueue = [];
 let popupShowing = false;
 let totalPoints = 0;
+
+const refPoints = () => db.ref(devMode ? "dev/points" : "points");
+const refLog = () => db.ref(devMode ? "dev/log" : "log");
+const refRewards = () => db.ref(devMode ? "dev/rewards" : "rewards");
 
 const rewardItems = [
   { name: "Horror Anime T-Shirt", points: 60, img: "https://m.media-amazon.com/images/I/B1pppR4gVKL.png", class: "horror", sound: "scream" },
@@ -323,53 +327,36 @@ const rewardItems = [
   { name: "Dexter Action-Figure Set", points: 350, img: "https://i.ebayimg.com/images/g/qc0AAOSwhHNndjJG/s-l1600.webp", class: "dexter", sound: "slash" }
 ];
 
-function getPath(base) {
-  return devMode ? `dev/${base}` : base;
-}
-
-function ref(base) {
-  return db.ref(getPath(base));
-}
-
-function submitPassword() {
+function checkPassword() {
   const pass = document.getElementById("passwordInput").value;
   if (pass === "ILoveGracey") {
     editUnlocked = true;
     document.getElementById("passwordPrompt").style.display = "none";
     document.getElementById("editControls").style.display = "block";
-    if (!listenersAttached) initApp();
   } else {
     alert("Incorrect password.");
   }
 }
 
-document.getElementById("devSwitch").addEventListener("change", () => {
-  devMode = document.getElementById("devSwitch").checked;
-  editUnlocked = false;
-  document.getElementById("editControls").style.display = "none";
-  document.getElementById("passwordPrompt").style.display = "block";
-  detachListeners();
-});
-
 function awardPoints(amount) {
   const reason = document.getElementById("reasonInput").value || "No reason";
   const newTotal = totalPoints + amount;
-  ref("points").set(newTotal);
-  ref("log").once("value").then(snap => {
+  refPoints().set(newTotal);
+  refLog().once("value").then(snap => {
     const current = snap.val() || [];
     current.push({ amount, reason });
-    ref("log").set(current);
+    refLog().set(current);
   });
 }
 
 function deleteEntry(index) {
-  ref("log").once("value").then(snap => {
+  refLog().once("value").then(snap => {
     const logs = snap.val() || [];
     const entry = logs[index];
     if (!entry) return;
     logs.splice(index, 1);
-    ref("log").set(logs);
-    ref("points").set(totalPoints - entry.amount);
+    refLog().set(logs);
+    refPoints().set(totalPoints - entry.amount);
   });
 }
 
@@ -400,7 +387,7 @@ function updateInventory() {
     }
   });
 
-  ref("rewards").set(rewards);
+  refRewards().set(rewards);
 
   justEarned.forEach(item => {
     if (!shownRewards.includes(item.name)) {
@@ -432,7 +419,6 @@ function showPopup(item) {
       <span class="${item.class}">${item.name}</span><br>
       <img src="${item.img}" alt="${item.name}">
     `;
-    popup.classList.add("popup-" + item.sound);
     popup.style.display = "block";
   }, delay);
 
@@ -518,24 +504,22 @@ function showFullImage(src) {
   document.getElementById("itemModal").style.display = "flex";
 }
 
-function detachListeners() {
-  ["points", "log", "rewards", "dev/points", "dev/log", "dev/rewards"].forEach(path => {
-    db.ref(path).off();
-  });
-  listenersAttached = false;
-}
+document.getElementById("devSwitch").addEventListener("change", () => {
+  devMode = document.getElementById("devSwitch").checked;
+  refPoints().off();
+  refLog().off();
+  refRewards().off();
+  initListeners();
+});
 
-function initApp() {
-  if (listenersAttached) return;
-  listenersAttached = true;
-
-  ref("points").on("value", snap => {
+function initListeners() {
+  refPoints().on("value", snap => {
     totalPoints = snap.val() || 0;
     document.getElementById("totalPoints").textContent = totalPoints;
     updateInventory();
   });
 
-  ref("log").on("value", snap => {
+  refLog().on("value", snap => {
     const logs = snap.val() || [];
     const logList = document.getElementById("logList");
     logList.innerHTML = "";
@@ -554,11 +538,13 @@ function initApp() {
     });
   });
 
-  ref("rewards").on("value", snap => {
+  refRewards().on("value", snap => {
     rewards = snap.val() || [];
     updateInventory();
   });
 }
+
+initListeners();
 </script>
 </body>
 </html>
