@@ -23,7 +23,22 @@
   z-index: 1500;
   pointer-events: none;
 }
+@keyframes shake {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-5px, 5px); }
+  50% { transform: translate(5px, -5px); }
+  75% { transform: translate(-5px, 0); }
+  100% { transform: translate(0, 0); }
+}
 
+.shadow-theme {
+  background-color: black !important;
+  color: #ff003c !important;
+}
+
+body.shaking {
+  animation: shake 0.4s ease-in-out 3;
+}
 @keyframes shadowExplode {
   0% {
     transform: scale(0.8);
@@ -517,13 +532,18 @@ function showPopup(item) {
   `;
   popup.classList.add("popup-" + item.class);
   popup.style.display = "block";
-  playReward(item.sound);
+
+  const audio = new Audio("sounds/" + item.sound + ".mp3");
+  audio.play().catch(() => {});
+
   showEffect(item.sound);
-  setTimeout(() => {
+
+  // Only hide popup when sound ends
+  audio.addEventListener("ended", () => {
     popup.style.display = "none";
     popupShowing = false;
     processPopupQueue();
-  }, 4000);
+  });
 }
 
 function processPopupQueue() {
@@ -541,8 +561,21 @@ function playReward(soundId) {
 function showEffect(effectId) {
   const el = document.getElementById("effect_" + effectId);
   if (!el) return;
+
   el.style.display = "block";
-  setTimeout(() => { el.style.display = "none"; }, 1500);
+
+  if (effectId === "ultimatepower") {
+    document.body.classList.add("shaking");
+    document.body.classList.add("shadow-theme");
+    setTimeout(() => {
+      document.body.classList.remove("shaking");
+      document.body.classList.remove("shadow-theme");
+    }, 1500);
+  }
+
+  setTimeout(() => {
+    el.style.display = "none";
+  }, 1500);
 }
 
 function showFullImage(src) {
