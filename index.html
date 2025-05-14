@@ -446,8 +446,24 @@ function checkPassword() {
 
 function awardPoints(amount) {
   const reason = document.getElementById("reasonInput").value || "No reason";
-  const newTotal = totalPoints + amount;
-  refPoints.set(newTotal);
+ const newTotal = totalPoints + amount;
+refPoints.set(newTotal);
+
+// Animate +X
+const delta = document.getElementById("pointDelta");
+delta.textContent = `+${amount}`;
+delta.style.opacity = 1;
+delta.style.transform = "translate(-50%, -20px)";
+setTimeout(() => {
+  delta.style.opacity = 0;
+  delta.style.transform = "translate(-50%, -60px)";
+}, 50);
+setTimeout(() => {
+  delta.textContent = '';
+}, 1000);
+
+// Play sound
+document.getElementById("pointSound").play().catch(() => {});
   refLog.once("value").then(snap => {
     const current = snap.val() || [];
     current.push({ amount, reason });
@@ -635,5 +651,20 @@ function showFullImage(src) {
 
 setupRefs();
 </script>
+<audio id="pointSound" src="sounds/point.wav" preload="auto"></audio>
+<div id="pointDelta" style="
+  position: fixed;
+  top: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #90ff90;
+  text-shadow: 0 0 5px #0f0;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.8s ease, opacity 0.8s ease;
+  z-index: 2000;
+"></div>
 </body>
 </html>
