@@ -215,6 +215,10 @@
     .dexter { color: #ff0000; }
     .butterfly { color: #b3f0ff; text-shadow: 0 0 8px #a3e9ff, 0 0 16px #ffffff; }
     .shadow { color: #ff003c; text-shadow: 0 0 8px #ff003c, 0 0 14px #000000; }
+    .patch {
+  color: #ffb3ec;
+  text-shadow: 0 0 8px #fff, 0 0 15px #ff8ad4, 0 0 25px #ffd6f9;
+}
     #itemModal {
       display: none;
       position: fixed;
@@ -583,7 +587,15 @@ const rewardItems = [
   { name: "Metal Chain Belt", points: 115, img: "https://m.media-amazon.com/images/I/71rI66+vjeL._AC_SX679_.jpg", class: "belt", sound: "ding" },
   { name: "Mystic Butterfly Mug", points: 150, img: "https://i.etsystatic.com/24694628/r/il/fa052b/5704527119/il_1588xN.5704527119_2zap.jpg", class: "butterfly", sound: "magical" },
   { name: "Baby Girl Top", points: 150, img: "https://m.media-amazon.com/images/I/41ih9Eazx1L._AC_.jpg", class: "baby", sound: "kiss" },
-  { name: "Dexter Action-Figure Set", points: 350, img: "https://i.ebayimg.com/images/g/qc0AAOSwhHNndjJG/s-l1600.webp", class: "dexter", sound: "slash" }
+  { name: "Dexter Action-Figure Set", points: 350, img: "https://i.ebayimg.com/images/g/qc0AAOSwhHNndjJG/s-l1600.webp", class: "dexter", sound: "slash" },
+  {
+  name: "Patch's Seal of Approval",
+  points: 888,
+  img: "https://gracey-files.patchcdn.com/seal_patch.png", // use correct uploaded path or upload to your hosting
+  class: "patch",
+  sound: "sparkle"
+}
+  
 ];
 
 function setupRefs() {
@@ -908,6 +920,16 @@ function getPointEffectClass(amount) {
 
 function awardPoints(amount) {
   const reason = document.getElementById("reasonInput").value || "No reason";
+  if (reason.toLowerCase().includes("patch") && !rewards.includes("Patch's Seal of Approval")) {
+  rewards.push("Patch's Seal of Approval");
+  refRewards.set(rewards);
+  popupQueue.push({
+    name: "Patch's Seal of Approval",
+    img: "https://i.imgur.com/M6aVYXs.png",
+    class: "patch",
+    sound: "magical"
+  });
+}
   const newTotal = totalPoints + amount;
   refPoints.set(newTotal);
 
