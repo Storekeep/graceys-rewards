@@ -761,23 +761,24 @@ function showPointFloat(text, amount) {
   const div = document.createElement("div");
   div.className = "point-float " + getPointEffectClass(amount);
   div.textContent = text;
-
-  // Add to body first
   document.body.appendChild(div);
 
-  // Get width of the float text itself
-  const floatWidth = div.offsetWidth;
+  // Wait a moment so offsetWidth is available
+  requestAnimationFrame(() => {
+    const floatWidth = div.offsetWidth;
 
-  // Adjust position: beside the totalPoints counter
-  const leftOffset = rect.left + rect.width + 10 + window.scrollX;
-  const topOffset = rect.top + window.scrollY;
+    // Position near top-right of the counter
+    const offsetX = rect.width / 2 + 20;
+    const offsetY = -10;
 
-  div.style.left = `${leftOffset}px`;
-  div.style.top = `${topOffset}px`;
+    div.style.left = `${rect.left + window.scrollX + rect.width / 2 + offsetX}px`;
+    div.style.top = `${rect.top + window.scrollY + offsetY}px`;
 
-  // Clean up
-  setTimeout(() => div.remove(), 1000);
+    // Show and remove after animation
+    setTimeout(() => div.remove(), 1000);
+  });
 }
+
 function playPointSound(amount) {
   let sound;
   switch (amount) {
