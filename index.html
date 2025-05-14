@@ -355,7 +355,10 @@
   0% { transform: translateY(0); opacity: 1; }
   100% { transform: translateY(-30px); opacity: 0; }
 }
-
+@keyframes floatDown {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(30px); opacity: 0; }
+}
 .fx-glow   { color: #a0ffb2; text-shadow: 0 0 10px #0f0; }
 .fx-sparkle{ color: #f6a0ff; text-shadow: 0 0 10px #f0f, 0 0 20px #fff; }
 .fx-bounce { color: #fff78a; text-shadow: 0 0 6px #fff38a; }
@@ -777,31 +780,49 @@ function showPointFloat(text, amount) {
   const rect = total.getBoundingClientRect();
 
   const div = document.createElement("div");
-  div.className = "point-float " + getPointEffectClass(amount);
+  const effectClass = getPointEffectClass(amount);
+  div.className = "point-float " + effectClass;
   div.textContent = text;
   document.body.appendChild(div);
 
   const floatWidth = div.offsetWidth;
   const centerX = rect.left + rect.width / 2 + window.scrollX;
-  const topY = rect.top + window.scrollY - 10; // Adjust this number to fine-tune vertical position
+  const topY = rect.top + window.scrollY - 10;
 
   div.style.left = `${centerX - floatWidth / 2}px`;
   div.style.top = `${topY}px`;
   div.style.opacity = 1;
 
+  // If it's negative, fall down instead of float up
+  if (amount < 0) {
+    div.style.animation = "floatDown 1s ease-out forwards";
+  }
+
   setTimeout(() => div.remove(), 1000);
 }
 
-
 function playPointSound(amount) {
   let sound;
-  switch (amount) {
-    case 1: sound = "plus1"; break;
-    case 5: sound = "plus5"; break;
-    case 10: sound = "plus10"; break;
-    case 20: sound = "plus20"; break;
-    case 50: sound = "plus50"; break;
+  const abs = Math.abs(amount);
+
+  if (amount < 0) {
+    switch (abs) {
+      case 1: sound = "minus1"; break;
+      case 5: sound = "minus5"; break;
+      case 10: sound = "minus10"; break;
+      case 20: sound = "minus20"; break;
+      case 50: sound = "minus50"; break;
+    }
+  } else {
+    switch (amount) {
+      case 1: sound = "plus1"; break;
+      case 5: sound = "plus5"; break;
+      case 10: sound = "plus10"; break;
+      case 20: sound = "plus20"; break;
+      case 50: sound = "plus50"; break;
+    }
   }
+
   if (sound) {
     new Audio(`sounds/${sound}.mp3`).play().catch(() => {});
   }
