@@ -361,6 +361,10 @@
 .fx-bounce { color: #fff78a; text-shadow: 0 0 6px #fff38a; }
 .fx-fire   { color: #ff9966; text-shadow: 0 0 6px #ff4000; }
 .fx-lightning { color: #aaf; text-shadow: 0 0 12px #33f, 0 0 25px #fff; }
+.fx-negative {
+  color: #ff4b4b;
+  text-shadow: 0 0 8px #900;
+}
 
 @keyframes floatUp {
   0% { transform: translateY(0); opacity: 1; }
@@ -397,6 +401,13 @@
     <button onclick="awardPoints(20)">+20</button>
     <button onclick="awardPoints(50)">+50</button>
   </div>
+  <div class="buttons">
+  <button onclick="awardPoints(-1)">-1</button>
+  <button onclick="awardPoints(-5)">-5</button>
+  <button onclick="awardPoints(-10)">-10</button>
+  <button onclick="awardPoints(-20)">-20</button>
+  <button onclick="awardPoints(-50)">-50</button>
+</div>
 </div>
 
 <div id="logList"></div>
@@ -743,8 +754,11 @@ function getPointEffectClass(amount) {
   if (amount === 10) return "fx-bounce";
   if (amount === 20) return "fx-fire";
   if (amount === 50) return "fx-lightning";
+  if (amount < 0) return "fx-negative";
   return "";
 }
+
+
 function awardPoints(amount) {
   const reason = document.getElementById("reasonInput").value || "No reason";
   const newTotal = totalPoints + amount;
