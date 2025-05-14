@@ -498,7 +498,10 @@ setTimeout(() => pointsEl.classList.remove("animate"), 400);
     logs.forEach((entry, i) => {
       const div = document.createElement("div");
       div.className = "log-entry";
-      div.textContent = `+${entry.amount} - ${entry.reason}`;
+    const sign = entry.amount > 0 ? "+" : "";
+div.textContent = `${sign}${entry.amount} - ${entry.reason}`;
+div.style.color = entry.amount < 0 ? "#ff4b4b" : "#a0ffb2";
+
       if (editUnlocked) {
        const btn = document.createElement("button");
 btn.textContent = "✕";
@@ -766,13 +769,15 @@ function awardPoints(amount) {
   const reason = document.getElementById("reasonInput").value || "No reason";
   const newTotal = totalPoints + amount;
   refPoints.set(newTotal);
+
   refLog.once("value").then(snap => {
     const current = snap.val() || [];
     current.push({ amount, reason });
     refLog.set(current);
   });
 
-showPointFloat(`+${amount}`, amount);
+  const sign = amount > 0 ? "+" : "";
+  showPointFloat(`${sign}${amount}`, amount);
   playPointSound(amount);
 }
 function showPointFloat(text, amount) {
