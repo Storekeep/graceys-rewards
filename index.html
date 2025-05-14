@@ -94,23 +94,7 @@
   flex-wrap: wrap;
 }
 
-/* Mobile override */
-@media (max-width: 600px) {
-  #passwordPrompt {
-    top: auto;
-    bottom: 10px;
-    right: 10px;
-    left: auto;
-    transform: none;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 6px;
-    width: auto;
-    max-width: 95vw;
-    padding: 10px;
-    z-index: 999;
-  }
-}
+
 
     .switch {
       position: relative;
@@ -269,42 +253,25 @@
       75% { transform: translate(-5px, 0); }
       100% { transform: translate(0, 0); }
     }
-    @media (max-width: 600px) {
-      #passwordPrompt {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: rgba(0,0,0,0.7);
-  padding: 12px;
-  border-radius: 10px;
-  z-index: 1100;
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-  align-items: center;
-  max-width: 90vw;
-  flex-wrap: wrap;
-}
-
-/* Mobile override */
+   
 @media (max-width: 600px) {
   #passwordPrompt {
-    top: auto;
+    position: fixed;
     bottom: 10px;
-    right: 10px;
-    left: auto;
-    transform: none;
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+    top: auto;
+    background: rgba(0,0,0,0.85);
     flex-direction: column;
     align-items: stretch;
     gap: 6px;
-    width: auto;
-    max-width: 95vw;
+    width: 90vw;
+    max-width: 400px;
     padding: 10px;
     z-index: 999;
   }
 }
-
-    }
   </style>
 </head>
 <body>
