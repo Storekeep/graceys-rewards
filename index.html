@@ -767,10 +767,9 @@ function showPointFloat(text, amount) {
   div.textContent = text;
   document.body.appendChild(div);
 
-  // Position above and centered on the point counter
   const floatWidth = div.offsetWidth;
   const centerX = rect.left + rect.width / 2 + window.scrollX;
-  const topY = rect.top + window.scrollY - 30;
+  const topY = rect.top + window.scrollY - 10; // Adjust this number to fine-tune vertical position
 
   div.style.left = `${centerX - floatWidth / 2}px`;
   div.style.top = `${topY}px`;
