@@ -377,7 +377,10 @@ function setupRefs() {
 
   refPoints.on("value", snap => {
     totalPoints = snap.val() || 0;
-    document.getElementById("totalPoints").textContent = totalPoints;
+   const pointsEl = document.getElementById("totalPoints");
+pointsEl.textContent = totalPoints;
+pointsEl.classList.add("animate");
+setTimeout(() => pointsEl.classList.remove("animate"), 400);
     updateInventory();
   });
 
