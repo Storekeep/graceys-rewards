@@ -43,7 +43,9 @@
   border-radius: 8px;
   border: 2px solid white;
   box-shadow: 0 0 10px #fff3;
+  
 }
+
     body {
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(to bottom right, #1a1a1a, #3a3a3a);
@@ -263,6 +265,41 @@
     body.shaking {
       animation: shake 0.4s ease-in-out 3;
     }
+    .effect-overlay.magical {
+  background: radial-gradient(ellipse at center, rgba(179,240,255,0.5) 0%, rgba(0,0,0,0.6) 100%);
+  animation: shimmerFade 1.5s ease-in-out infinite alternate;
+  
+}
+
+@keyframes shimmerFade {
+  0% { opacity: 0.4; transform: scale(1); }
+  100% { opacity: 0.9; transform: scale(1.05); }
+}
+#effect_magical_particles {
+  z-index: 1501;
+}
+
+.particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: rgba(179, 240, 255, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(179, 240, 255, 0.9);
+  animation: floatParticle 3s ease-out forwards;
+}
+
+@keyframes floatParticle {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) scale(0.5);
+    opacity: 0;
+  }
+}
+
     @keyframes shadowExplode {
       0% { transform: scale(0.8); opacity: 0.6; }
       50% { transform: scale(1.1); opacity: 1; }
@@ -506,7 +543,12 @@
 <div id="effect_kiss" class="effect-overlay kiss"></div>
 <div id="effect_slash" class="effect-overlay slash"></div>
 <div id="effect_ultimatepower" class="effect-overlay"></div>
-
+<div id="effect_magical" class="effect-overlay magical"></div>
+<div id="effect_magical_particles" class="effect-overlay" style="pointer-events: none;"></div>
+<div id="effect_slash" class="effect-overlay slash"></div>
+<div id="effect_ultimatepower" class="effect-overlay"></div>
+<div id="effect_magical" class="effect-overlay magical"></div>
+<div id="effect_magical_particles" class="effect-overlay" style="pointer-events: none;"></div>
 <!-- Firebase + App Script -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -768,7 +810,27 @@ function showEffect(effectId) {
     setTimeout(() => { el.style.display = "none"; }, 1500);
     return;
   }
+if (effectId === "magical") {
+  const particleContainer = document.getElementById("effect_magical_particles");
+  particleContainer.innerHTML = "";
+  particleContainer.style.display = "block";
 
+  // spawn 25 floating particles
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement("div");
+    p.className = "particle";
+    p.style.left = Math.random() * 100 + "vw";
+    p.style.top = (50 + Math.random() * 30) + "vh";
+    p.style.animationDelay = (Math.random() * 2) + "s";
+    particleContainer.appendChild(p);
+  }
+
+  // Hide particle container after sound ends
+  setTimeout(() => {
+    particleContainer.style.display = "none";
+    particleContainer.innerHTML = "";
+  }, t.end);
+}
   setTimeout(() => {
     el.style.display = "block";
     el.classList.remove("fadeout");
