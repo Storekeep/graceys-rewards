@@ -763,20 +763,17 @@ function showPointFloat(text, amount) {
   div.textContent = text;
   document.body.appendChild(div);
 
-  // Wait a moment so offsetWidth is available
-  requestAnimationFrame(() => {
-    const floatWidth = div.offsetWidth;
+  // Position it 10px to the right and vertically centered with #totalPoints
+  const offsetX = 10;
+  const offsetY = (rect.height / 2) - 10;
 
-    // Position near top-right of the counter
-    const offsetX = rect.width / 2 + 20;
-    const offsetY = -10;
+  div.style.position = "absolute";
+  div.style.left = `${rect.right + offsetX + window.scrollX}px`;
+  div.style.top = `${rect.top + offsetY + window.scrollY}px`;
+  div.style.opacity = 1;
 
-    div.style.left = `${rect.left + window.scrollX + rect.width / 2 + offsetX}px`;
-    div.style.top = `${rect.top + window.scrollY + offsetY}px`;
-
-    // Show and remove after animation
-    setTimeout(() => div.remove(), 1000);
-  });
+  // Cleanup
+  setTimeout(() => div.remove(), 1000);
 }
 
 function playPointSound(amount) {
