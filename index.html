@@ -317,7 +317,7 @@ let editUnlocked = false;
 let rewards = [];
 let unseenRewards = [];
 let popupQueue = [];
-let popupShowing = true;
+let popupShowing = false;
 let refPoints, refLog, refRewards;
 let totalPoints = 0;
 
@@ -538,10 +538,11 @@ function showEffect(effectId) {
 
 function processPopupQueue() {
   if (popupShowing || popupQueue.length === 0) return;
-  popupShowing = true;
+  popupShowing = true; // <== ADD THIS
   const next = popupQueue.shift();
   showPopup(next);
 }
+
 
 function toggleInventory() {
   const inv = document.getElementById("inventory");
