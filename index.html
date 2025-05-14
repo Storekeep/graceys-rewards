@@ -407,6 +407,39 @@
   0% { transform: translateY(0); opacity: 1; }
   100% { transform: translateY(-30px); opacity: 0; }
 }
+#catchupOverlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+}
+
+#catchupPopup {
+  background: #222;
+  padding: 2em;
+  border-radius: 10px;
+  color: white;
+  text-align: center;
+  max-width: 90%;
+  box-shadow: 0 0 20px #000;
+}
+
+#catchupPopup button {
+  margin-top: 1em;
+  padding: 0.5em 1em;
+  font-size: 1em;
+  background: #444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
   </style>
 </head>
 <body>
@@ -517,6 +550,11 @@ function setupRefs() {
   refRewards = db.ref(devMode ? "dev_rewards" : "rewards");
 
   refPoints.on("value", snap => {
+    if (!popupShowing && !editUnlocked && lastSeenPoints !== 0 && lastSeenPoints !== totalPoints) {
+  showCatchupPopup(totalPoints - lastSeenPoints);
+}
+localStorage.setItem("lastSeenPoints", totalPoints);
+
     totalPoints = snap.val() || 0;
    const pointsEl = document.getElementById("totalPoints");
 pointsEl.textContent = totalPoints;
@@ -680,7 +718,7 @@ function updateInventory() {
   updateBadge();
   processPopupQueue();
 }
-
+const lastSeenPoints = parseInt(localStorage.getItem("lastSeenPoints")) || 0;
 function showPopup(item) {
   const popup = document.getElementById("rewardPopup");
   popup.className = "";
@@ -876,6 +914,23 @@ function playPointSound(amount) {
   if (sound) {
     new Audio(`sounds/${sound}.mp3`).play().catch(() => {});
   }
+  function showCatchupPopup(delta) {
+  const overlay = document.getElementById("catchupOverlay");
+  const msg = document.getElementById("catchupMessage");
+
+  const sign = delta > 0 ? "+" : "";
+  const effectClass = getPointEffectClass(delta);
+  msg.innerHTML = `
+    While you were away...<br>
+    <span class="point-float ${effectClass}" style="position:relative; font-size:2em;">${sign}${delta}</span>
+  `;
+
+  overlay.style.display = "flex";
+}
+
+function closeCatchupPopup() {
+  document.getElementById("catchupOverlay").style.display = "none";
+}
 }
 setupRefs();
 </script>
@@ -894,5 +949,12 @@ setupRefs();
   transition: transform 0.8s ease, opacity 0.8s ease;
   z-index: 2000;
 "></div>
+<div id="catchupOverlay" style="display:none;">
+  <div id="catchupPopup">
+    <div id="catchupMessage"></div>
+    <button onclick="closeCatchupPopup()">Got it</button>
+  </div>
+</div>
+
 </body>
 </html>
