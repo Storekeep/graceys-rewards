@@ -349,7 +349,11 @@
   pointer-events: none;
   opacity: 0;
   animation: floatUp 1s ease-out forwards;
-  z-index: 2000;
+  z-index: 9999;
+}
+@keyframes floatUp {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-30px); opacity: 0; }
 }
 
 .fx-glow   { color: #a0ffb2; text-shadow: 0 0 10px #0f0; }
@@ -763,18 +767,19 @@ function showPointFloat(text, amount) {
   div.textContent = text;
   document.body.appendChild(div);
 
-  // Position it 10px to the right and vertically centered with #totalPoints
-  const offsetX = 10;
-  const offsetY = (rect.height / 2) - 10;
+  // Make sure the float stays visible and doesn't go offscreen
+  const offsetX = 20;
+  const offsetY = 10;
+  const left = Math.min(window.innerWidth - 100, rect.right + offsetX + window.scrollX);
+  const top = rect.top + offsetY + window.scrollY;
 
-  div.style.position = "absolute";
-  div.style.left = `${rect.right + offsetX + window.scrollX}px`;
-  div.style.top = `${rect.top + offsetY + window.scrollY}px`;
+  div.style.left = `${left}px`;
+  div.style.top = `${top}px`;
   div.style.opacity = 1;
 
-  // Cleanup
   setTimeout(() => div.remove(), 1000);
 }
+
 
 function playPointSound(amount) {
   let sound;
