@@ -353,6 +353,7 @@ function handleDevToggle() {
     document.getElementById("passwordPrompt").style.display = "block";
     setupRefs();
   }
+  setTimeout(updateInventory, 300);  //
 }
 
 function checkPassword() {
@@ -567,7 +568,6 @@ function showFullImage(src) {
   document.getElementById("itemModal").style.display = "flex";
 }
 
-setupRefs();
 </script>
 </body>
 </html>
