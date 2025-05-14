@@ -366,11 +366,11 @@ function setupRefs() {
       div.className = "log-entry";
       div.textContent = `+${entry.amount} - ${entry.reason}`;
       if (editUnlocked) {
-        const btn = document.createElement("button");
-        btn.textContent = "✕";
-        btn.style.cssText = "position:absolute;right:10px;top:6px;background:crimson;color:white;border:none;border-radius:4px;cursor:pointer;";
-        btn.onclick = () => deleteEntry(i);
-        div.appendChild(btn);
+       const btn = document.createElement("button");
+btn.textContent = "✕";
+btn.style.cssText = "margin-left: 10px; background: crimson; color: white; border: none; border-radius: 4px; cursor: pointer;";
+btn.onclick = () => deleteEntry(i);
+div.appendChild(btn);
       }
       logList.appendChild(div);
     });
@@ -411,6 +411,7 @@ function checkPassword() {
     editUnlocked = true;
     document.getElementById("passwordPrompt").style.display = "none";
     document.getElementById("editControls").style.display = "block";
+    updateLogDeleteButtons();
   } else {
     alert("Incorrect password.");
   }
@@ -434,10 +435,23 @@ function deleteEntry(index) {
     if (!entry) return;
     logs.splice(index, 1);
     refLog.set(logs);
-    refPoints.set(totalPoints - entry.amount);
+   const newTotal = Math.max(0, totalPoints - entry.amount);
+refPoints.set(newTotal);
+
   });
 }
-
+function updateLogDeleteButtons() {
+  const logs = document.querySelectorAll('.log-entry');
+  logs.forEach((div, i) => {
+    if (!div.querySelector('button')) {
+      const btn = document.createElement("button");
+      btn.textContent = "✕";
+      btn.style.cssText = "margin-left: 10px; background: crimson; color: white; border: none; border-radius: 4px; cursor: pointer;";
+      btn.onclick = () => deleteEntry(i);
+      div.appendChild(btn);
+    }
+  });
+}
 function updateInventory() {
   const grid = document.getElementById("inventoryGrid");
   grid.innerHTML = "";
