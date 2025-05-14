@@ -759,11 +759,15 @@ function showPointFloat(text, amount) {
   div.className = "point-float " + getPointEffectClass(amount);
   div.textContent = text;
 
-  // Set position near #totalPoints
-  div.style.left = rect.right + 10 + "px";
-  div.style.top = rect.top + window.scrollY + "px";
-
+  // Append early so it can be positioned
   document.body.appendChild(div);
+
+  // Set absolute position near totalPoints (right side)
+  div.style.position = "absolute";
+  div.style.left = `${rect.right + 10 + window.scrollX}px`;
+  div.style.top = `${rect.top + window.scrollY}px`;
+
+  // Animate and remove
   setTimeout(() => div.remove(), 1000);
 }
 function playPointSound(amount) {
