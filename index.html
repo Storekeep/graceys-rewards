@@ -317,7 +317,7 @@ let editUnlocked = false;
 let rewards = [];
 let unseenRewards = [];
 let popupQueue = [];
-let popupShowing = false;
+let popupShowing = true;
 let refPoints, refLog, refRewards;
 let totalPoints = 0;
 
@@ -467,6 +467,7 @@ function updateInventory() {
 
 function showPopup(item) {
   const popup = document.getElementById("rewardPopup");
+  popupShowing = true; // ✅ THIS LINE FIXES IT
   popup.className = "";
   popup.innerHTML = "";
   popup.style.display = "none";
