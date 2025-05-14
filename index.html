@@ -5,45 +5,72 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gracey's Rewards</title>
   <style>
+    .effect-overlay {
+  opacity: 1;
+  transition: opacity 2s ease;
+}
+
+.fadeout {
+  opacity: 0 !important;
+}
+    #rewardPopup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1600;
+  padding: 1.2em 1.4em;
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 14px;
+  text-align: center;
+  color: white;
+  font-size: 1em;
+  box-shadow: 0 0 25px #fff4;
+  animation: popBounce 0.8s ease, fadeHold 3s ease;
+  max-width: 80%;
+  max-height: 80%;
+  overflow: hidden;
+}
+
+#rewardPopup img {
+  max-width: 100px;
+  max-height: 100px;
+  margin: 0.6em auto 0;
+  border-radius: 8px;
+  border: 2px solid white;
+  box-shadow: 0 0 10px #fff3;
+}
     body {
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(to bottom right, #1a1a1a, #3a3a3a);
       color: #fff;
       margin: 0;
       padding: 2em 1em;
+      transition: background 0.3s, color 0.3s;
     }
-
     h1 {
       text-align: center;
       color: #fff1a8;
       text-shadow: 0 0 15px #ff0;
     }
-
     #totalPoints {
       font-size: 2.5em;
       text-align: center;
       margin: 0.5em 0;
       color: #ffda75;
     }
-
-    .controls {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      margin: 1em auto;
-      max-width: 500px;
-      gap: 1em;
+    .controls, .log-entry {
       text-align: center;
+      margin: 1em auto;
+      max-width: 400px;
     }
-
     .buttons {
       display: flex;
-      flex-wrap: wrap;
       justify-content: center;
       gap: 10px;
+      flex-wrap: wrap;
     }
-
     input, button {
       padding: 0.6em;
       margin: 0.2em;
@@ -51,7 +78,6 @@
       border-radius: 6px;
       border: none;
     }
-
     #passwordPrompt {
       position: fixed;
       top: 20px;
@@ -61,20 +87,17 @@
       border-radius: 10px;
       z-index: 1100;
     }
-
     .switch {
       position: relative;
       display: inline-block;
       width: 50px;
       height: 26px;
     }
-
     .switch input {
       opacity: 0;
       width: 0;
       height: 0;
     }
-
     .slider {
       position: absolute;
       cursor: pointer;
@@ -84,7 +107,6 @@
       border-radius: 26px;
       transition: 0.3s;
     }
-
     .slider:before {
       position: absolute;
       content: "";
@@ -94,20 +116,16 @@
       border-radius: 50%;
       transition: 0.3s;
     }
-
     input:checked + .slider {
       background-color: #66bb6a;
     }
-
     input:checked + .slider:before {
       transform: translateX(24px);
     }
-
     #inventoryToggle {
       text-align: center;
       margin-top: 1em;
     }
-
     #inventoryButton {
       position: relative;
       font-size: 1.1em;
@@ -118,7 +136,6 @@
       border-radius: 8px;
       cursor: pointer;
     }
-
     #badge {
       position: absolute;
       top: -6px;
@@ -134,368 +151,450 @@
       text-align: center;
       display: none;
     }
-
     #inventory {
       display: none;
       margin-top: 2em;
       text-align: center;
     }
-
     .item-grid {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 1em;
     }
-
     .item {
       display: flex;
       flex-direction: column;
       align-items: center;
       cursor: pointer;
     }
-
     .item img {
       width: 100px;
       height: auto;
       border: 2px solid #ccc;
       border-radius: 6px;
     }
-
-    .horror     { color: #ff4b4b; }
-    .gothic     { color: #c28bff; }
-    .lace       { color: #87f2ff; }
-    .belt       { color: #cccccc; }
-    .baby       { color: #ffc1e3; }
-    .dexter     { color: #ff0000; }
-    .butterfly  { color: #b3f0ff; text-shadow: 0 0 8px #a3e9ff, 0 0 16px #ffffff; }
-    .shadow     { color: #ff003c; text-shadow: 0 0 8px #ff003c, 0 0 14px #000000; }
-
-    #rewardPopup {
+    .horror { color: #ff4b4b; }
+    .gothic { color: #c28bff; }
+    .lace   { color: #87f2ff; }
+    .belt   { color: #cccccc; }
+    .baby   { color: #ffc1e3; }
+    .dexter { color: #ff0000; }
+    .butterfly { color: #b3f0ff; text-shadow: 0 0 8px #a3e9ff, 0 0 16px #ffffff; }
+    .shadow { color: #ff003c; text-shadow: 0 0 8px #ff003c, 0 0 14px #000000; }
+    #itemModal {
       display: none;
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 1600;
-      padding: 1.2em 1.4em;
-      background: rgba(0, 0, 0, 0.95);
-      border-radius: 14px;
-      text-align: center;
-      color: white;
-      font-size: 1em;
-      box-shadow: 0 0 25px #fff4;
-      max-width: 80%;
-      max-height: 80%;
-      overflow: hidden;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
     }
-
-    #rewardPopup img {
-      max-width: 100px;
-      max-height: 100px;
-      margin: 0.6em auto 0;
+    #itemModal img {
+      max-width: 90%;
+      max-height: 90%;
+      border: 5px solid white;
       border-radius: 8px;
-      border: 2px solid white;
-      box-shadow: 0 0 10px #fff3;
     }
-
-    /* Popup Animations */ 
-    @keyframes bounceIn {
-      0% { transform: scale(0.6) translate(-50%, -50%); opacity: 0; }
-      50% { transform: scale(1.1) translate(-50%, -50%); opacity: 1; }
-      100% { transform: scale(1) translate(-50%, -50%); }
+    .effect-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1500;
+      pointer-events: none;
+      opacity: 0.85;
     }
-
-    .popup-shadow   { animation: bounceIn 0.8s ease-out; }
-    .popup-scream   { animation: bounceIn 0.8s ease-in-out; }
-    .popup-bell     { animation: bounceIn 0.8s ease-in-out; }
-    .popup-angelhum { animation: bounceIn 1.2s ease; }
-    .popup-ding     { animation: bounceIn 0.7s ease-out; }
-    .popup-magical  { animation: bounceIn 1s ease-out; }
-    .popup-kiss     { animation: bounceIn 0.7s ease-out; }
-    .popup-slash    { animation: bounceIn 0.9s ease-in-out; }
+    .scream { background: red; animation: flash 0.6s ease; }
+    .bell { background: rgba(150, 0, 255, 0.7); animation: glow 1s ease; }
+    .angelhum { background: rgba(255, 255, 255, 0.9); animation: fade 1.5s ease; }
+    .ding { background: linear-gradient(45deg, gray, silver); animation: pulse 0.8s ease; }
+    .kiss { background: pink; animation: pop 1s ease; }
+    .slash { background: rgba(255, 0, 0, 0.7); animation: slash 0.7s ease; }
+    #effect_ultimatepower {
+      background: radial-gradient(circle, rgba(255,0,60,0.9) 0%, rgba(0,0,0,0.9) 100%);
+      animation: shadowExplode 1.2s ease-out;
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1500;
+      pointer-events: none;
+    }
+    .shadow-theme {
+      background-color: black !important;
+      color: #ff003c !important;
+    }
+    body.shaking {
+      animation: shake 0.4s ease-in-out 3;
+    }
+    @keyframes shadowExplode {
+      0% { transform: scale(0.8); opacity: 0.6; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); opacity: 0; }
+    }
+    @keyframes shake {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(-5px, 5px); }
+      50% { transform: translate(5px, -5px); }
+      75% { transform: translate(-5px, 0); }
+      100% { transform: translate(0, 0); }
+    }
+    @media (max-width: 600px) {
+      #passwordPrompt {
+        top: 10px;
+        left: 10px;
+        right: auto;
+        bottom: auto;
+        transform: scale(0.9);
+      }
+    }
   </style>
 </head>
 <body>
- <!-- Dev Mode Toggle -->
-  <div style="text-align:center; margin-bottom: 1em;">
-    <label class="switch">
-      <input type="checkbox" id="devModeToggle" onchange="handleDevToggle()">
-      <span class="slider"></span>
-    </label>
-    <span style="font-size: 0.9em;">Dev Mode</span>
-  </div>
-
-  <div id="passwordPrompt">
-    <input type="password" id="passwordInput" placeholder="Password">
-    <button onclick="checkPassword()">Unlock</button>
-  </div>
-
-  <h1>Gracey's Rewards</h1>
-  <div id="totalPoints">0</div>
-
-  <div class="controls" id="editControls" style="display:none;">
-    <input type="text" id="reasonInput" placeholder="Reason..." />
-    <div class="buttons">
-      <button onclick="awardPoints(1)">+1</button>
-      <button onclick="awardPoints(5)">+5</button>
-      <button onclick="awardPoints(10)">+10</button>
-      <button onclick="awardPoints(20)">+20</button>
-    </div>
-  </div>
-
-  <div id="logList"></div>
-
-  <div id="inventoryToggle">
-    <button id="inventoryButton" onclick="toggleInventory()">
-      🧺 Inventory <span id="badge">0</span>
-    </button>
-  </div>
-  <div id="inventory">
-    <h2>🎁 Rewards You've Earned</h2>
-    <div class="item-grid" id="inventoryGrid"></div>
-  </div>
-
-  <div id="itemModal" onclick="this.style.display='none'">
-    <img id="modalImage" src="" alt="Item Image">
-  </div>
-
   <div id="rewardPopup"></div>
+  <!-- Dev Mode Toggle -->
+<div style="text-align:center; margin-bottom: 1em;">
+  <label class="switch">
+    <input type="checkbox" id="devModeToggle" onchange="handleDevToggle()">
+    <span class="slider"></span>
+  </label>
+  <span style="font-size: 0.9em;">Dev Mode</span>
+</div>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCVxmCeRSheujRlo2ddOcUSaNYx1pq1gFY",
-      authDomain: "gracey-s-rewards.firebaseapp.com",
-      databaseURL: "https://gracey-s-rewards-default-rtdb.firebaseio.com",
-      projectId: "gracey-s-rewards",
-      storageBucket: "gracey-s-rewards.appspot.com",
-      messagingSenderId: "320157110840",
-      appId: "1:320157110840:web:ede94a3e448889b55f0ccd"
-    };
-    firebase.initializeApp(firebaseConfig);
+<div id="passwordPrompt">
+  <input type="password" id="passwordInput" placeholder="Password">
+  <button onclick="checkPassword()">Unlock</button>
+</div>
 
-    let devMode = false;
-    let editUnlocked = false;
-    let rewards = [];
-    let unseenRewards = [];
-    let popupQueue = [];
-    let popupShowing = false;
-    let refPoints, refLog, refRewards;
-    let totalPoints = 0;
+<h1>Gracey's Rewards</h1>
+<div id="totalPoints">0</div>
 
-    const rewardItems = [
-      { name: "Horror Anime T-Shirt", points: 60, img: "https://m.media-amazon.com/images/I/B1pppR4gVKL.png", class: "horror", sound: "scream" },
-      { name: "Gothic Graphic Crop Top", points: 75, img: "https://m.media-amazon.com/images/I/61CH-IigCtL._AC_SY741_.jpg", class: "gothic", sound: "bell" },
-      { name: "Marlboro Shadow T-Shirt", points: 85, img: "https://i0.wp.com/ellieshirt.com/wp-content/uploads/2025/04/SHADOW-SMOKING-THIS-POWER-CHANGES-ME-SHIRT-Sonic-the-Hedgehog-Marlboro-X-Shadow.gif", class: "shadow", sound: "ultimatepower" },
-      { name: "Striped Gothic Lace Shirt", points: 95, img: "https://m.media-amazon.com/images/I/61XF9gOHCQL._AC_SY879_.jpg", class: "lace", sound: "angelhum" },
-      { name: "Metal Chain Belt", points: 115, img: "https://m.media-amazon.com/images/I/71rI66+vjeL._AC_SX679_.jpg", class: "belt", sound: "ding" },
-      { name: "Mystic Butterfly Mug", points: 150, img: "https://i.etsystatic.com/24694628/r/il/fa052b/5704527119/il_1588xN.5704527119_2zap.jpg", class: "butterfly", sound: "magical" },
-      { name: "Baby Girl Top", points: 150, img: "https://m.media-amazon.com/images/I/41ih9Eazx1L._AC_.jpg", class: "baby", sound: "kiss" },
-      { name: "Dexter Action-Figure Set", points: 350, img: "https://i.ebayimg.com/images/g/qc0AAOSwhHNndjJG/s-l1600.webp", class: "dexter", sound: "slash" }
-    ];
+<div class="controls" id="editControls" style="display:none;">
+  <input type="text" id="reasonInput" placeholder="Reason..." />
+  <div class="buttons">
+    <button onclick="awardPoints(1)">+1</button>
+    <button onclick="awardPoints(5)">+5</button>
+    <button onclick="awardPoints(10)">+10</button>
+    <button onclick="awardPoints(20)">+20</button>
+  </div>
+</div>
 
-    function handleDevToggle() {
-      const toggle = document.getElementById("devModeToggle");
-      if (toggle.checked) {
-        const pwd = prompt("Enter password to enable Dev Mode:");
-        if (pwd === "ILoveGracey") {
-          devMode = true;
-          editUnlocked = true;
-          document.getElementById("editControls").style.display = "block";
-          document.getElementById("passwordPrompt").style.display = "none";
-          setupRefs();
-        } else {
-          alert("Incorrect password.");
-          toggle.checked = false;
-        }
-      } else {
-        devMode = false;
-        editUnlocked = false;
-        document.getElementById("editControls").style.display = "none";
-        document.getElementById("passwordPrompt").style.display = "block";
-        setupRefs();
+<div id="logList"></div>
+
+<div id="inventoryToggle">
+  <button id="inventoryButton" onclick="toggleInventory()">
+    🧺 Inventory <span id="badge">0</span>
+  </button>
+</div>
+<div id="inventory">
+  <h2>🎁 Rewards You've Earned</h2>
+  <div class="item-grid" id="inventoryGrid"></div>
+</div>
+
+<div id="itemModal" onclick="this.style.display='none'">
+  <img id="modalImage" src="" alt="Item Image">
+</div>
+
+<div id="rewardPopup"></div>
+
+<!-- Effects -->
+<div id="effect_scream" class="effect-overlay scream"></div>
+<div id="effect_bell" class="effect-overlay bell"></div>
+<div id="effect_angelhum" class="effect-overlay angelhum"></div>
+<div id="effect_ding" class="effect-overlay ding"></div>
+<div id="effect_kiss" class="effect-overlay kiss"></div>
+<div id="effect_slash" class="effect-overlay slash"></div>
+<div id="effect_ultimatepower" class="effect-overlay"></div>
+
+<!-- Firebase + App Script -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCVxmCeRSheujRlo2ddOcUSaNYx1pq1gFY",
+  authDomain: "gracey-s-rewards.firebaseapp.com",
+  databaseURL: "https://gracey-s-rewards-default-rtdb.firebaseio.com",
+  projectId: "gracey-s-rewards",
+  storageBucket: "gracey-s-rewards.firebasestorage.app",
+  messagingSenderId: "320157110840",
+  appId: "1:320157110840:web:ede94a3e448889b55f0ccd",
+  measurementId: "G-PRPNSPJELJ"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+let devMode = false;
+let editUnlocked = false;
+let rewards = [];
+let unseenRewards = [];
+let popupQueue = [];
+let popupShowing = false;
+let refPoints, refLog, refRewards;
+let totalPoints = 0;
+
+const rewardItems = [
+  { name: "Horror Anime T-Shirt", points: 60, img: "https://m.media-amazon.com/images/I/B1pppR4gVKL._CLa%7C2140%2C2000%7C91wBHUyvxuL.png%7C0%2C0%2C2140%2C2000%2B0.0%2C0.0%2C2140.0%2C2000.0_AC_SX679_.png", class: "horror", sound: "scream" },
+  { name: "Gothic Graphic Crop Top", points: 75, img: "https://m.media-amazon.com/images/I/61CH-IigCtL._AC_SY741_.jpg", class: "gothic", sound: "bell" },
+  { name: "Marlboro Shadow T-Shirt", points: 85, img: "https://i0.wp.com/ellieshirt.com/wp-content/uploads/2025/04/SHADOW-SMOKING-THIS-POWER-CHANGES-ME-SHIRT-Sonic-the-Hedgehog-Marlboro-X-Shadow.gif?fit=1000%2C1000&ssl=1", class: "shadow", sound: "ultimatepower" },
+  { name: "Striped Gothic Lace Shirt", points: 95, img: "https://m.media-amazon.com/images/I/61XF9gOHCQL._AC_SY879_.jpg", class: "lace", sound: "angelhum" },
+  { name: "Metal Chain Belt", points: 115, img: "https://m.media-amazon.com/images/I/71rI66+vjeL._AC_SX679_.jpg", class: "belt", sound: "ding" },
+  { name: "Mystic Butterfly Mug", points: 150, img: "https://i.etsystatic.com/24694628/r/il/fa052b/5704527119/il_1588xN.5704527119_2zap.jpg", class: "butterfly", sound: "magical" },
+  { name: "Baby Girl Top", points: 150, img: "https://m.media-amazon.com/images/I/41ih9Eazx1L._AC_.jpg", class: "baby", sound: "kiss" },
+  { name: "Dexter Action-Figure Set", points: 350, img: "https://i.ebayimg.com/images/g/qc0AAOSwhHNndjJG/s-l1600.webp", class: "dexter", sound: "slash" }
+];
+
+function setupRefs() {
+  refPoints = db.ref(devMode ? "dev_points" : "points");
+  refLog = db.ref(devMode ? "dev_log" : "log");
+  refRewards = db.ref(devMode ? "dev_rewards" : "rewards");
+
+  refPoints.on("value", snap => {
+    totalPoints = snap.val() || 0;
+    document.getElementById("totalPoints").textContent = totalPoints;
+    updateInventory();
+  });
+
+  refLog.on("value", snap => {
+    const logs = snap.val() || [];
+    const logList = document.getElementById("logList");
+    logList.innerHTML = "";
+    logs.forEach((entry, i) => {
+      const div = document.createElement("div");
+      div.className = "log-entry";
+      div.textContent = `+${entry.amount} - ${entry.reason}`;
+      if (editUnlocked) {
+        const btn = document.createElement("button");
+        btn.textContent = "✕";
+        btn.style.cssText = "position:absolute;right:10px;top:6px;background:crimson;color:white;border:none;border-radius:4px;cursor:pointer;";
+        btn.onclick = () => deleteEntry(i);
+        div.appendChild(btn);
       }
+      logList.appendChild(div);
+    });
+  });
+
+  refRewards.on("value", snap => {
+    rewards = snap.val() || [];
+    updateInventory();
+  });
+}
+
+function handleDevToggle() {
+  const toggle = document.getElementById("devModeToggle");
+  if (toggle.checked) {
+    const pwd = prompt("Enter password to enable Dev Mode:");
+    if (pwd === "ILoveGracey") {
+      devMode = true;
+      editUnlocked = true;
+      document.getElementById("editControls").style.display = "block";
+      document.getElementById("passwordPrompt").style.display = "none";
+      setupRefs();
+    } else {
+      alert("Incorrect password.");
+      toggle.checked = false;
     }
-
-    function checkPassword() {
-      const pass = document.getElementById("passwordInput").value;
-      if (pass === "ILoveGracey") {
-        editUnlocked = true;
-        document.getElementById("passwordPrompt").style.display = "none";
-        document.getElementById("editControls").style.display = "block";
-      } else {
-        alert("Incorrect password.");
-      }
-    }
-
-    function setupRefs() {
-      refPoints = firebase.database().ref(devMode ? "dev_points" : "points");
-      refLog = firebase.database().ref(devMode ? "dev_log" : "log");
-      refRewards = firebase.database().ref(devMode ? "dev_rewards" : "rewards");
-
-      refPoints.on("value", snap => {
-        totalPoints = snap.val() || 0;
-        document.getElementById("totalPoints").textContent = totalPoints;
-        updateInventory();
-      });
-
-      refLog.on("value", snap => {
-        const logs = snap.val() || [];
-        const logList = document.getElementById("logList");
-        logList.innerHTML = "";
-        logs.forEach((entry, i) => {
-          const div = document.createElement("div");
-          div.className = "log-entry";
-          div.textContent = `+${entry.amount} - ${entry.reason}`;
-          if (editUnlocked) {
-            const btn = document.createElement("button");
-            btn.textContent = "✕";
-            btn.style.cssText = "position:absolute;right:10px;top:6px;background:crimson;color:white;border:none;border-radius:4px;cursor:pointer;";
-            btn.onclick = () => deleteEntry(i);
-            div.appendChild(btn);
-          }
-          logList.appendChild(div);
-        });
-      });
-
-      refRewards.on("value", snap => {
-        rewards = snap.val() || [];
-        updateInventory();
-      });
-    }
-
-    function awardPoints(amount) {
-      const reason = document.getElementById("reasonInput").value || "No reason";
-      const newTotal = totalPoints + amount;
-      refPoints.set(newTotal);
-      refLog.once("value").then(snap => {
-        const current = snap.val() || [];
-        current.push({ amount, reason });
-        refLog.set(current);
-      });
-    }
-
-    function deleteEntry(index) {
-      refLog.once("value").then(snap => {
-        const logs = snap.val() || [];
-        const entry = logs[index];
-        if (!entry) return;
-        logs.splice(index, 1);
-        refLog.set(logs);
-        refPoints.set(totalPoints - entry.amount);
-      });
-    }
-
-    function updateInventory() {
-      const grid = document.getElementById("inventoryGrid");
-      grid.innerHTML = "";
-      const shownRewards = JSON.parse(localStorage.getItem("shownRewards") || "[]");
-      const justEarned = [];
-
-      rewardItems.forEach(item => {
-        const hasItem = totalPoints >= item.points;
-        const alreadyEarned = rewards.includes(item.name);
-
-        if (hasItem && !alreadyEarned) {
-          rewards.push(item.name);
-          unseenRewards.push(item.name);
-          justEarned.push(item);
-        } else if (!hasItem && alreadyEarned) {
-          rewards = rewards.filter(r => r !== item.name);
-        }
-
-        if (hasItem) {
-          const div = document.createElement("div");
-          div.className = "item";
-          div.innerHTML = `<img src="${item.img}" alt="${item.name}" onclick="showFullImage('${item.img}')"><span class="${item.class}">${item.name}</span>`;
-          grid.appendChild(div);
-        }
-      });
-
-      refRewards.set(rewards);
-
-      justEarned.forEach(item => {
-        const shown = shownRewards.includes(item.name);
-        if (!shown) {
-          popupQueue.push(item);
-          shownRewards.push(item.name);
-        }
-      });
-
-      localStorage.setItem("shownRewards", JSON.stringify(shownRewards));
-      updateBadge();
-      processPopupQueue();
-    }
-
-    function showPopup(item) {
-      const popup = document.getElementById("rewardPopup");
-      popupShowing = true;
-      popup.className = "popup-" + item.sound;
-      popup.innerHTML = `
-        <strong>You just earned:</strong><br>
-        <span class="${item.class}">${item.name}</span><br>
-        <img src="${item.img}" alt="${item.name}">
-      `;
-      popup.style.display = "block";
-      console.log("[POPUP] Showing popup for:", item.name);
-
-      const audio = new Audio("sounds/" + item.sound + ".mp3");
-
-      audio.onerror = () => {
-        console.warn("[POPUP] Sound failed for:", item.sound);
-        popup.style.display = "none";
-        popupShowing = false;
-        processPopupQueue();
-      };
-
-      audio.play().catch(err => {
-        console.warn("[POPUP] Audio play failed:", err);
-        popup.style.display = "none";
-        popupShowing = false;
-        processPopupQueue();
-      });
-
-      audio.addEventListener("ended", () => {
-        popup.style.display = "none";
-        popupShowing = false;
-        processPopupQueue();
-      });
-    }
-
-    function processPopupQueue() {
-      if (popupShowing || popupQueue.length === 0) return;
-      popupShowing = true;
-      const next = popupQueue.shift();
-      showPopup(next);
-    }
-
-    function toggleInventory() {
-      const inv = document.getElementById("inventory");
-      const badge = document.getElementById("badge");
-      inv.style.display = inv.style.display === "none" ? "block" : "none";
-      unseenRewards = [];
-      badge.style.display = "none";
-    }
-
-    function updateBadge() {
-      const badge = document.getElementById("badge");
-      if (unseenRewards.length > 0) {
-        badge.style.display = "inline-block";
-        badge.textContent = unseenRewards.length;
-      } else {
-        badge.style.display = "none";
-      }
-    }
-
-    function showFullImage(src) {
-      document.getElementById("modalImage").src = src;
-      document.getElementById("itemModal").style.display = "flex";
-    }
-
+  } else {
+    devMode = false;
+    editUnlocked = false;
+    document.getElementById("editControls").style.display = "none";
+    document.getElementById("passwordPrompt").style.display = "block";
     setupRefs();
-  </script>
+  }
+}
+
+function checkPassword() {
+  const pass = document.getElementById("passwordInput").value;
+  if (pass === "ILoveGracey") {
+    editUnlocked = true;
+    document.getElementById("passwordPrompt").style.display = "none";
+    document.getElementById("editControls").style.display = "block";
+  } else {
+    alert("Incorrect password.");
+  }
+}
+
+function awardPoints(amount) {
+  const reason = document.getElementById("reasonInput").value || "No reason";
+  const newTotal = totalPoints + amount;
+  refPoints.set(newTotal);
+  refLog.once("value").then(snap => {
+    const current = snap.val() || [];
+    current.push({ amount, reason });
+    refLog.set(current);
+  });
+}
+
+function deleteEntry(index) {
+  refLog.once("value").then(snap => {
+    const logs = snap.val() || [];
+    const entry = logs[index];
+    if (!entry) return;
+    logs.splice(index, 1);
+    refLog.set(logs);
+    refPoints.set(totalPoints - entry.amount);
+  });
+}
+
+function updateInventory() {
+  const grid = document.getElementById("inventoryGrid");
+  grid.innerHTML = "";
+  const stored = localStorage.getItem("shownRewards");
+  const shownRewards = stored ? JSON.parse(stored) : [];
+  const justEarned = [];
+
+  rewardItems.forEach(item => {
+    const hasItem = totalPoints >= item.points;
+    const alreadyEarned = rewards.includes(item.name);
+
+    if (hasItem && !alreadyEarned) {
+      rewards.push(item.name);
+      unseenRewards.push(item.name);
+      justEarned.push(item);
+    } else if (!hasItem && alreadyEarned) {
+      rewards = rewards.filter(r => r !== item.name);
+      const index = shownRewards.indexOf(item.name);
+      if (index !== -1) shownRewards.splice(index, 1);
+    }
+
+    if (hasItem) {
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `
+        <img src="${item.img}" alt="${item.name}" onclick="showFullImage('${item.img}')">
+        <span class="${item.class}">${item.name}</span>
+      `;
+      grid.appendChild(div);
+    }
+  });
+
+  refRewards.set(rewards);
+
+  justEarned.forEach(item => {
+    if (!shownRewards.includes(item.name)) {
+      popupQueue.push(item);
+      shownRewards.push(item.name);
+    }
+  });
+
+  localStorage.setItem("shownRewards", JSON.stringify(shownRewards));
+  updateBadge();
+  processPopupQueue();
+}
+
+function showPopup(item) {
+  const popup = document.getElementById("rewardPopup");
+  popup.className = "";
+  popup.innerHTML = "";
+
+  const audio = new Audio("sounds/" + item.sound + ".mp3");
+  audio.play().catch(() => {});
+  showEffect(item.sound);
+
+  // Sync popup for Shadow Shirt (delayed to match scream)
+  const delay = item.sound === "ultimatepower" ? 1300 : 0;
+
+  setTimeout(() => {
+    popup.innerHTML = `
+      <strong>You just earned:</strong><br>
+      <span class="${item.class}">${item.name}</span><br>
+      <img src="${item.img}" alt="${item.name}">
+    `;
+    popup.style.display = "block";
+  }, delay);
+
+  // Hide popup after audio ends
+  audio.addEventListener("ended", () => {
+    popup.style.display = "none";
+    popupShowing = false;
+    processPopupQueue();
+  });
+}
+
+function showEffect(effectId) {
+  const el = document.getElementById("effect_" + effectId);
+  if (!el) return;
+
+  const timing = {
+    ultimatepower: { start: 1300, fadeStart: 5500, end: 7270 },
+    angelhum: { start: 200, fadeStart: 1800, end: 2420 },
+    bell: { start: 500, fadeStart: 2500, end: 3530 },
+    ding: { start: 100, fadeStart: 1300, end: 1850 },
+    kiss: { start: 200, fadeStart: 1100, end: 1630 },
+    magical: { start: 1000, fadeStart: 6000, end: 7780 },
+    scream: { start: 400, fadeStart: 5200, end: 6050 }
+  };
+
+  const t = timing[effectId];
+  if (!t) {
+    el.style.display = "block";
+    setTimeout(() => { el.style.display = "none"; }, 1500);
+    return;
+  }
+
+  setTimeout(() => {
+    el.style.display = "block";
+    el.classList.remove("fadeout");
+
+    if (effectId === "ultimatepower") {
+      document.body.classList.add("shaking");
+      document.body.classList.add("shadow-theme");
+    }
+
+    setTimeout(() => {
+      el.classList.add("fadeout");
+      if (effectId === "ultimatepower") {
+        document.body.classList.remove("shaking");
+        document.body.classList.remove("shadow-theme");
+      }
+    }, t.fadeStart - t.start);
+
+    setTimeout(() => {
+      el.style.display = "none";
+      el.classList.remove("fadeout");
+    }, t.end - t.start);
+
+  }, t.start);
+}
+function processPopupQueue() {
+  if (popupShowing || popupQueue.length === 0) return;
+  popupShowing = true;
+  const next = popupQueue.shift();
+  showPopup(next);
+}
+
+function toggleInventory() {
+  const inv = document.getElementById("inventory");
+  const badge = document.getElementById("badge");
+  if (inv.style.display === "none") {
+    inv.style.display = "block";
+    unseenRewards = [];
+    badge.style.display = "none";
+  } else {
+    inv.style.display = "none";
+  }
+}
+
+function updateBadge() {
+  const badge = document.getElementById("badge");
+  if (unseenRewards.length > 0) {
+    badge.style.display = "inline-block";
+    badge.textContent = unseenRewards.length;
+  } else {
+    badge.style.display = "none";
+  }
+}
+
+function showFullImage(src) {
+  document.getElementById("modalImage").src = src;
+  document.getElementById("itemModal").style.display = "flex";
+}
+
+setupRefs();
+</script>
 </body>
 </html>
