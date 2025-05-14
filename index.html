@@ -767,14 +767,13 @@ function showPointFloat(text, amount) {
   div.textContent = text;
   document.body.appendChild(div);
 
-  // Make sure the float stays visible and doesn't go offscreen
-  const offsetX = 20;
-  const offsetY = 10;
-  const left = Math.min(window.innerWidth - 100, rect.right + offsetX + window.scrollX);
-  const top = rect.top + offsetY + window.scrollY;
+  // Position above and centered on the point counter
+  const floatWidth = div.offsetWidth;
+  const centerX = rect.left + rect.width / 2 + window.scrollX;
+  const topY = rect.top + window.scrollY - 30;
 
-  div.style.left = `${left}px`;
-  div.style.top = `${top}px`;
+  div.style.left = `${centerX - floatWidth / 2}px`;
+  div.style.top = `${topY}px`;
   div.style.opacity = 1;
 
   setTimeout(() => div.remove(), 1000);
