@@ -251,7 +251,8 @@
     .ding { background: linear-gradient(45deg, gray, silver); animation: pulse 0.8s ease; }
     .kiss { background: pink; animation: pop 1s ease; }
     .slash { background: rgba(255, 0, 0, 0.7); animation: slash 0.7s ease; }
-    #effect_ultimatepower {
+    #effect_ultimatepower
+     {
       background: radial-gradient(circle, rgba(255,0,60,0.9) 0%, rgba(0,0,0,0.9) 100%);
       animation: shadowExplode 1.2s ease-out;
       display: none;
@@ -262,6 +263,7 @@
       z-index: 1500;
       pointer-events: none;
     }
+    
     .shadow-theme {
       background-color: black !important;
       color: #ff003c !important;
@@ -274,7 +276,52 @@
   animation: shimmerFade 1.5s ease-in-out infinite alternate;
   
 }
+.effect-overlay.patch {
+  background: linear-gradient(135deg, #ffb3ec, #ffc1f3, #e0c3fc, #a3f0ff);
+  animation: patchShimmer 1.6s ease-in-out infinite;
+  opacity: 0.9;
+}
 
+@keyframes patchShimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.patch-heart {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: pink;
+  border-radius: 50% 50% 50% 50%;
+  box-shadow: 0 0 10px #f0c, 0 0 20px #f0c;
+  transform: rotate(-45deg);
+  animation: floatHeart 1.8s ease-out forwards;
+}
+
+.patch-heart::after,
+.patch-heart::before {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: pink;
+  border-radius: 50%;
+}
+
+.patch-heart::before {
+  top: -8px;
+  left: 0;
+}
+
+.patch-heart::after {
+  left: 8px;
+  top: 0;
+}
+
+@keyframes floatHeart {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-120px) scale(0.7); opacity: 0; }
+}
 @keyframes shimmerFade {
   0% { opacity: 0.4; transform: scale(1); }
   100% { opacity: 0.9; transform: scale(1.05); }
@@ -553,6 +600,9 @@
 <div id="effect_ultimatepower" class="effect-overlay"></div>
 <div id="effect_magical" class="effect-overlay magical"></div>
 <div id="effect_magical_particles" class="effect-overlay" style="pointer-events: none;"></div>
+<div id="effect_patch" class="effect-overlay"></div>
+<div id="effect_patch_particles" class="effect-overlay" style="pointer-events: none;"></div>
+
 <!-- Firebase + App Script -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -806,6 +856,25 @@ function showPopup(item) {
 function showEffect(effectId) {
   const el = document.getElementById("effect_" + effectId);
   if (!el) return;
+if (effectId === "patch") {
+  const heartLayer = document.getElementById("effect_patch_particles");
+  heartLayer.innerHTML = "";
+  heartLayer.style.display = "block";
+
+  for (let i = 0; i < 20; i++) {
+    const heart = document.createElement("div");
+    heart.className = "patch-heart";
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.top = (50 + Math.random() * 30) + "vh";
+    heart.style.animationDelay = (Math.random() * 1.2) + "s";
+    heartLayer.appendChild(heart);
+  }
+
+  setTimeout(() => {
+    heartLayer.style.display = "none";
+    heartLayer.innerHTML = "";
+  }, 1800);
+}
 
   const timing = {
     ultimatepower: { start: 1300, fadeStart: 5500, end: 7270 },
@@ -814,7 +883,8 @@ function showEffect(effectId) {
     ding: { start: 100, fadeStart: 1300, end: 1850 },
     kiss: { start: 200, fadeStart: 1100, end: 1630 },
     magical: { start: 1000, fadeStart: 6000, end: 7780 },
-    scream: { start: 400, fadeStart: 5200, end: 6050 }
+    scream: { start: 400, fadeStart: 5200, end: 6050 },
+    patch: { start: 0, fadeStart: 1300, end: 1600 },
   };
 
   const t = timing[effectId];
@@ -926,9 +996,9 @@ function awardPoints(amount) {
   refRewards.set(rewards);
   popupQueue.push({
     name: "Patch's Seal of Approval",
-    img: "https://i.imgur.com/M6aVYXs.png",
+    img: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABAAAAAQACAYAAAB/HSuDAADJ3GNhQlgAAMncanVtYgAAAB5qdW1kYzJwYQARABCAAACqADibcQNjMnBhAAAANxNqdW1iAAAAR2p1bWRjMm1hABEAEIAAAKoAOJtxA3VybjpjMnBhOmYwY2I0MmVmLTAxZj...",  // <-- full version",
     class: "patch",
-    sound: "magical"
+    sound: "patch_sparkle_v2"
   });
 }
   const newTotal = totalPoints + amount;
