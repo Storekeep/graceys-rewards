@@ -340,21 +340,18 @@
   100% { transform: rotate(0deg) scale(1); }
 }
 .point-float {
-  position: absolute;
+  position: fixed;
   left: 50%;
-  top: 0;
-  transform: translateX(-50%);
-  font-size: 1.5em;
+  font-size: 2em;
   font-weight: bold;
   color: #6ff;
   pointer-events: none;
   animation: riseUp 1s ease-out forwards;
-  z-index: 1000;
+  z-index: 2000;
 }
-
 @keyframes riseUp {
-  0% { transform: translateX(-50%) translateY(0); opacity: 1; }
-  100% { transform: translateX(-50%) translateY(-40px); opacity: 0; }
+  0% { transform: translate(-50%, 0); opacity: 1; }
+  100% { transform: translate(-50%, -100px); opacity: 0; }
 }
   </style>
 </head>
@@ -376,9 +373,7 @@
 
 <h1>Gracey's Rewards</h1>
 
-<div id="pointsWrapper" style="position: relative; display: inline-block;">
-  <div id="totalPoints">0</div>
-</div>
+<div id="totalPoints">0</div>
 
 <div class="controls" id="editControls" style="display:none;">
   <input type="text" id="reasonInput" placeholder="Reason..." />
@@ -751,11 +746,11 @@ function awardPoints(amount) {
   playPointSound(amount);
 }
 function showPointFloat(text) {
-  const wrapper = document.getElementById("pointsWrapper");
   const div = document.createElement("div");
   div.className = "point-float";
   div.textContent = text;
-  wrapper.appendChild(div);
+  div.style.top = "60%";
+  document.body.appendChild(div);
   setTimeout(() => div.remove(), 1000);
 }
 
