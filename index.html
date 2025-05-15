@@ -655,7 +655,9 @@ function setupRefs() {
   refRewards = db.ref(devMode ? "dev_rewards" : "rewards");
 
   refPoints.on("value", snap => {
-    if (!popupShowing && !editUnlocked && lastSeenPoints !== 0 && lastSeenPoints !== totalPoints) {
+   totalPoints = snap.val() || 0;
+
+if (!popupShowing && !editUnlocked && lastSeenPoints !== 0 && lastSeenPoints !== totalPoints) {
   showCatchupPopup(totalPoints - lastSeenPoints);
 }
 localStorage.setItem("lastSeenPoints", totalPoints);
@@ -730,28 +732,6 @@ function checkPassword() {
     alert("Incorrect password.");
   }
 }
-
-const newTotal = totalPoints + amount;
-refPoints.set(newTotal);
-
-// Floating +X display
-const delta = document.getElementById("pointDelta");
-delta.textContent = `+${amount}`;
-delta.className = 'point-fx';
-delta.classList.add(getPointEffectClass(amount));
-delta.style.opacity = 1;
-delta.style.transform = "translate(-50%, -20px)";
-setTimeout(() => {
-  delta.style.opacity = 0;
-  delta.style.transform = "translate(-50%, -60px)";
-}, 50);
-setTimeout(() => {
-  delta.textContent = '';
-  delta.className = '';
-}, 1000);
-
-// Play sound
-document.getElementById("pointSound").play().catch(() => {});
 
 
 function deleteEntry(index) {
