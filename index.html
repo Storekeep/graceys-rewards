@@ -1078,7 +1078,6 @@ function playPointSound(amount) {
     
 localStorage.setItem("lastSeenTimestamp", Date.now());
 }
-
 function showCatchupPopup(delta, changes) {
   const overlay = document.getElementById("catchupOverlay");
   const popup = document.getElementById("catchupPopup");
@@ -1089,20 +1088,13 @@ function showCatchupPopup(delta, changes) {
   const totalEl = document.createElement("div");
   totalEl.textContent = totalPoints;
   totalEl.id = "catchupTotal";
-  totalEl.style.fontSize = "3em";
-  totalEl.style.margin = "0.4em 0";
-  totalEl.style.color = "#ffda75";
-  totalEl.style.textShadow = "0 0 10px #fff38a";
   msg.appendChild(totalEl);
 
-  // Show popup
   overlay.style.display = "flex";
 
-  // Play entries one at a time
   let i = 0;
   function nextEntry() {
     if (i >= changes.length) {
-      // Final message
       const finalMsg = document.createElement("div");
       finalMsg.style.marginTop = "1em";
       finalMsg.style.fontSize = "1.2em";
@@ -1112,79 +1104,30 @@ function showCatchupPopup(delta, changes) {
         : "A few setbacks... you got this next time 💪";
       msg.appendChild(finalMsg);
       return;
-    const entry = changes[i];
-const amount = entry.amount;
-const reason = entry.reason || "No reason";
-const sign = amount > 0 ? "+" : "";
-
-showPointFloat(`${sign}${amount}`, amount, msg, true);  // 👈 this is what makes the animation appear
-playPointSound(amount);
-
-// Reason text
-const reasonText = document.createElement("div");
-reasonText.textContent = reason;
-reasonText.style.fontSize = "1em";
-reasonText.style.opacity = "0.85";
-reasonText.style.textAlign = "center";
-reasonText.style.marginBottom = "1em";
-msg.appendChild(reasonText);
-
-
-    // Wait then move to next
-    i++;
-    setTimeout(nextEntry, 1400); // delay between entries
-  }
-
-  nextEntry(); // Start the loop
-}
-
-  function playNext() {
-    if (currentIndex >= changes.length) {
-      // Final mood message
-      if (delta > 0) {
-        moodDisplay.textContent = "You're doing great — keep it going!";
-      } else if (delta < 0) {
-        moodDisplay.textContent = "It's okay to have a setback — you're still doing your best!";
-      } else {
-        moodDisplay.textContent = "Nothing changed while you were away.";
-      }
-      return;
     }
 
-    const entry = changes[currentIndex];
-    runningTotal += entry.amount;
-    totalDisplay.textContent = runningTotal;
+    const entry = changes[i];
+    const amount = entry.amount;
+    const reason = entry.reason || "No reason";
+    const sign = amount > 0 ? "+" : "";
 
-    const sign = entry.amount > 0 ? "+" : "";
-    const cls = getPointEffectClass(entry.amount);
+    // Point float animation
+    showPointFloat(`${sign}${amount}`, amount, msg, true);
+    playPointSound(amount);
 
-    const line = document.createElement("div");
-    line.className = `point-float ${cls}`;
-    line.style.position = "relative";
-    line.style.margin = "0.3em 0";
-    line.textContent = `${sign}${entry.amount} — ${entry.reason}`;
-    msg.appendChild(line);
+    const reasonText = document.createElement("div");
+    reasonText.textContent = reason;
+    reasonText.style.fontSize = "1em";
+    reasonText.style.opacity = "0.85";
+    reasonText.style.textAlign = "center";
+    reasonText.style.marginBottom = "1em";
+    msg.appendChild(reasonText);
 
-   showPointFloat(`${sign}${entry.amount}`, entry.amount, msg, true);
-
-   const abs = Math.abs(entry.amount);
-let sound;
-if (entry.amount < 0) {
-  sound = ["minus1", "minus5", "minus10", "minus20", "minus50"][Math.log2(abs)] || "minus1";
-} else {
-  sound = ["plus1", "plus5", "plus10", "plus20", "plus50"][Math.log2(abs)] || "plus1";
-}
-
-const audio = new Audio(`sounds/${sound}.mp3`);
-audio.play().catch(() => {});
-
-
-    currentIndex++;
-    setTimeout(playNext, 1100);
+    i++;
+    setTimeout(nextEntry, 1400);
   }
 
-  overlay.style.display = "flex";
-  setTimeout(playNext, 600);
+  nextEntry();
 }
 
 
