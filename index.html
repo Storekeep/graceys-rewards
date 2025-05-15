@@ -1016,26 +1016,32 @@ function awardPoints(amount) {
   showPointFloat(`${sign}${amount}`, amount);
   playPointSound(amount);
 }
-function showPointFloat(text, amount, container = document.body) {
-  const target = document.getElementById("totalPoints");
-  const rect = target.getBoundingClientRect();
-
+function showPointFloat(text, amount, container = document.body, centerOnScreen = false) {
   const div = document.createElement("div");
   const effectClass = getPointEffectClass(amount);
   div.className = "point-float " + effectClass;
   div.textContent = text;
   container.appendChild(div);
 
-  const floatWidth = div.offsetWidth;
-  const centerX = window.innerWidth / 2;
+  let centerX, topY;
 
-  const verticalOffset = amount < 0 ? 30 : -10;
-  const topY = window.innerHeight / 2 + verticalOffset;
+  if (centerOnScreen) {
+    const floatWidth = div.offsetWidth;
+    centerX = window.innerWidth / 2;
+    topY = window.innerHeight / 2 + (amount < 0 ? 30 : -10);
+    div.style.left = `${centerX - floatWidth / 2}px`;
+    div.style.top = `${topY}px`;
+  } else {
+    const target = document.getElementById("totalPoints");
+    const rect = target.getBoundingClientRect();
+    const floatWidth = div.offsetWidth;
+    centerX = rect.left + rect.width / 2 + window.scrollX;
+    topY = rect.top + window.scrollY + (amount < 0 ? 30 : -10);
+    div.style.left = `${centerX - floatWidth / 2}px`;
+    div.style.top = `${topY}px`;
+  }
 
-  div.style.left = `${centerX - floatWidth / 2}px`;
-  div.style.top = `${topY}px`;
   div.style.opacity = 1;
-
   div.style.animation = amount < 0 ? "floatDown 1s ease-out forwards" : "floatUp 1s ease-out forwards";
 
   setTimeout(() => div.remove(), 1000);
@@ -1164,7 +1170,8 @@ function showCatchupPopup(delta, changes) {
     line.textContent = `${sign}${entry.amount} — ${entry.reason}`;
     msg.appendChild(line);
 
-    showPointFloat(`${sign}${entry.amount}`, entry.amount);
+   showPointFloat(`${sign}${entry.amount}`, entry.amount, msg, true);
+
    const abs = Math.abs(entry.amount);
 let sound;
 if (entry.amount < 0) {
