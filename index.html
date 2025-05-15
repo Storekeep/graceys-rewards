@@ -1008,32 +1008,27 @@ function awardPoints(amount) {
   showPointFloat(`${sign}${amount}`, amount);
   playPointSound(amount);
 }
-function showPointFloat(text, amount) {
-  const total = document.getElementById("totalPoints");
-  const rect = total.getBoundingClientRect();
+function showPointFloat(text, amount, container = document.body) {
+  const target = document.getElementById("totalPoints");
+  const rect = target.getBoundingClientRect();
 
   const div = document.createElement("div");
   const effectClass = getPointEffectClass(amount);
   div.className = "point-float " + effectClass;
   div.textContent = text;
-  document.body.appendChild(div);
+  container.appendChild(div);
 
   const floatWidth = div.offsetWidth;
-  const centerX = rect.left + rect.width / 2 + window.scrollX;
+  const centerX = window.innerWidth / 2;
 
   const verticalOffset = amount < 0 ? 30 : -10;
-  const topY = rect.top + window.scrollY + verticalOffset;
+  const topY = window.innerHeight / 2 + verticalOffset;
 
   div.style.left = `${centerX - floatWidth / 2}px`;
   div.style.top = `${topY}px`;
   div.style.opacity = 1;
 
-  // Choose animation
-  if (amount < 0) {
-    div.style.animation = "floatDown 1s ease-out forwards";
-  } else {
-    div.style.animation = "floatUp 1s ease-out forwards";
-  }
+  div.style.animation = amount < 0 ? "floatDown 1s ease-out forwards" : "floatUp 1s ease-out forwards";
 
   setTimeout(() => div.remove(), 1000);
 }
@@ -1106,7 +1101,17 @@ function showCatchupPopup(delta, changes) {
     msg.appendChild(line);
 
     showPointFloat(`${sign}${entry.amount}`, entry.amount);
-    playPointSound(entry.amount);
+   const abs = Math.abs(entry.amount);
+let sound;
+if (entry.amount < 0) {
+  sound = ["minus1", "minus5", "minus10", "minus20", "minus50"][Math.log2(abs)] || "minus1";
+} else {
+  sound = ["plus1", "plus5", "plus10", "plus20", "plus50"][Math.log2(abs)] || "plus1";
+}
+
+const audio = new Audio(`sounds/${sound}.mp3`);
+audio.play().catch(() => {});
+
 
     currentIndex++;
     setTimeout(playNext, 1100);
