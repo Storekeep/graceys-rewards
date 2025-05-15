@@ -1065,6 +1065,7 @@ function playPointSound(amount) {
   }
   
 localStorage.setItem("lastSeenTimestamp", Date.now());
+}
 function showCatchupPopup(delta, changes) {
   const overlay = document.getElementById("catchupOverlay");
   const msg = document.getElementById("catchupMessage");
@@ -1115,18 +1116,6 @@ function showCatchupPopup(delta, changes) {
   setTimeout(playNext, 600);
 }
 
-
-msg.innerHTML = `
-  <div style="font-size:1.4em;">While you were away...</div>
-  <div class="point-float ${effectClass}" style="position:relative; font-size:2em; margin: 0.5em 0;">${sign}${delta}</div>
-  <div style="margin: 0.6em 0; font-size: 1.2em; color: #ffda75;">
-    Total Points: <strong>${totalPoints}</strong>
-  </div>
-  ${list}
-`;
-
-  overlay.style.display = "flex";
-}
 
 function closeCatchupPopup() {
   document.getElementById("catchupOverlay").style.display = "none";
