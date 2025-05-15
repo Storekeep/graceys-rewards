@@ -655,27 +655,33 @@ function setupRefs() {
   refRewards = db.ref(devMode ? "dev_rewards" : "rewards");
 
   refPoints.on("value", snap => {
-   totalPoints = snap.val() || 0;
+  const newTotal = snap.val() || 0;
 
-if (!popupShowing && !editUnlocked && lastSeenPoints !== 0 && lastSeenPoints !== totalPoints) {
-  refLog.once("value").then(snap => {
-    const logs = snap.val() || [];
-    const changes = logs.filter(log => {
-      const ts = log.timestamp || 0;
-      return ts > (localStorage.getItem("lastSeenTimestamp") || 0);
+  if (!popupShowing && !editUnlocked) {
+    const lastSeenTimestamp = parseInt(localStorage.getItem("lastSeenTimestamp")) || 0;
+    
+    refLog.once("value").then(snap => {
+      const logs = snap.val() || [];
+      const changes = logs.filter(log => {
+        const ts = log.timestamp || 0;
+        return ts > lastSeenTimestamp;
+      });
+
+      if (changes.length > 0) {
+        const delta = changes.reduce((sum, entry) => sum + entry.amount, 0);
+        showCatchupPopup(delta, changes);
+      }
     });
-    showCatchupPopup(totalPoints - lastSeenPoints, changes);
-  });
-}
-localStorage.setItem("lastSeenPoints", totalPoints);
+  }
 
-    totalPoints = snap.val() || 0;
-   const pointsEl = document.getElementById("totalPoints");
-pointsEl.textContent = totalPoints;
-pointsEl.classList.add("animate");
-setTimeout(() => pointsEl.classList.remove("animate"), 400);
-    updateInventory();
-  });
+  totalPoints = newTotal;
+  const pointsEl = document.getElementById("totalPoints");
+  pointsEl.textContent = totalPoints;
+  pointsEl.classList.add("animate");
+  setTimeout(() => pointsEl.classList.remove("animate"), 400);
+  updateInventory();
+});
+
 
   refLog.on("value", snap => {
     const logs = snap.val() || [];
@@ -994,6 +1000,7 @@ function awardPoints(amount) {
   refLog.once("value").then(snap => {
     const current = snap.val() || [];
    current.push({ amount, reason, timestamp: Date.now() });
+
     refLog.set(current);
   });
 
@@ -1088,6 +1095,9 @@ function closeCatchupPopup() {
 localStorage.setItem("lastSeenTimestamp", Date.now());
 }
 setupRefs();
+window.addEventListener("beforeunload", () => {
+  localStorage.setItem("lastSeenTimestamp", Date.now());
+});
 </script>
 <audio id="pointSound" src="sounds/point.wav" preload="auto"></audio>
 <div id="pointDelta" style="
