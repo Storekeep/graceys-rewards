@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gracey's Rewards</title>
@@ -615,6 +616,19 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
+  const pointSounds = {
+  plus1: new Audio("sounds/plus1.mp3"),
+  plus5: new Audio("sounds/plus5.mp3"),
+  plus10: new Audio("sounds/plus10.mp3"),
+  plus20: new Audio("sounds/plus20.mp3"),
+  plus50: new Audio("sounds/plus50.mp3"),
+  minus1: new Audio("sounds/minus1.mp3"),
+  minus5: new Audio("sounds/minus5.mp3"),
+  minus10: new Audio("sounds/minus10.mp3"),
+  minus20: new Audio("sounds/minus20.mp3"),
+  minus50: new Audio("sounds/minus50.mp3")
+};
+
 const firebaseConfig = {
   apiKey: "AIzaSyCVxmCeRSheujRlo2ddOcUSaNYx1pq1gFY",
   authDomain: "gracey-s-rewards.firebaseapp.com",
@@ -743,6 +757,8 @@ function handleDevToggle() {
 }
 
 function checkPassword() {
+  primeAudio(); // <-- this line
+
   const pass = document.getElementById("passwordInput").value;
   if (pass === "ILoveGracey") {
     editUnlocked = true;
@@ -752,6 +768,24 @@ function checkPassword() {
   } else {
     alert("Incorrect password.");
   }
+}
+function playPointSound(amount) {
+  let key;
+  const abs = Math.abs(amount);
+
+  if (amount < 0) {
+    key = `minus${abs}`;
+  } else {
+    key = `plus${amount}`;
+  }
+
+  const audio = pointSounds[key];
+  if (audio) {
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+  }
+
+  localStorage.setItem("lastSeenTimestamp", Date.now());
 }
 
 
@@ -1190,6 +1224,11 @@ function nextEntry() {
 
 function closeCatchupPopup() {
   document.getElementById("catchupOverlay").style.display = "none";
+}
+function primeAudio() {
+  Object.values(pointSounds).forEach(audio => {
+    audio.play().then(() => audio.pause()).catch(() => {});
+  });
 }
 
 setupRefs();
