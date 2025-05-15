@@ -1063,7 +1063,10 @@ function playPointSound(amount) {
   if (sound) {
     new Audio(`sounds/${sound}.mp3`).play().catch(() => {});
   }
-  function showCatchupPopup(delta, changes) {
+  
+localStorage.setItem("lastSeenTimestamp", Date.now());
+}
+function showCatchupPopup(delta, changes) {
   const overlay = document.getElementById("catchupOverlay");
   const msg = document.getElementById("catchupMessage");
 
@@ -1088,12 +1091,10 @@ function playPointSound(amount) {
   overlay.style.display = "flex";
 }
 
-
 function closeCatchupPopup() {
   document.getElementById("catchupOverlay").style.display = "none";
 }
-localStorage.setItem("lastSeenTimestamp", Date.now());
-}
+
 setupRefs();
 window.addEventListener("beforeunload", () => {
   localStorage.setItem("lastSeenTimestamp", Date.now());
@@ -1116,7 +1117,7 @@ window.addEventListener("beforeunload", () => {
 "></div>
 <div id="catchupOverlay" style="display:none;">
   <div id="catchupPopup">
-    <div id="catchupMessage" style="margin-bottom: 1em;"></div>
+    <div id="catchupMessage"></div>
     <button onclick="closeCatchupPopup()">Got it</button>
   </div>
 </div>
