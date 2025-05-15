@@ -1095,14 +1095,81 @@ function showCatchupPopup(delta, changes) {
   let i = 0;
   function nextEntry() {
     if (i >= changes.length) {
-      const finalMsg = document.createElement("div");
-      finalMsg.style.marginTop = "1em";
-      finalMsg.style.fontSize = "1.2em";
-      finalMsg.style.color = delta >= 0 ? "#a0ffb2" : "#ff9999";
-      finalMsg.textContent = delta >= 0
-        ? "You're making progress — keep it going! 🌟"
-        : "A few setbacks... you got this next time 💪";
-      msg.appendChild(finalMsg);
+    const finalMsg = document.createElement("div");
+finalMsg.style.marginTop = "1em";
+finalMsg.style.fontSize = "1.2em";
+finalMsg.style.textAlign = "center";
+
+// Mood messages by tier
+const moodMessages = {
+  good: [
+    "You're on a roll today! 🚀",
+    "That’s the spirit — keep going!",
+    "Nice work — Gracey would be proud!",
+    "Killing it lately 🔥",
+    "Solid effort. Keep pushing 💪"
+  ],
+  great: [
+    "You crushed it! 💥",
+    "This is some serious progress! 🌟",
+    "Legendary stuff right there 😎",
+    "Absolutely unstoppable today.",
+    "You went beast mode."
+  ],
+  okay: [
+    "Not bad, not bad 👌",
+    "Making moves, even if they're small!",
+    "Tiny steps forward still count!",
+    "Momentum’s building. Keep it up.",
+    "Some days just click!"
+  ],
+  weak: [
+    "A little slip-up, huh?",
+    "Could’ve been better...",
+    "Eh. We’ve seen better days.",
+    "You’re slipping a little.",
+    "Not your best, be honest."
+  ],
+  bad: [
+    "I’m not impressed. 😒",
+    "This is looking rough.",
+    "Yeah... no. Not good.",
+    "Seriously?",
+    "Try harder next time."
+  ],
+  awful: [
+    "I'm actually disappointed. 😔",
+    "What happened out there?",
+    "Gracey is shaking her head.",
+    "You sabotaged yourself. 😶",
+    "No excuses. This was bad."
+  ]
+};
+
+// Choose tier
+let moodTier;
+if (delta >= 30) {
+  moodTier = "great";
+} else if (delta >= 10) {
+  moodTier = "good";
+} else if (delta > 0) {
+  moodTier = "okay";
+} else if (delta <= -30) {
+  moodTier = "awful";
+} else if (delta <= -10) {
+  moodTier = "bad";
+} else {
+  moodTier = "weak";
+}
+
+// Choose random message
+const messages = moodMessages[moodTier];
+const moodText = messages[Math.floor(Math.random() * messages.length)];
+finalMsg.textContent = moodText;
+finalMsg.style.color = delta >= 0 ? "#a0ffb2" : "#ff6666";
+
+msg.appendChild(finalMsg);
+
       return;
     }
 
