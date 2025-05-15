@@ -1065,22 +1065,56 @@ function playPointSound(amount) {
   }
   
 localStorage.setItem("lastSeenTimestamp", Date.now());
-}
 function showCatchupPopup(delta, changes) {
   const overlay = document.getElementById("catchupOverlay");
   const msg = document.getElementById("catchupMessage");
+  const totalDisplay = document.getElementById("catchupTotal");
+  const moodDisplay = document.getElementById("catchupMood");
 
-  const sign = delta > 0 ? "+" : "";
-  const effectClass = getPointEffectClass(delta);
-  let list = "";
+  let currentIndex = 0;
+  let runningTotal = totalPoints - delta;
+  totalDisplay.textContent = runningTotal;
+  msg.innerHTML = "";
+  moodDisplay.textContent = "";
 
-  if (Array.isArray(changes)) {
-    list = changes.map(c => {
-      const s = c.amount > 0 ? "+" : "";
-      const cls = c.amount > 0 ? "fx-glow" : "fx-minus10";
-      return `<div class="${cls}" style="margin: 5px 0;">${s}${c.amount} — ${c.reason}</div>`;
-    }).join("");
+  function playNext() {
+    if (currentIndex >= changes.length) {
+      // Final mood message
+      if (delta > 0) {
+        moodDisplay.textContent = "You're doing great — keep it going!";
+      } else if (delta < 0) {
+        moodDisplay.textContent = "It's okay to have a setback — you're still doing your best!";
+      } else {
+        moodDisplay.textContent = "Nothing changed while you were away.";
+      }
+      return;
+    }
+
+    const entry = changes[currentIndex];
+    runningTotal += entry.amount;
+    totalDisplay.textContent = runningTotal;
+
+    const sign = entry.amount > 0 ? "+" : "";
+    const cls = getPointEffectClass(entry.amount);
+
+    const line = document.createElement("div");
+    line.className = `point-float ${cls}`;
+    line.style.position = "relative";
+    line.style.margin = "0.3em 0";
+    line.textContent = `${sign}${entry.amount} — ${entry.reason}`;
+    msg.appendChild(line);
+
+    showPointFloat(`${sign}${entry.amount}`, entry.amount);
+    playPointSound(entry.amount);
+
+    currentIndex++;
+    setTimeout(playNext, 1100);
   }
+
+  overlay.style.display = "flex";
+  setTimeout(playNext, 600);
+}
+
 
 msg.innerHTML = `
   <div style="font-size:1.4em;">While you were away...</div>
@@ -1120,7 +1154,10 @@ window.addEventListener("beforeunload", () => {
 "></div>
 <div id="catchupOverlay" style="display:none;">
   <div id="catchupPopup">
+    <div style="font-size:1.3em;">While you were away...</div>
+    <div id="catchupTotal" style="font-size: 2.5em; margin: 0.5em 0; color: #ffda75;"></div>
     <div id="catchupMessage"></div>
+    <div id="catchupMood" style="font-size: 1.2em; margin-top: 1em;"></div>
     <button onclick="closeCatchupPopup()">Got it</button>
   </div>
 </div>
