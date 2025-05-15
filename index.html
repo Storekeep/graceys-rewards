@@ -1093,106 +1093,96 @@ function showCatchupPopup(delta, changes) {
   overlay.style.display = "flex";
 
   let i = 0;
-  function nextEntry() {
-    if (i >= changes.length) {
+function nextEntry() {
+  if (i >= changes.length) {
     const finalMsg = document.createElement("div");
-finalMsg.style.marginTop = "1em";
-finalMsg.style.fontSize = "1.2em";
-finalMsg.style.textAlign = "center";
+    finalMsg.style.marginTop = "1em";
+    finalMsg.style.fontSize = "1.2em";
+    finalMsg.style.textAlign = "center";
 
-// Mood messages by tier
-const moodMessages = {
-  good: [
-    "You're on a roll today! 🚀",
-    "That’s the spirit — keep going!",
-    "Nice work — Gracey would be proud!",
-    "Killing it lately 🔥",
-    "Solid effort. Keep pushing 💪"
-  ],
-  great: [
-    "You crushed it! 💥",
-    "This is some serious progress! 🌟",
-    "Legendary stuff right there 😎",
-    "Absolutely unstoppable today.",
-    "You went beast mode."
-  ],
-  okay: [
-    "Not bad, not bad 👌",
-    "Making moves, even if they're small!",
-    "Tiny steps forward still count!",
-    "Momentum’s building. Keep it up.",
-    "Some days just click!"
-  ],
-  weak: [
-    "A little slip-up, huh?",
-    "Could’ve been better...",
-    "Eh. We’ve seen better days.",
-    "You’re slipping a little.",
-    "Not your best, be honest."
-  ],
-  bad: [
-    "I’m not impressed. 😒",
-    "This is looking rough.",
-    "Yeah... no. Not good.",
-    "Seriously?",
-    "Try harder next time."
-  ],
-  awful: [
-    "I'm actually disappointed. 😔",
-    "What happened out there?",
-    "Gracey is shaking her head.",
-    "You sabotaged yourself. 😶",
-    "No excuses. This was bad."
-  ]
-};
+    const moodMessages = {
+      good: [
+        "You're on a roll today! 🚀",
+        "That’s the spirit — keep going!",
+        "Nice work — Gracey would be proud!",
+        "Killing it lately 🔥",
+        "Solid effort. Keep pushing 💪"
+      ],
+      great: [
+        "You crushed it! 💥",
+        "This is some serious progress! 🌟",
+        "Legendary stuff right there 😎",
+        "Absolutely unstoppable today.",
+        "You went beast mode."
+      ],
+      okay: [
+        "Not bad, not bad 👌",
+        "Making moves, even if they're small!",
+        "Tiny steps forward still count!",
+        "Momentum’s building. Keep it up.",
+        "Some days just click!"
+      ],
+      weak: [
+        "A little slip-up, huh?",
+        "Could’ve been better...",
+        "Eh. We’ve seen better days.",
+        "You’re slipping a little.",
+        "Not your best, be honest."
+      ],
+      bad: [
+        "I'm not impressed. 😒",
+        "This is looking rough.",
+        "Yeah... no. Not good.",
+        "Seriously?",
+        "Try harder next time."
+      ],
+      awful: [
+        "I'm actually disappointed. 😔",
+        "What happened out there?",
+        "I'm shaking my head.",
+        "You sabotaged yourself. 😶",
+        "No excuses. This was bad."
+      ]
+    };
 
-// Choose tier
-let moodTier;
-if (delta >= 30) {
-  moodTier = "great";
-} else if (delta >= 10) {
-  moodTier = "good";
-} else if (delta > 0) {
-  moodTier = "okay";
-} else if (delta <= -30) {
-  moodTier = "awful";
-} else if (delta <= -10) {
-  moodTier = "bad";
-} else {
-  moodTier = "weak";
+    let moodTier;
+    if (delta >= 30) moodTier = "great";
+    else if (delta >= 10) moodTier = "good";
+    else if (delta > 0) moodTier = "okay";
+    else if (delta <= -30) moodTier = "awful";
+    else if (delta <= -10) moodTier = "bad";
+    else moodTier = "weak";
+
+    const messages = moodMessages[moodTier];
+    const moodText = messages[Math.floor(Math.random() * messages.length)];
+    finalMsg.textContent = moodText;
+    finalMsg.style.color = delta >= 0 ? "#a0ffb2" : "#ff6666";
+    msg.appendChild(finalMsg);
+    return;
+  }
+
+  const entry = changes[i];
+  const amount = entry.amount;
+  const reason = entry.reason || "No reason";
+  const sign = amount > 0 ? "+" : "";
+
+  showPointFloat(`${sign}${amount}`, amount, msg, true);
+  playPointSound(amount);
+
+  const reasonText = document.createElement("div");
+  reasonText.style.fontSize = "1em";
+  reasonText.style.fontWeight = "bold";
+  reasonText.style.margin = "0.3em 0";
+  reasonText.style.textAlign = "center";
+  reasonText.textContent = `${sign}${amount} — ${reason}`;
+  reasonText.style.color = amount < 0 ? "#ff4b4b" : "#a0ffb2";
+
+  msg.appendChild(reasonText);
+
+  i++;
+  setTimeout(nextEntry, 1400);
 }
 
-// Choose random message
-const messages = moodMessages[moodTier];
-const moodText = messages[Math.floor(Math.random() * messages.length)];
-finalMsg.textContent = moodText;
-finalMsg.style.color = delta >= 0 ? "#a0ffb2" : "#ff6666";
-
-msg.appendChild(finalMsg);
-
-      return;
-    }
-
-    const entry = changes[i];
-    const amount = entry.amount;
-    const reason = entry.reason || "No reason";
-    const sign = amount > 0 ? "+" : "";
-
-    // Point float animation
-    showPointFloat(`${sign}${amount}`, amount, msg, true);
-    playPointSound(amount);
-
-    const reasonText = document.createElement("div");
-    reasonText.textContent = reason;
-    reasonText.style.fontSize = "1em";
-    reasonText.style.opacity = "0.85";
-    reasonText.style.textAlign = "center";
-    reasonText.style.marginBottom = "1em";
-    msg.appendChild(reasonText);
-
-    i++;
-    setTimeout(nextEntry, 1400);
-  }
 
   nextEntry();
 }
