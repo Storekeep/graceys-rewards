@@ -1075,9 +1075,7 @@ function playPointSound(amount) {
   if (sound) {
     new Audio(`sounds/${sound}.mp3`).play().catch(() => {});
   }
-  
-localStorage.setItem("lastSeenTimestamp", Date.now());
-function showCatchupPopup(delta, changes) {
+  function showCatchupPopup(delta, changes) {
   const overlay = document.getElementById("catchupOverlay");
   const popup = document.getElementById("catchupPopup");
   const msg = document.getElementById("catchupMessage");
@@ -1111,6 +1109,8 @@ function showCatchupPopup(delta, changes) {
       msg.appendChild(finalMsg);
       return;
     }
+localStorage.setItem("lastSeenTimestamp", Date.now());
+
 
     const entry = changes[i];
     const amount = entry.amount;
