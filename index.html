@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gracey's Rewards</title>
   <style>
+    #catchupTotal {
+  text-align: center;
+  font-size: 3em;
+  font-weight: bold;
+  color: #ffda75;
+  text-shadow: 0 0 10px #fff38a;
+  margin: 0.4em 0;
+}
     .effect-overlay {
   opacity: 1;
   transition: opacity 2s ease;
@@ -1060,18 +1068,74 @@ function playPointSound(amount) {
   }
   
 localStorage.setItem("lastSeenTimestamp", Date.now());
-}
 function showCatchupPopup(delta, changes) {
   const overlay = document.getElementById("catchupOverlay");
+  const popup = document.getElementById("catchupPopup");
   const msg = document.getElementById("catchupMessage");
-  const totalDisplay = document.getElementById("catchupTotal");
-  const moodDisplay = document.getElementById("catchupMood");
-
-  let currentIndex = 0;
-  let runningTotal = totalPoints - delta;
-  totalDisplay.textContent = runningTotal;
   msg.innerHTML = "";
-  moodDisplay.textContent = "";
+
+  // Add large centered total points
+  const totalEl = document.createElement("div");
+  totalEl.textContent = totalPoints;
+  totalEl.id = "catchupTotal";
+  totalEl.style.fontSize = "3em";
+  totalEl.style.margin = "0.4em 0";
+  totalEl.style.color = "#ffda75";
+  totalEl.style.textShadow = "0 0 10px #fff38a";
+  msg.appendChild(totalEl);
+
+  // Show popup
+  overlay.style.display = "flex";
+
+  // Play entries one at a time
+  let i = 0;
+  function nextEntry() {
+    if (i >= changes.length) {
+      // Final message
+      const finalMsg = document.createElement("div");
+      finalMsg.style.marginTop = "1em";
+      finalMsg.style.fontSize = "1.2em";
+      finalMsg.style.color = delta >= 0 ? "#a0ffb2" : "#ff9999";
+      finalMsg.textContent = delta >= 0
+        ? "You're making progress — keep it going! 🌟"
+        : "A few setbacks... you got this next time 💪";
+      msg.appendChild(finalMsg);
+      return;
+    }
+
+    const entry = changes[i];
+    const amount = entry.amount;
+    const reason = entry.reason || "No reason";
+    const sign = amount > 0 ? "+" : "";
+    const effectClass = getPointEffectClass(amount);
+
+    // Show floating animation
+    const float = document.createElement("div");
+    float.className = "point-float " + effectClass;
+    float.textContent = `${sign}${amount}`;
+    float.style.position = "relative";
+    float.style.fontSize = "2em";
+    float.style.margin = "0.3em 0";
+    msg.appendChild(float);
+
+    // Sound effect
+    playPointSound(amount);
+
+    // Also show reason below
+    const reasonText = document.createElement("div");
+    reasonText.textContent = `— ${reason}`;
+    reasonText.style.fontSize = "1em";
+    reasonText.style.opacity = "0.8";
+    reasonText.style.marginBottom = "0.8em";
+    msg.appendChild(reasonText);
+
+    // Wait then move to next
+    i++;
+    setTimeout(nextEntry, 1400); // delay between entries
+  }
+
+  nextEntry(); // Start the loop
+}
 
   function playNext() {
     if (currentIndex >= changes.length) {
@@ -1148,13 +1212,11 @@ window.addEventListener("beforeunload", () => {
 "></div>
 <div id="catchupOverlay" style="display:none;">
   <div id="catchupPopup">
-    <div style="font-size:1.3em;">While you were away...</div>
-    <div id="catchupTotal" style="font-size: 2.5em; margin: 0.5em 0; color: #ffda75;"></div>
     <div id="catchupMessage"></div>
-    <div id="catchupMood" style="font-size: 1.2em; margin-top: 1em;"></div>
     <button onclick="closeCatchupPopup()">Got it</button>
   </div>
 </div>
+
 
 </body>
 </html>
