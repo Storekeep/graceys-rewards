@@ -1026,14 +1026,12 @@ function showPointFloat(text, amount, container = document.body, centerOnScreen 
   let centerX, topY;
 
   if (centerOnScreen) {
-    // Float in center of screen (for popup)
     const floatWidth = div.offsetWidth;
     centerX = window.innerWidth / 2;
     topY = window.innerHeight / 2 + (amount < 0 ? 30 : -10);
     div.style.left = `${centerX - floatWidth / 2}px`;
     div.style.top = `${topY}px`;
   } else {
-    // Float near the totalPoints counter (main screen)
     const target = document.getElementById("totalPoints");
     const rect = target.getBoundingClientRect();
     const floatWidth = div.offsetWidth;
@@ -1075,6 +1073,7 @@ function playPointSound(amount) {
   if (sound) {
     new Audio(`sounds/${sound}.mp3`).play().catch(() => {});
   }
+  
   function showCatchupPopup(delta, changes) {
   const overlay = document.getElementById("catchupOverlay");
   const popup = document.getElementById("catchupPopup");
@@ -1113,27 +1112,22 @@ localStorage.setItem("lastSeenTimestamp", Date.now());
 
 
     const entry = changes[i];
-    const amount = entry.amount;
-    const reason = entry.reason || "No reason";
-    const sign = amount > 0 ? "+" : "";
-    const effectClass = getPointEffectClass(amount);
+const amount = entry.amount;
+const reason = entry.reason || "No reason";
+const sign = amount > 0 ? "+" : "";
 
-    // Show floating animation
-    // Show floating animation using the real float function (centered in popup)
-showPointFloat(`${sign}${amount}`, amount, msg, true);
+showPointFloat(`${sign}${amount}`, amount, msg, true);  // 👈 this is what makes the animation appear
+playPointSound(amount);
 
-
-    // Sound effect
-    playPointSound(amount);
-
-    // Also show reason below
-   const reasonText = document.createElement("div");
+// Reason text
+const reasonText = document.createElement("div");
 reasonText.textContent = reason;
 reasonText.style.fontSize = "1em";
 reasonText.style.opacity = "0.85";
 reasonText.style.textAlign = "center";
 reasonText.style.marginBottom = "1em";
 msg.appendChild(reasonText);
+
 
     // Wait then move to next
     i++;
