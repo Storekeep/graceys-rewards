@@ -1026,12 +1026,14 @@ function showPointFloat(text, amount, container = document.body, centerOnScreen 
   let centerX, topY;
 
   if (centerOnScreen) {
+    // Float in center of screen (for popup)
     const floatWidth = div.offsetWidth;
     centerX = window.innerWidth / 2;
     topY = window.innerHeight / 2 + (amount < 0 ? 30 : -10);
     div.style.left = `${centerX - floatWidth / 2}px`;
     div.style.top = `${topY}px`;
   } else {
+    // Float near the totalPoints counter (main screen)
     const target = document.getElementById("totalPoints");
     const rect = target.getBoundingClientRect();
     const floatWidth = div.offsetWidth;
@@ -1046,6 +1048,7 @@ function showPointFloat(text, amount, container = document.body, centerOnScreen 
 
   setTimeout(() => div.remove(), 1000);
 }
+
 
 function playPointSound(amount) {
   let sound;
@@ -1116,24 +1119,21 @@ function showCatchupPopup(delta, changes) {
     const effectClass = getPointEffectClass(amount);
 
     // Show floating animation
-    const float = document.createElement("div");
-    float.className = "point-float " + effectClass;
-    float.textContent = `${sign}${amount}`;
-    float.style.position = "relative";
-    float.style.fontSize = "2em";
-    float.style.margin = "0.3em 0";
-    msg.appendChild(float);
+    // Show floating animation using the real float function (centered in popup)
+showPointFloat(`${sign}${amount}`, amount, msg, true);
+
 
     // Sound effect
     playPointSound(amount);
 
     // Also show reason below
-    const reasonText = document.createElement("div");
-    reasonText.textContent = `— ${reason}`;
-    reasonText.style.fontSize = "1em";
-    reasonText.style.opacity = "0.8";
-    reasonText.style.marginBottom = "0.8em";
-    msg.appendChild(reasonText);
+   const reasonText = document.createElement("div");
+reasonText.textContent = reason;
+reasonText.style.fontSize = "1em";
+reasonText.style.opacity = "0.85";
+reasonText.style.textAlign = "center";
+reasonText.style.marginBottom = "1em";
+msg.appendChild(reasonText);
 
     // Wait then move to next
     i++;
