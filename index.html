@@ -285,11 +285,12 @@
     body.shaking {
       animation: shake 0.4s ease-in-out 3;
     }
-    .effect-overlay.magical {
+.effect-overlay.magical {
   background: radial-gradient(ellipse at center, rgba(179,240,255,0.5) 0%, rgba(0,0,0,0.6) 100%);
   animation: shimmerFade 1.5s ease-in-out infinite alternate;
-  
-  .effect-overlay.sunmoon {
+}
+
+.effect-overlay.sunmoon {
   background: radial-gradient(ellipse at center, rgba(255, 255, 200, 0.3), rgba(0, 0, 0, 0.6));
   animation: sunMoonPulse 2.5s ease-in-out;
   display: none;
@@ -327,8 +328,7 @@
   100% { transform: translateY(-100px); opacity: 0; }
 }
 
-
-}
+/* PATCH section — now safe and valid */
 .effect-overlay.patch {
   background: linear-gradient(135deg, #ffb3ec, #ffc1f3, #e0c3fc, #a3f0ff);
   animation: patchShimmer 1.6s ease-in-out infinite;
@@ -762,12 +762,13 @@ const rewardItems = [
   sound: "patch_sparkle_v2"
 },
 {
-  name: "Sun & Moon Touch Necklace",
+  name: "Sun & Moon Touch Necklaces", // ← updated name
   points: 143,
   img: "https://totwooglobal.store/cdn/shop/files/totwoo_necklace_81baf88d-fa78-4d34-9873-4c545670a546.png?v=1723804524&width=1800",
   class: "sunmoon",
-  sound: "sunmoon_harmony" // your trimmed audio file
+  sound: "sunmoon_harmony"
 }
+
 
 
   
