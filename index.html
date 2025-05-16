@@ -302,6 +302,14 @@
   pointer-events: none;
   overflow: hidden;
 }
+.effect-overlay.sunmoon {
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.effect-overlay.sunmoon.visible {
+  opacity: 0.85;
+}
 
 @keyframes sunMoonPulse {
   0% { transform: scale(1); opacity: 0.5; }
@@ -315,9 +323,14 @@
   height: 20px;
   border-radius: 50%;
   opacity: 0.9;
-  animation: floatOrb 9s ease-in-out forwards, pulseGlow 2.5s ease-in-out infinite, orbDrift 6s ease-in-out infinite;
+   transform: scale(0.2);
+  animation: floatOrb 2.8s ease-in-out forwards, pulseGlow 2.5s ease-in-out infinite, orbEntrance 0.8s ease-out;
 }
 
+@keyframes orbEntrance {
+  0% { transform: scale(0.2); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
 
 .sunmoon-orb.sun {
   background: radial-gradient(circle, #fffcc4, #f6e58d);
@@ -1157,6 +1170,8 @@ function showEffect(effectId) {
   const layer = document.getElementById("effect_sunmoon");
   layer.innerHTML = "";
   layer.style.display = "block";
+setTimeout(() => layer.classList.add("visible"), 50); // fade-in
+
 
   // Add sun and moon orbs
   for (let i = 0; i < 20; i++) {
@@ -1188,13 +1203,12 @@ for (let i = 0; i < 3; i++) {
 }
 
 
-  setTimeout(() => {
-  layer.classList.add("fadeout");
-}, t.fadeStart - t.start); // start fading
+ setTimeout(() => {
+  layer.classList.remove("visible"); // fade out
+}, t.fadeStart - t.start);
 
 setTimeout(() => {
   layer.style.display = "none";
-  layer.classList.remove("fadeout");
   layer.innerHTML = "";
 }, t.end - t.start);
 
