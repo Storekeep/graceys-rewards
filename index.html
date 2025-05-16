@@ -1167,12 +1167,10 @@ function showEffect(effectId) {
    if (effectId === "sunmoon") {
   const layer = document.getElementById("effect_sunmoon");
   layer.innerHTML = "";
- layer.classList.remove("visible");
+layer.classList.remove("visible");
 layer.style.display = "block";
-requestAnimationFrame(() => {
-  layer.classList.add("visible");
-});
-
+layer.offsetHeight; // <-- forces reflow properly
+layer.classList.add("visible");
 
   // Add orbs
   for (let i = 0; i < 20; i++) {
