@@ -318,15 +318,60 @@
   box-shadow: 0 0 12px #fffcc4;
 }
 
+.sunmoon-orb {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  opacity: 0.9;
+  animation: floatOrb 2.8s ease-in-out forwards, pulseGlow 1.8s ease-in-out infinite;
+  box-shadow: 0 0 15px #fffcc4, 0 0 30px #ffe599;
+  transform: scale(1);
+}
+
+.sunmoon-orb.sun {
+  background: radial-gradient(circle, #fffcc4, #f6e58d);
+}
+
 .sunmoon-orb.moon {
   background: radial-gradient(circle, #e0eaff, #b2caff);
-  box-shadow: 0 0 12px #cfdfff;
+  box-shadow: 0 0 12px #cfdfff, 0 0 24px #a6cfff;
 }
 
 @keyframes floatOrb {
-  0% { transform: translateY(0); opacity: 1; }
-  100% { transform: translateY(-100px); opacity: 0; }
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  
+  100% {
+    transform: translateY(-120px) scale(0.8);
+    opacity: 0;
+  }
+  
 }
+.sunmoon-sparkle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.7;
+  box-shadow: 0 0 10px #fff, 0 0 18px #fff;
+  animation: sparkleFlash 1.5s ease-in-out infinite;
+}
+
+@keyframes sparkleFlash {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50%      { opacity: 0.9; transform: scale(1.3); }
+}
+
+@keyframes pulseGlow {
+  0%   { box-shadow: 0 0 8px #fffcc4, 0 0 20px #ffe599; }
+  50%  { box-shadow: 0 0 16px #fffac1, 0 0 35px #ffd; }
+  100% { box-shadow: 0 0 8px #fffcc4, 0 0 20px #ffe599; }
+}
+
 
 /* PATCH section — now safe and valid */
 .effect-overlay.patch {
@@ -703,8 +748,7 @@
 <div id="effect_patch" class="effect-overlay"></div>
 <div id="effect_patch_particles" class="effect-overlay" style="pointer-events: none;"></div>
 <div id="effect_glimmer" class="effect-overlay" style="background: radial-gradient(circle, #ffe599, #fffac1, #a6d0ff);"></div>
-<div id="effect_sunmoon_harmony" class="effect-overlay sunmoon"></div>
-
+<div id="effect_sunmoon" class="effect-overlay sunmoon"></div>
 
 
 <!-- Firebase + App Script -->
@@ -1085,6 +1129,14 @@ function showEffect(effectId) {
         orb.style.animationDelay = (Math.random() * 1.2) + "s";
         layer.appendChild(orb);
       }
+for (let i = 0; i < 12; i++) {
+  const sparkle = document.createElement("div");
+  sparkle.className = "sunmoon-sparkle";
+  sparkle.style.left = Math.random() * 100 + "vw";
+  sparkle.style.top = Math.random() * 100 + "vh";
+  sparkle.style.animationDelay = (Math.random() * 2) + "s";
+  layer.appendChild(sparkle);
+}
 
       setTimeout(() => {
         layer.style.display = "none";
