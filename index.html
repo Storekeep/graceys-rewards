@@ -1068,6 +1068,50 @@ if (effectId === "magical") {
       document.body.classList.add("shaking");
       document.body.classList.add("shadow-theme");
     }
+setTimeout(() => {
+  el.style.display = "block";
+  el.classList.remove("fadeout");
+
+  if (effectId === "ultimatepower") {
+    document.body.classList.add("shaking");
+    document.body.classList.add("shadow-theme");
+  }
+
+  // ✅ ADD THIS HERE:
+  if (effectId === "sunmoon") {
+    const layer = document.getElementById("effect_sunmoon");
+    layer.innerHTML = "";
+    layer.style.display = "block";
+
+    for (let i = 0; i < 18; i++) {
+      const orb = document.createElement("div");
+      orb.className = "sunmoon-orb " + (i % 2 === 0 ? "sun" : "moon");
+      orb.style.left = Math.random() * 100 + "vw";
+      orb.style.top = (60 + Math.random() * 20) + "vh";
+      orb.style.animationDelay = (Math.random() * 1.2) + "s";
+      layer.appendChild(orb);
+    }
+
+    setTimeout(() => {
+      layer.style.display = "none";
+      layer.innerHTML = "";
+    }, t.end - t.start); // match the timing
+  }
+
+  setTimeout(() => {
+    el.classList.add("fadeout");
+    if (effectId === "ultimatepower") {
+      document.body.classList.remove("shaking");
+      document.body.classList.remove("shadow-theme");
+    }
+  }, t.fadeStart - t.start);
+
+  setTimeout(() => {
+    el.style.display = "none";
+    el.classList.remove("fadeout");
+  }, t.end - t.start);
+
+}, t.start);
 
     setTimeout(() => {
       el.classList.add("fadeout");
@@ -1083,25 +1127,6 @@ if (effectId === "magical") {
     }, t.end - t.start);
 
   }, t.start);
-  if (effectId === "sunmoon") {
-  const layer = document.getElementById("effect_sunmoon");
-  layer.innerHTML = "";
-  layer.style.display = "block";
-
-  for (let i = 0; i < 18; i++) {
-    const orb = document.createElement("div");
-    orb.className = "sunmoon-orb " + (i % 2 === 0 ? "sun" : "moon");
-    orb.style.left = Math.random() * 100 + "vw";
-    orb.style.top = (60 + Math.random() * 20) + "vh";
-    orb.style.animationDelay = (Math.random() * 1.2) + "s";
-    layer.appendChild(orb);
-  }
-
-  setTimeout(() => {
-    layer.style.display = "none";
-    layer.innerHTML = "";
-  }, 4000); // effect duration
-}
 
 }
 function processPopupQueue() {
