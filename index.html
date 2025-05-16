@@ -303,8 +303,9 @@
   pointer-events: none;
   overflow: hidden;
   opacity: 0;
-  transition: opacity 1.2s ease;
+  transition: opacity 1.6s ease-in; /* ← CHANGED */
 }
+
 
 .effect-overlay.sunmoon.visible {
   opacity: 0.85;
@@ -1171,15 +1172,14 @@ function showEffect(effectId) {
   
   // Ensure it's reset first:
   layer.classList.remove("visible");
-  layer.style.display = "block";
-  layer.style.opacity = "0";  // force visible but transparent
+layer.style.display = "block";
+layer.style.opacity = "0"; // ← important for transition start
 
-  // Force reflow
-  void layer.offsetWidth;
+// Force reflow
+void layer.offsetWidth;
 
-  // Now trigger transition
-  layer.classList.add("visible");
-
+// Now fade in
+layer.classList.add("visible");
 
   // Add orbs
   for (let i = 0; i < 20; i++) {
