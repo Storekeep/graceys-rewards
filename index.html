@@ -1167,12 +1167,12 @@ function showEffect(effectId) {
    if (effectId === "sunmoon") {
   const layer = document.getElementById("effect_sunmoon");
   layer.innerHTML = "";
-  layer.style.display = "block";
+ layer.classList.remove("visible");
+layer.style.display = "block";
+requestAnimationFrame(() => {
+  layer.classList.add("visible");
+});
 
-  // ⬅️ Start fully transparent, then fade in
-  requestAnimationFrame(() => {
-    layer.classList.add("visible");
-  });
 
   // Add orbs
   for (let i = 0; i < 20; i++) {
