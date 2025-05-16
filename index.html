@@ -227,6 +227,11 @@
     .patch {
   color: #ffb3ec;
   text-shadow: 0 0 8px #fff, 0 0 15px #ff8ad4, 0 0 25px #ffd6f9;
+  .sunmoon {
+  color: #ffe599;
+  text-shadow: 0 0 8px #fffac1, 0 0 15px #a6d0ff;
+}
+
 }
     #itemModal {
       display: none;
@@ -284,6 +289,45 @@
   background: radial-gradient(ellipse at center, rgba(179,240,255,0.5) 0%, rgba(0,0,0,0.6) 100%);
   animation: shimmerFade 1.5s ease-in-out infinite alternate;
   
+  .effect-overlay.sunmoon {
+  background: radial-gradient(ellipse at center, rgba(255, 255, 200, 0.3), rgba(0, 0, 0, 0.6));
+  animation: sunMoonPulse 2.5s ease-in-out;
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1500;
+  pointer-events: none;
+}
+
+@keyframes sunMoonPulse {
+  0% { opacity: 0; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+  100% { opacity: 0; transform: scale(1); }
+}
+
+.sunmoon-orb {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: radial-gradient(circle, #fffcc4, #f6e58d);
+  border-radius: 50%;
+  animation: floatOrb 2s ease-in-out forwards;
+  box-shadow: 0 0 12px #fffcc4;
+}
+
+.sunmoon-orb.moon {
+  background: radial-gradient(circle, #e0eaff, #b2caff);
+  box-shadow: 0 0 12px #cfdfff;
+}
+
+@keyframes floatOrb {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-100px); opacity: 0; }
+}
+
+
 }
 .effect-overlay.patch {
   background: linear-gradient(135deg, #ffb3ec, #ffc1f3, #e0c3fc, #a3f0ff);
@@ -658,6 +702,9 @@
 <div id="effect_magical_particles" class="effect-overlay" style="pointer-events: none;"></div>
 <div id="effect_patch" class="effect-overlay"></div>
 <div id="effect_patch_particles" class="effect-overlay" style="pointer-events: none;"></div>
+<div id="effect_glimmer" class="effect-overlay" style="background: radial-gradient(circle, #ffe599, #fffac1, #a6d0ff);"></div>
+<div id="effect_sunmoon" class="effect-overlay sunmoon"></div>
+
 
 <!-- Firebase + App Script -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -713,7 +760,15 @@ const rewardItems = [
   img: "https://i.imgur.com/oqFl0vb.png",
   class: "patch",
   sound: "patch_sparkle_v2"
+},
+{
+  name: "Sun & Moon Touch Necklace",
+  points: 143,
+  img: "https://totwooglobal.store/cdn/shop/files/totwoo_necklace_81baf88d-fa78-4d34-9873-4c545670a546.png?v=1723804524&width=1800",
+  class: "sunmoon",
+  sound: "sunmoon_harmony" // your trimmed audio file
 }
+
 
   
 ];
@@ -1026,6 +1081,26 @@ if (effectId === "magical") {
     }, t.end - t.start);
 
   }, t.start);
+  if (effectId === "sunmoon") {
+  const layer = document.getElementById("effect_sunmoon");
+  layer.innerHTML = "";
+  layer.style.display = "block";
+
+  for (let i = 0; i < 18; i++) {
+    const orb = document.createElement("div");
+    orb.className = "sunmoon-orb " + (i % 2 === 0 ? "sun" : "moon");
+    orb.style.left = Math.random() * 100 + "vw";
+    orb.style.top = (60 + Math.random() * 20) + "vh";
+    orb.style.animationDelay = (Math.random() * 1.2) + "s";
+    layer.appendChild(orb);
+  }
+
+  setTimeout(() => {
+    layer.style.display = "none";
+    layer.innerHTML = "";
+  }, 4000); // effect duration
+}
+
 }
 function processPopupQueue() {
   if (popupShowing || popupQueue.length === 0) return;
