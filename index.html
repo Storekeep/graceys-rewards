@@ -1158,29 +1158,38 @@ function getPointEffectClass(amount) {
 
 function awardPoints(amount) {
   const reason = document.getElementById("reasonInput").value || "No reason";
+
+  // Special reward for Patch
   if (reason.toLowerCase().includes("patch") && !rewards.includes("Patch's Seal of Approval")) {
-  rewards.push("Patch's Seal of Approval");
-  refRewards.set(rewards);
-  popupQueue.push({
-    name: "Patch's Seal of Approval",
-    img: "https://i.imgur.com/oqFl0vb.png",  // <-- full version",
-    class: "patch",
-    sound: "patch_sparkle_v2"
-  });
-}
+    rewards.push("Patch's Seal of Approval");
+    refRewards.set(rewards);
+    popupQueue.push({
+      name: "Patch's Seal of Approval",
+      img: "https://i.imgur.com/oqFl0vb.png",
+      class: "patch",
+      sound: "patch_sparkle_v2"
+    });
+  }
+
   const newTotal = totalPoints + amount;
   refPoints.set(newTotal);
 
   refLog.once("value").then(snap => {
     const current = snap.val() || [];
-   current.push({ amount, reason, timestamp: Date.now() });
-
+    current.push({ amount, reason, timestamp: Date.now() });
     refLog.set(current);
   });
 
   const sign = amount > 0 ? "+" : "";
   showPointFloat(`${sign}${amount}`, amount);
-  playPointSound(amount);
+  
+  // Play point sound and delay reward popup
+  const soundDuration = playPointSoundWithDelay(amount);
+  
+  // Delay processing reward popup until point sound finishes
+  setTimeout(() => {
+    updateInventory(); // triggers reward popups from queue if any
+  }, soundDuration);
 }
 function showPointFloat(text, amount, container = document.body, centerOnScreen = false) {
   const div = document.createElement("div");
@@ -1214,7 +1223,7 @@ function showPointFloat(text, amount, container = document.body, centerOnScreen 
 }
 
 
-function playPointSound(amount) {
+function playPointSoundWithDelay(amount) {
   let sound;
   const abs = Math.abs(amount);
 
@@ -1237,13 +1246,17 @@ function playPointSound(amount) {
   }
 
   if (sound) {
-    new Audio(`sounds/${sound}.mp3`).play().catch(() => {});
+    const audio = new Audio(`sounds/${sound}.mp3`);
+    audio.play().catch(() => {});
+    localStorage.setItem("lastSeenTimestamp", Date.now());
+
+    // Return estimated duration in ms (safe guess)
+    return 1000;
   }
-  
-  
-    
-localStorage.setItem("lastSeenTimestamp", Date.now());
+
+  return 0;
 }
+
 function showCatchupPopup(delta, changes) {
   const overlay = document.getElementById("catchupOverlay");
   const popup = document.getElementById("catchupPopup");
