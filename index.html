@@ -1020,26 +1020,24 @@ function showPopup(item) {
 
   const audio = new Audio("sounds/" + item.sound + ".mp3");
 
-  // Full delay: wait for point sound (1s) + optional effect delay
-  const effectDelays = {
+  const delays = {
     ultimatepower: 1300,
-    sunmoon: 1000,
-    scream: 400,
-    bell: 500,
     angelhum: 200,
+    bell: 500,
     ding: 100,
     kiss: 200,
     magical: 1000,
-    patch: 0
+    scream: 400,
+    patch: 0,
+    sunmoon: 1000 // ✅ this is the new key
   };
 
-  const delay = effectDelays[item.sound] || 0;
+  const startDelay = delays[item.sound] || 0;
 
-  // Wait before showing popup AND playing audio
+  // Unified delay for effect, audio, and popup
   setTimeout(() => {
-    audio.play().catch(() => {});
     showEffect(item.sound);
-
+    audio.play().catch(() => {});
     popup.innerHTML = `
       <strong>You just earned:</strong><br>
       <span class="${item.class}">${item.name}</span><br>
@@ -1052,7 +1050,7 @@ function showPopup(item) {
       popupShowing = false;
       processPopupQueue();
     });
-  }, delay + 1000); // 1000ms = point sound buffer
+  }, startDelay + 1000); // add 1s for point sound finish
 }
 
 
@@ -1154,11 +1152,16 @@ function showEffect(effectId) {
     layer.appendChild(sparkle);
   }
 
-  // Hide effect after 9200ms
   setTimeout(() => {
-    layer.style.display = "none";
-    layer.innerHTML = "";
-  }, 9200);
+  layer.classList.add("fadeout");
+}, t.fadeStart - t.start); // start fading
+
+setTimeout(() => {
+  layer.style.display = "none";
+  layer.classList.remove("fadeout");
+  layer.innerHTML = "";
+}, t.end - t.start);
+
 }
 
 
