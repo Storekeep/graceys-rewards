@@ -1167,10 +1167,18 @@ function showEffect(effectId) {
    if (effectId === "sunmoon") {
   const layer = document.getElementById("effect_sunmoon");
   layer.innerHTML = "";
-layer.classList.remove("visible");
-layer.style.display = "block";
-layer.offsetHeight; // <-- forces reflow properly
-layer.classList.add("visible");
+  
+  // Ensure it's reset first:
+  layer.classList.remove("visible");
+  layer.style.display = "block";
+  layer.style.opacity = "0";  // force visible but transparent
+
+  // Force reflow
+  void layer.offsetWidth;
+
+  // Now trigger transition
+  layer.classList.add("visible");
+
 
   // Add orbs
   for (let i = 0; i < 20; i++) {
