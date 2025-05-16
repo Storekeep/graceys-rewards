@@ -301,8 +301,6 @@
   z-index: 1500;
   pointer-events: none;
   overflow: hidden;
-}
-.effect-overlay.sunmoon {
   opacity: 0;
   transition: opacity 1.2s ease;
 }
@@ -310,6 +308,7 @@
 .effect-overlay.sunmoon.visible {
   opacity: 0.85;
 }
+
 
 @keyframes sunMoonPulse {
   0% { transform: scale(1); opacity: 0.5; }
@@ -1165,15 +1164,17 @@ function showEffect(effectId) {
       document.body.classList.add("shadow-theme");
     }
 
-    // ✅ SUNMOON ORB EFFECT LOGIC — now inside the block
-    if (effectId === "sunmoon") {
+   if (effectId === "sunmoon") {
   const layer = document.getElementById("effect_sunmoon");
   layer.innerHTML = "";
   layer.style.display = "block";
-setTimeout(() => layer.classList.add("visible"), 50); // fade-in
 
+  // ⬅️ Start fully transparent, then fade in
+  requestAnimationFrame(() => {
+    layer.classList.add("visible");
+  });
 
-  // Add sun and moon orbs
+  // Add orbs
   for (let i = 0; i < 20; i++) {
     const orb = document.createElement("div");
     orb.className = "sunmoon-orb " + (i % 2 === 0 ? "sun" : "moon");
@@ -1192,26 +1193,27 @@ setTimeout(() => layer.classList.add("visible"), 50); // fade-in
     sparkle.style.animationDelay = (Math.random() * 2.5) + "s";
     layer.appendChild(sparkle);
   }
-  // Add ripple effects at center
-for (let i = 0; i < 3; i++) {
-  const ripple = document.createElement("div");
-  ripple.className = "sunmoon-ripple";
-  ripple.style.left = "calc(50% - 100px)";
-  ripple.style.top = "calc(50% - 100px)";
-  ripple.style.animationDelay = (i * 1.2) + "s";
-  layer.appendChild(ripple);
-}
 
+  // Add ripple
+  for (let i = 0; i < 3; i++) {
+    const ripple = document.createElement("div");
+    ripple.className = "sunmoon-ripple";
+    ripple.style.left = "calc(50% - 100px)";
+    ripple.style.top = "calc(50% - 100px)";
+    ripple.style.animationDelay = (i * 1.2) + "s";
+    layer.appendChild(ripple);
+  }
 
- setTimeout(() => {
-  layer.classList.remove("visible"); // fade out
-}, t.fadeStart - t.start);
+  // Fade out slowly
+  setTimeout(() => {
+    layer.classList.remove("visible");
+  }, t.fadeStart - t.start);
 
-setTimeout(() => {
-  layer.style.display = "none";
-  layer.innerHTML = "";
-}, t.end - t.start);
-
+  // Remove effect after done
+  setTimeout(() => {
+    layer.style.display = "none";
+    layer.innerHTML = "";
+  }, t.end - t.start);
 }
 
 
