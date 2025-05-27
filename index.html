@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gracey's Rewards</title>
@@ -1240,7 +1239,7 @@ layer.classList.add("visible");
   }, t.start);
 }
 function processPopupQueue() {
- if (popupShowing || catchupActive || popupQueue.length === 0) return;
+ if (popupShowing || popupQueue.length === 0 || catchupActive) return;
   popupShowing = true;
 
   const next = popupQueue.shift();
