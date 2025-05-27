@@ -826,6 +826,7 @@ let popupQueue = [];
 let popupShowing = false;
 let refPoints, refLog, refRewards;
 let totalPoints = 0;
+let catchupActive = false;
 
 const rewardItems = [
   { name: "Horror Anime T-Shirt", points: 60, img: "https://m.media-amazon.com/images/I/B1pppR4gVKL._CLa%7C2140%2C2000%7C91wBHUyvxuL.png%7C0%2C0%2C2140%2C2000%2B0.0%2C0.0%2C2140.0%2C2000.0_AC_SX679_.png", class: "horror", sound: "scream" },
@@ -1238,7 +1239,7 @@ layer.classList.add("visible");
   }, t.start);
 }
 function processPopupQueue() {
-  if (popupShowing || popupQueue.length === 0) return;
+ if (popupShowing || catchupActive || popupQueue.length === 0) return;
   popupShowing = true;
 
   const next = popupQueue.shift();
@@ -1398,6 +1399,7 @@ function playPointSoundWithDelay(amount) {
 }
 
 function showCatchupPopup(delta, changes) {
+  catchupActive = true;
   const overlay = document.getElementById("catchupOverlay");
   const popup = document.getElementById("catchupPopup");
   const msg = document.getElementById("catchupMessage");
@@ -1509,12 +1511,10 @@ function nextEntry() {
 
 function closeCatchupPopup() {
   document.getElementById("catchupOverlay").style.display = "none";
+  catchupActive = false;
+  processPopupQueue(); // resume reward queue
 }
-function primeAudio() {
-  Object.values(pointSounds).forEach(audio => {
-    audio.play().then(() => audio.pause()).catch(() => {});
-  });
-}
+
 function delayedPopup(item, delayMs) {
   setTimeout(() => {
     showPopup(item);
