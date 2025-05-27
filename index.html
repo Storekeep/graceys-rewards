@@ -951,18 +951,20 @@ function handleDevToggle() {
 }
 
 function checkPassword() {
-  primeAudio(); // <-- this line
+  primeAudio();
 
   const pass = document.getElementById("passwordInput").value;
   if (pass === "ILoveGracey") {
     editUnlocked = true;
     document.getElementById("passwordPrompt").style.display = "none";
     document.getElementById("editControls").style.display = "block";
+    setupRefs(); // ⬅️ make sure this is here
     updateLogDeleteButtons();
   } else {
     alert("Incorrect password.");
   }
 }
+
 function playPointSound(amount) {
   let key;
   const abs = Math.abs(amount);
