@@ -959,18 +959,24 @@ function handleDevToggle() {
 function checkPassword() {
   const pass = document.getElementById("passwordInput").value;
   if (pass === "ILoveGracey") {
-    editUnlocked = true;
-    devMode = false; // ⬅️ ensure this is off
-    document.getElementById("passwordPrompt").style.display = "none";
-    document.getElementById("editControls").style.display = "block";
-
-    clearRefs();  // ✅ clear old listeners
-    setupRefs();  // ✅ reconnect using the normal (non-dev) path
-    updateLogDeleteButtons();
+    // ✅ Sign in anonymously first:
+    firebase.auth().signInAnonymously()
+      .then(() => {
+        editUnlocked = true;
+        document.getElementById("passwordPrompt").style.display = "none";
+        document.getElementById("editControls").style.display = "block";
+        setupRefs();
+        updateLogDeleteButtons();
+      })
+      .catch((error) => {
+        console.error("Auth error:", error);
+        alert("Failed to authenticate. Check console for details.");
+      });
   } else {
     alert("Incorrect password.");
   }
 }
+
 
 
 function playPointSound(amount) {
