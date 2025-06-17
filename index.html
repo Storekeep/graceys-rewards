@@ -957,18 +957,21 @@ function handleDevToggle() {
 }
 
 function checkPassword() {
-
   const pass = document.getElementById("passwordInput").value;
   if (pass === "ILoveGracey") {
     editUnlocked = true;
+    devMode = false; // ⬅️ ensure this is off
     document.getElementById("passwordPrompt").style.display = "none";
     document.getElementById("editControls").style.display = "block";
-    setupRefs(); // ⬅️ make sure this is here
+
+    clearRefs();  // ✅ clear old listeners
+    setupRefs();  // ✅ reconnect using the normal (non-dev) path
     updateLogDeleteButtons();
   } else {
     alert("Incorrect password.");
   }
 }
+
 
 function playPointSound(amount) {
   let key;
