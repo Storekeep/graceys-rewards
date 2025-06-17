@@ -962,7 +962,7 @@ function handleDevToggle() {
 function checkPassword() {
   const pass = document.getElementById("passwordInput").value;
   if (pass === "ILoveGracey") {
-    // ✅ Sign in anonymously first:
+    // ✅ Sign in anonymously
     firebase.auth().signInAnonymously()
       .then(() => {
         editUnlocked = true;
@@ -979,6 +979,7 @@ function checkPassword() {
     alert("Incorrect password.");
   }
 }
+
 
 
 
