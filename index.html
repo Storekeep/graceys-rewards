@@ -856,40 +856,46 @@ const rewardItems = [
 
   
 ];
+function clearRefs() {
+  if (refPoints) refPoints.off();
+  if (refLog) refLog.off();
+  if (refRewards) refRewards.off();
+}
 
 function setupRefs() {
+  clearRefs(); // ✅ Ensure old listeners are removed first
+
   refPoints = db.ref(devMode ? "dev_points" : "points");
   refLog = db.ref(devMode ? "dev_log" : "log");
   refRewards = db.ref(devMode ? "dev_rewards" : "rewards");
 
   refPoints.on("value", snap => {
-  const newTotal = snap.val() || 0;
+    const newTotal = snap.val() || 0;
 
-  if (!popupShowing && !editUnlocked) {
-    const lastSeenTimestamp = parseInt(localStorage.getItem("lastSeenTimestamp")) || 0;
-    
-    refLog.once("value").then(snap => {
-      const logs = snap.val() || [];
-      const changes = logs.filter(log => {
-        const ts = log.timestamp || 0;
-        return ts > lastSeenTimestamp;
+    if (!popupShowing && !editUnlocked) {
+      const lastSeenTimestamp = parseInt(localStorage.getItem("lastSeenTimestamp")) || 0;
+
+      refLog.once("value").then(snap => {
+        const logs = snap.val() || [];
+        const changes = logs.filter(log => {
+          const ts = log.timestamp || 0;
+          return ts > lastSeenTimestamp;
+        });
+
+        if (changes.length > 0) {
+          const delta = changes.reduce((sum, entry) => sum + entry.amount, 0);
+          showCatchupPopup(delta, changes);
+        }
       });
+    }
 
-      if (changes.length > 0) {
-        const delta = changes.reduce((sum, entry) => sum + entry.amount, 0);
-        showCatchupPopup(delta, changes);
-      }
-    });
-  }
-
-  totalPoints = newTotal;
-  const pointsEl = document.getElementById("totalPoints");
-  pointsEl.textContent = totalPoints;
-  pointsEl.classList.add("animate");
-  setTimeout(() => pointsEl.classList.remove("animate"), 400);
-  updateInventory();
-});
-
+    totalPoints = newTotal;
+    const pointsEl = document.getElementById("totalPoints");
+    pointsEl.textContent = totalPoints;
+    pointsEl.classList.add("animate");
+    setTimeout(() => pointsEl.classList.remove("animate"), 400);
+    updateInventory();
+  });
 
   refLog.on("value", snap => {
     const logs = snap.val() || [];
@@ -898,16 +904,16 @@ function setupRefs() {
     logs.forEach((entry, i) => {
       const div = document.createElement("div");
       div.className = "log-entry";
-    const sign = entry.amount > 0 ? "+" : "";
-div.textContent = `${sign}${entry.amount} - ${entry.reason}`;
-div.style.color = entry.amount < 0 ? "#ff4b4b" : "#a0ffb2";
+      const sign = entry.amount > 0 ? "+" : "";
+      div.textContent = `${sign}${entry.amount} - ${entry.reason}`;
+      div.style.color = entry.amount < 0 ? "#ff4b4b" : "#a0ffb2";
 
       if (editUnlocked) {
-       const btn = document.createElement("button");
-btn.textContent = "✕";
-btn.style.cssText = "margin-left: 10px; background: crimson; color: white; border: none; border-radius: 4px; cursor: pointer;";
-btn.onclick = () => deleteEntry(i);
-div.appendChild(btn);
+        const btn = document.createElement("button");
+        btn.textContent = "✕";
+        btn.style.cssText = "margin-left: 10px; background: crimson; color: white; border: none; border-radius: 4px; cursor: pointer;";
+        btn.onclick = () => deleteEntry(i);
+        div.appendChild(btn);
       }
       logList.appendChild(div);
     });
@@ -918,6 +924,7 @@ div.appendChild(btn);
     updateInventory();
   });
 }
+
 function enterApp() {
   document.getElementById("startScreen").style.display = "none";
 
