@@ -1001,6 +1001,9 @@ function deleteEntry(index) {
     logs.splice(index, 1);
     refLog.set(logs);
    const newTotal = Math.max(0, totalPoints - entry.amount);
+   console.log("refPoints path:", refPoints.toString());
+console.log("refLog path:", refLog.toString());
+
 refPoints.set(newTotal);
 
   });
@@ -1323,6 +1326,9 @@ function awardPoints(amount) {
   }
 
   const newTotal = totalPoints + amount;
+  console.log("refPoints path:", refPoints.toString());
+console.log("refLog path:", refLog.toString());
+
   refPoints.set(newTotal);
 
   refLog.once("value").then(snap => {
